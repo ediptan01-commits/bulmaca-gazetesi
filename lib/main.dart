@@ -173,7 +173,35 @@ class _SearchGameState extends State<SearchGame>{
  @override void initState(){super.initState();restore();}
  Future<void> restore()async{final s=await Store.read('search_found');if(s!=null&&mounted){setState(()=>found=s.split('|').where((x)=>x.isNotEmpty).toSet());}}
  void tap(int r,int c){if(start==null){setState(()=>start=(r,c));return;}final a=start!;setState(()=>start=null);final dr=r-a.$1,dc=c-a.$2;final stepR=dr.sign,stepC=dc.sign;if(dr!=0&&dc!=0&&dr.abs()!=dc.abs())return;final len=dr.abs()>dc.abs()?dr.abs()+1:dc.abs()+1;final chars=<String>[],ids=<String>[];for(var i=0;i<len;i++){final y=a.$1+i*stepR,x=a.$2+i*stepC;chars.add(searchGrid[y][x]);ids.add('$y,$x');}final word=chars.join(),reversed=chars.reversed.join();final match=searchWords.where((w)=>normalize(w)==normalize(word)||normalize(w)==normalize(reversed));if(match.isNotEmpty){setState((){found.add(match.first);marked.addAll(ids);});Store.write('search_found',found.join('|'));if(found.length==searchWords.length)widget.onSolved();}else{ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Bu yönde aranan kelime bulunamadı.')));}}
- @override Widget build(BuildContext context){final paths=<String>{};for(final w in searchWords){if(!found.contains(w))continue;for(var r=0;r<8;r++){for(var c=0;c<8;c++){for(final dir in [(0,1),(1,0),(1,1),(-1,1)]){final ids=<String>[],letters=<String>[];for(var i=0;i<w.length;i++){final y=r+i*dir.$1,x=c+i*dir.$2;if(y<0||y>=8||x<0||x>=8)break;ids.add('$y,$x');letters.add(searchGrid[y][x]);}if(letters.length==w.length&&(normalize(letters.join())==normalize(w)||normalize(letters.reversed.join())==normalize(w)))paths.addAll(ids);}}}}
+ @override Widget build(BuildContext context) {
+ final paths = <String>{};
+ for (final w in searchWords) {
+   if (!found.contains(w)) {
+     continue;
+   }
+   for (var r = 0; r < 8; r++) {
+     for (var c = 0; c < 8; c++) {
+       for (final dir in [(0, 1), (1, 0), (1, 1), (-1, 1)]) {
+         final ids = <String>[];
+         final letters = <String>[];
+         for (var i = 0; i < w.length; i++) {
+           final y = r + i * dir.$1;
+           final x = c + i * dir.$2;
+           if (y < 0 || y >= 8 || x < 0 || x >= 8) {
+             break;
+           }
+           ids.add('$y,$x');
+           letters.add(searchGrid[y][x]);
+         }
+         if (letters.length == w.length &&
+             (normalize(letters.join()) == normalize(w) ||
+              normalize(letters.reversed.join()) == normalize(w))) {
+           paths.addAll(ids);
+         }
+       }
+     }
+   }
+ }
  return Column(children:[const Text('Bir kelimenin ilk ve son harfine sırayla dokun. Yatay, dikey veya çapraz seçebilirsin.'),const SizedBox(height:14),AspectRatio(aspectRatio:1,child:GridView.builder(physics:const NeverScrollableScrollPhysics(),gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:8),itemCount:64,itemBuilder:(ctx,i){final r=i~/8,c=i%8;return InkWell(onTap:()=>tap(r,c),child:Container(margin:const EdgeInsets.all(1),alignment:Alignment.center,color:start==(r,c)?rust:paths.contains('$r,$c')?const Color(0xFFC5D9B7):Colors.white,child:Text(searchGrid[r][c],style:TextStyle(fontWeight:FontWeight.bold,fontSize:19,color:start==(r,c)?Colors.white:ink))));})),const SizedBox(height:12),Wrap(spacing:8,runSpacing:8,children:searchWords.map((w)=>Chip(label:Text(w,style:TextStyle(decoration:found.contains(w)?TextDecoration.lineThrough:null)),backgroundColor:found.contains(w)?const Color(0xFFC5D9B7):Colors.white)).toList()),Text('${found.length}/${searchWords.length} kelime bulundu')]);}
 }
 
@@ -186,8 +214,8 @@ class _SpiralGameState extends State<SpiralGame>{
  final Map<int,String> entered={};int selected=0;late final positions=spiralPositions(5);
  @override void initState(){super.initState();restore();}
  Future<void> restore()async{final s=await Store.read('spiral');if(s!=null&&mounted){setState((){for(var i=0;i<s.length&&i<answer.length;i++){if(s[i]!='_')entered[i]=s[i];}});}}
- void put(String v){setState((){if(v=='_'){entered.remove(selected);}else{entered[selected]=v;if(selected<answer.length-1)selected++;}});Store.write('spiral',List.generate(answer.length,(i)=>entered[i]??'_').join());}
-  void check(){final ok=List.generate(answer.length,(i)=>entered[i]==answer[i]).every((x)=>x);ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(ok?'Sarmal çözüldü!':'Bazı harfler eksik veya yanlış.')));if(ok)widget.onSolved();}
+  void put(String v){setState((){if(v=='_'){entered.remove(selected);}else{entered[selected]=v;if(selected<answer.length-1)selected++;}});Store.write('spiral',List.generate(answer.length,(i)=>entered[i]??'_').join());}
+ void check(){final ok=List.generate(answer.length,(i)=>entered[i]==answer[i]).every((x)=>x);ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text(ok?'Sarmal çözüldü!':'Bazı harfler eksik veya yanlış.')));if(ok)widget.onSolved();}
  @override Widget build(BuildContext context){final at=<String,int>{};for(var i=0;i<answer.length;i++){at['${positions[i].$1},${positions[i].$2}']=i;}return Column(children:[const Text('1 numaralı dış kutudan başlayıp saat yönünde merkeze doğru ilerle. Her kelimenin son harfi sonraki kelimenin ilk harfidir.'),const SizedBox(height:14),AspectRatio(aspectRatio:1,child:GridView.builder(physics:const NeverScrollableScrollPhysics(),gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:5),itemCount:25,itemBuilder:(ctx,i){final r=i~/5,c=i%5,index=at['$r,$c'];return InkWell(onTap:index==null?null:()=>setState(()=>selected=index),child:Container(margin:const EdgeInsets.all(2),color:index==null?ink:index==selected?const Color(0xFFE6D4AF):Colors.white,child:index==null?null:Stack(children:[Positioned(left:3,top:2,child:Text('${index+1}',style:const TextStyle(fontSize:9,color:rust))),Center(child:Text(entered[index]??'',style:const TextStyle(fontSize:22,fontWeight:FontWeight.bold)))])));})),
  const SizedBox(height:10),...spiralWords.map((e)=>Text('• ${e.$2} (${e.$1.length} harf)',style:const TextStyle(fontSize:13))),const SizedBox(height:10),Wrap(spacing:4,runSpacing:4,children:[...'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'.split('').map((x)=>SizedBox(width:38,height:38,child:OutlinedButton(style:OutlinedButton.styleFrom(padding:EdgeInsets.zero),onPressed:()=>put(x),child:Text(x)))),IconButton(onPressed:()=>put('_'),icon:const Icon(Icons.backspace_outlined))]),const SizedBox(height:12),FilledButton(onPressed:check,child:const Text('Sarmalı kontrol et'))]);}
 }
