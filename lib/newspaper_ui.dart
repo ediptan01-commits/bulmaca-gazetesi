@@ -31,16 +31,17 @@ class EditionHeading extends StatelessWidget {
 
 class PaperGrid extends StatelessWidget {
   final int size;
+  final int? rows;
   final Widget Function(int, int) cell;
-  const PaperGrid({super.key, required this.size, required this.cell});
+  const PaperGrid({super.key, required this.size, this.rows, required this.cell});
   @override
   Widget build(BuildContext context) => AspectRatio(
-    aspectRatio: 1,
+    aspectRatio: size / (rows ?? size),
     child: Container(
       decoration: BoxDecoration(border: Border.all(color: ink)),
       child: Column(
         children: [
-          for (var r = 0; r < size; r++)
+          for (var r = 0; r < (rows ?? size); r++)
             Expanded(
               child: Row(
                 children: [
@@ -65,6 +66,7 @@ class CrossGame extends StatefulWidget {
 class _CrossGameState extends State<CrossGame> {
   late final words = widget.arrow ? arrowWords : crossWords;
   int get size => widget.arrow ? arrowSize : crossSize;
+  int get rows => widget.arrow ? arrowRows : crossSize;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -365,9 +367,10 @@ class _CrossGameState extends State<CrossGame> {
                   children: [
                     ZoomablePaper(
                       gridSize: size,
+                      gridRows: rows,
                       minimumCellSize: 0,
                       onCheck: ready ? check : null,
-                      child: PaperGrid(size: size, cell: cell),
+                      child: PaperGrid(size: size, rows: rows, cell: cell),
                     ),
                     if (!widget.arrow)
                       Row(
