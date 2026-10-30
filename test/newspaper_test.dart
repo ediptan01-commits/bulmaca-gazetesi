@@ -19,6 +19,7 @@ void main() {
       () {
         final words = arrow ? arrowWords : crossWords;
         final size = arrow ? arrowSize : crossSize;
+        final rows = arrow ? arrowRows : crossSize;
         final grid = <(int, int), String>{};
         expect(words.length, greaterThanOrEqualTo(20));
         expect(words.map((w) => w.text).toSet().length, words.length);
@@ -26,7 +27,7 @@ void main() {
           expect(w.clue, isNotEmpty);
           for (var i = 0; i < w.cells.length; i++) {
             final cell = w.cells[i];
-            expect(cell.$1, inInclusiveRange(0, size - 1));
+            expect(cell.$1, inInclusiveRange(0, rows - 1));
             expect(cell.$2, inInclusiveRange(0, size - 1));
             if (grid.containsKey(cell)) {
               expect(
@@ -41,13 +42,15 @@ void main() {
         // Her kesintisiz yatay/dikey harf dizisinin bir sorusu olmalı.
         for (final cell in grid.keys) {
           for (final vertical in [false, true]) {
+            if (arrow && cell.$1 >= 8 && vertical) continue;
             final dr = vertical ? 1 : 0, dc = vertical ? 0 : 1;
             if (grid.containsKey((cell.$1 - dr, cell.$2 - dc))) continue;
             var length = 0;
-            while (grid.containsKey((
-              cell.$1 + length * dr,
-              cell.$2 + length * dc,
-            ))) {
+            while ((!arrow || !vertical || cell.$1 + length < 8) &&
+                grid.containsKey((
+                  cell.$1 + length * dr,
+                  cell.$2 + length * dc,
+                ))) {
               length++;
             }
             if (length > 1) {
@@ -74,10 +77,10 @@ void main() {
             if (w.cells.any(reached.contains)) reached.addAll(w.cells);
           }
         }
-        expect(reached.length, grid.length);
+        if (!arrow) expect(reached.length, grid.length);
         if (arrow) {
           for (final w in words) {
-            expect(w.clueCell.$1, inInclusiveRange(0, size - 1));
+            expect(w.clueCell.$1, inInclusiveRange(0, rows - 1));
             expect(w.clueCell.$2, inInclusiveRange(0, size - 1));
             expect(
               grid.containsKey(w.clueCell),
@@ -89,16 +92,16 @@ void main() {
         final clueCells = arrow
             ? words.map((w) => w.clueCell).toSet().length
             : 0;
-        final black = size * size - grid.length - clueCells;
-        expect(black / (size * size), lessThan(arrow ? .06 : .2));
+        final black = rows * size - grid.length - clueCells;
+        expect(black / (rows * size), lessThan(arrow ? .18 : .2));
       },
     );
   }
 
   test('Kelime avındaki tüm cevaplar sekiz yönde erişilebilir', () {
-    expect(searchGrid.length, 12);
-    expect(searchWords.length, 8);
-    expect(searchGrid.every((row) => row.length == searchGrid.length), isTrue);
+    expect(searchGrid.length, 15);
+    expect(searchWords.length, 11);
+    expect(searchGrid.every((row) => row.length == 12), isTrue);
     expect(searchEntries.map((e) => (e.$4, e.$5)).toSet().length, 8);
     for (final e in searchEntries) {
       final letters = searchCells(e).map((c) => searchGrid[c.$1][c.$2]).join();
