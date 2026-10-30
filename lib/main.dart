@@ -10,6 +10,7 @@ part 'newspaper_ui.dart';
 part 'newspaper_components.dart';
 part 'search_game.dart';
 part 'picture_game.dart';
+part 'extra_levels.dart';
 
 void main() => runApp(const BulmacaApp());
 const paper = Color(0xFFF7F0E2);
@@ -103,6 +104,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int tab = 0;
   Set<String> complete = {};
+  int totalLevelDone = 0;
   @override
   void initState() {
     super.initState();
@@ -111,16 +113,20 @@ class _HomeState extends State<Home> {
 
   Future<void> refresh() async {
     final ids = <String>{};
+    var total = 0;
     for (final p in puzzles) {
-      if (await Store.done(p.id)) ids.add(p.id);
+      if (await Store.done(p.id)) { ids.add(p.id); total++; }
+      for (var i = 2; i <= levelsPerPuzzle; i++) {
+        if (await Store.read('chapter_${p.id}_$i') == '1') total++;
+      }
     }
-    if (mounted) setState(() => complete = ids);
+    if (mounted) setState(() { complete = ids; totalLevelDone = total; });
   }
 
   void open(Puzzle p) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => PuzzleScreen(puzzle: p)),
+      MaterialPageRoute(builder: (_) => LevelSelectScreen(puzzle: p)),
     );
     refresh();
   }
@@ -181,13 +187,13 @@ class _HomeState extends State<Home> {
                         const Icon(Icons.auto_stories, size: 72, color: rust),
                         const SizedBox(height: 8),
                         const Text(
-                          'Bir sayfa, altı farklı macera.',
+                          'Altı bulmaca, 66 bölüm.',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontFamily: 'serif', fontSize: 23),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          '${complete.length} / 6 bulmaca tamamlandı',
+                          '$totalLevelDone / 66 bölüm tamamlandı',
                           style: const TextStyle(
                             color: green,
                             fontWeight: FontWeight.bold,
@@ -195,7 +201,7 @@ class _HomeState extends State<Home> {
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
-                          value: complete.length / 6,
+                          value: totalLevelDone / (puzzles.length * levelsPerPuzzle),
                           color: green,
                           backgroundColor: Colors.black12,
                         ),
@@ -601,4 +607,80 @@ List<(int, int)> spiralPositions(int n) {
     }
   }
   return result;
+}
+
+
+/// Bölüm 1 önceki sürümle aynıdır; bölümler 2–11 yeni içeriklerdir.
+const levelsPerPuzzle = 11;
+
+class LevelSelectScreen extends StatefulWidget {
+  final Puzzle puzzle;
+  const LevelSelectScreen({super.key, required this.puzzle});
+  @override
+  State<LevelSelectScreen> createState() => _LevelSelectScreenState();
+}
+
+class _LevelSelectScreenState extends State<LevelSelectScreen> {
+  final Set<int> completed = {};
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    reload();
+  }
+
+  Future<void> reload() async {
+    final ids = <int>{};
+    for (var level = 1; level <= levelsPerPuzzle; level++) {
+      final done = level == 1
+          ? await Store.done(widget.puzzle.id)
+          : await Store.read('chapter_${widget.puzzle.id}_$level') == '1';
+      if (done) ids.add(level);
+    }
+    if (mounted) setState(() { completed..clear()..addAll(ids); loading = false; });
+  }
+
+  Future<void> open(int level) async {
+    if (level > 1 && !completed.contains(level - 1)) return;
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) =>
+      level == 1
+          ? PuzzleScreen(puzzle: widget.puzzle)
+          : ExtraLevelScreen(puzzle: widget.puzzle, level: level),
+    ));
+    reload();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(widget.puzzle.name)),
+    body: loading
+        ? const Center(child: CircularProgressIndicator())
+        : ListView(padding: const EdgeInsets.all(16), children: [
+            EditionHeading(label: '${widget.puzzle.name} • 11 BÖLÜM'),
+            const SizedBox(height: 14),
+            Text('${completed.length} / $levelsPerPuzzle bölüm tamamlandı',
+                style: const TextStyle(fontFamily: 'serif', fontSize: 16)),
+            const SizedBox(height: 8),
+            LinearProgressIndicator(value: completed.length / levelsPerPuzzle,
+                color: green, backgroundColor: Colors.black12),
+            const SizedBox(height: 18),
+            for (var i = 1; i <= levelsPerPuzzle; i++)
+              Card(child: ListTile(
+                key: ValueKey('level_$i'),
+                onTap: i == 1 || completed.contains(i - 1) ? () => open(i) : null,
+                leading: CircleAvatar(
+                  backgroundColor: completed.contains(i) ? green : selectedPaper,
+                  foregroundColor: completed.contains(i) ? Colors.white : ink,
+                  child: completed.contains(i)
+                      ? const Icon(Icons.check)
+                      : Text('$i'),
+                ),
+                title: Text('Bölüm $i', style: const TextStyle(fontFamily: 'serif',fontWeight: FontWeight.bold)),
+                subtitle: Text(i == 1 ? 'Klasik gazete bulmacası' : extraTheme(i)),
+                trailing: Icon(i == 1 || completed.contains(i - 1)
+                    ? Icons.chevron_right : Icons.lock_outline),
+              )),
+          ]),
+  );
 }
