@@ -1,3 +1,4 @@
+[Uploading README.md…]()
 # Bulmaca Gazetesi — Sayı 003 / 1.3.0
 
 Bağımsız bir Android bulmaca oyunu. **Gazete kapağı + modern kategori seçimi**, altı oynanabilir oyun türü:
@@ -33,3 +34,24 @@ Repo'ya yüklediğinizde `.github/workflows/android.yaml` otomatik analiz, test 
 Bulmaca verileri `lib/newspaper.dart`, kare/çengel/sarmal ekranları `lib/newspaper_ui.dart`, ortak çizimler/klavye `lib/newspaper_components.dart`, kelime avı `lib/search_game.dart`, resimli şifre `lib/picture_game.dart` ve ana sayfa/sudoku `lib/main.dart` içindedir. Testler kesişimleri, 8 yönü, yakınlaştırmanın sabitliğini, düz karalamayı, altı nesneden şifre çözümünü, kayıtları ve 320 piksel genişlikte altı ekranı denetler. Yeni resimli içerik eski emoji sorularının kayıtlarından ayrıdır; diğer oyunların ilerlemesi korunur.
 
 Google Play'e yüklemeden önce paket adı, imza, uygulama ikonu, gizlilik politikası ve cihaz testlerini tamamlayın.
+
+
+## 30 Ekim 2026 ekran düzeni
+
+- Çengel bulmaca 8 sütun ve 12 satır olarak uzatıldı, 30 cevap içeriyor. Alt satırlar için yeni soru kutuları eklendi.
+- Kelime Avı 12 sütun ve 15 satır; 11 kelime, 21 punto temel harf tasarımı. Parmağı sürükleyerek seçme ve kayıt korunur.
+- Flutter analyze / test komutları GitHub Actions ortamında çalıştırılmalıdır; bu paketin üretildiği ortamda Flutter SDK bulunmadığından yerel derleme doğrulaması yapılmamıştır.
+
+## 10 yeni bölüm paketi (her bulmaca için)
+
+Bu güncelleme mevcut birinci bölümü korur. Çengel, kare, sudoku, kelime avı,
+sarmal ve resimli bulmacanın her birine 2–11 numaralı **10 yeni bölüm** ekler:
+toplam **66 oynanabilir bölüm** (60 yeni + 6 eski).
+
+Yeni bölüm seçme ekranında bölümler sırayla açılır. Her bölümün ilerlemesi cihazda
+ayrı tutulur; tamamlanan bölümler kilidi açar. Yeni konular Doğa, Uzay,
+Hayvanlar, Coğrafya, Bilim, Sanat, Tarih, Spor, Teknoloji ve Mutfak'tır.
+
+Yeni bölümler ilk sürüm seviyesinde hazırlanmış oyun içerikleridir; otomatik üretilen
+kare/çengel yerleşimleri ve emoji temalı resimli sorular, yayın öncesi editöryal
+incelemeye uygundur. Mevcut bölüm 1 veri dosyaları değiştirilmemiştir.
