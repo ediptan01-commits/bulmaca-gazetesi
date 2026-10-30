@@ -16,7 +16,7 @@ class _SearchGameState extends State<SearchGame> {
   int? activePointer;
   Offset? downPoint;
   Offset center((int, int) cell) => Offset(
-    (cell.$2 + .5) / searchGrid.length,
+    (cell.$2 + .5) / searchGrid.first.length,
     (cell.$1 + .5) / searchGrid.length,
   );
   @override
@@ -123,21 +123,22 @@ class _SearchGameState extends State<SearchGame> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Kelimenin harflerini parmağınla karala. Çizgi harflere düzgün oturur. 8 kelime, sekiz yön.',
+              'Kelimenin harflerini parmağınla karala. Çizgi harflere düzgün oturur. 11 kelime, sekiz yön.',
               style: TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 12),
             LayoutBuilder(
               builder: (context, constraints) {
                 final width = constraints.maxWidth;
+                final cellHeight = width / searchGrid.first.length;
                 (int, int) position(Offset p) => (
-                  (p.dy / width * searchGrid.length).floor().clamp(
+                  (p.dy / cellHeight).floor().clamp(
                     0,
                     searchGrid.length - 1,
                   ),
-                  (p.dx / width * searchGrid.length).floor().clamp(
+                  (p.dx / width * searchGrid.first.length).floor().clamp(
                     0,
-                    searchGrid.length - 1,
+                    searchGrid.first.length - 1,
                   ),
                 );
                 return RawGestureDetector(
@@ -194,7 +195,8 @@ class _SearchGameState extends State<SearchGame> {
                     child: Stack(
                       children: [
                         PaperGrid(
-                          size: searchGrid.length,
+                          size: searchGrid.first.length,
+                          rows: searchGrid.length,
                           cell: (r, c) => Semantics(
                             label:
                                 'Satır ${r + 1}, sütun ${c + 1}, ${searchGrid[r][c]}',
@@ -213,7 +215,7 @@ class _SearchGameState extends State<SearchGame> {
                                     searchGrid[r][c],
                                     style: const TextStyle(
                                       fontFamily: 'serif',
-                                      fontSize: 17,
+                                      fontSize: 21,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -246,7 +248,7 @@ class _SearchGameState extends State<SearchGame> {
                     word,
                     style: TextStyle(
                       fontFamily: 'serif',
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: found.contains(word) ? green : ink,
                       decoration: found.contains(word)
@@ -286,7 +288,7 @@ class _SearchGameState extends State<SearchGame> {
       (start.$1 + count * dy < 0 ||
           start.$1 + count * dy >= searchGrid.length ||
           start.$2 + count * dx < 0 ||
-          start.$2 + count * dx >= searchGrid.length)) {
+          start.$2 + count * dx >= searchGrid.first.length)) {
     count--;
   }
   return (start.$1 + count * dy, start.$2 + count * dx);
