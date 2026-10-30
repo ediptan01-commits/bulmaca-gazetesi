@@ -2,6 +2,7 @@ part of 'main.dart';
 
 const crossSize = 7;
 const arrowSize = 8;
+const arrowRows = 12;
 
 class WordEntry {
   final String text, clue;
@@ -63,6 +64,15 @@ const arrowWords = [
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
+  // Gazete sayfasının alt kısmındaki ek kısa çengel soruları.
+  WordEntry('GÜL', 'Dikenli çiçek', 8, 1, false),
+  WordEntry('SES', 'Kulağın algıladığı titreşim', 8, 5, false),
+  WordEntry('ARI', 'Bal yapan böcek', 9, 2, false),
+  WordEntry('SU', 'İçilen berrak sıvı', 9, 6, false),
+  WordEntry('KAR', 'Kış yağışı', 10, 1, false),
+  WordEntry('AYI', 'İri bir orman hayvanı', 10, 5, false),
+  WordEntry('TAŞ', 'Sert kaya parçası', 11, 1, false),
+  WordEntry('YOL', 'Ulaşım için kullanılan geçit', 11, 5, false),
 ];
 
 const searchGrid = [
@@ -78,6 +88,9 @@ const searchGrid = [
   'PBATHTMIKĞNŞ',
   'IHTSSİADZDKA',
   'FJÖIDDHPHIBB',
+  'BİLGİABCDEĞÖ',
+  'ÖÇĞABİLİMXYZ',
+  'KLMNOPQYAZAR',
 ];
 const searchEntries = <(String, int, int, int, int)>[
   ('GAZETE', 7, 4, 0, 1),
@@ -88,6 +101,9 @@ const searchEntries = <(String, int, int, int, int)>[
   ('TARİH', 10, 2, -1, 0),
   ('SANAT', 4, 7, -1, -1),
   ('ŞİİR', 3, 3, 1, -1),
+  ('BİLGİ', 12, 0, 0, 1),
+  ('BİLİM', 13, 4, 0, 1),
+  ('YAZAR', 14, 7, 0, 1),
 ];
 final searchWords = searchEntries.map((e) => e.$1).toList();
 const spiralWords = [
