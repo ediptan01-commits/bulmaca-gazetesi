@@ -78,12 +78,14 @@ class LetterKeyboard extends StatelessWidget {
 class ZoomablePaper extends StatefulWidget {
   final Widget child;
   final int gridSize;
+  final int? gridRows;
   final double minimumCellSize;
   final VoidCallback? onCheck;
   const ZoomablePaper({
     super.key,
     required this.child,
     required this.gridSize,
+    this.gridRows,
     this.minimumCellSize = 0,
     this.onCheck,
   });
@@ -116,11 +118,12 @@ class _ZoomablePaperState extends State<ZoomablePaper> {
       viewport = constraints.maxWidth;
       extent = math.max(viewport, widget.gridSize * widget.minimumCellSize);
       final fit = viewport / extent;
+      final aspect = (widget.gridRows ?? widget.gridSize) / widget.gridSize;
       return Column(
         children: [
           SizedBox(
             width: viewport,
-            height: viewport,
+            height: viewport * aspect,
             child: ClipRect(
               child: InteractiveViewer(
                 key: const ValueKey('cross_viewport'),
@@ -130,7 +133,7 @@ class _ZoomablePaperState extends State<ZoomablePaper> {
                 maxScale: 4,
                 child: SizedBox(
                   width: extent,
-                  height: extent,
+                  height: extent * aspect,
                   child: widget.child,
                 ),
               ),
@@ -436,7 +439,7 @@ class _WordSearchInkPainter extends CustomPainter {
     if (points.length > 1) {
       path.lineTo(points.last.dx * size.width, points.last.dy * size.height);
     }
-    final width = size.width / searchGrid.length;
+    final width = size.width / searchGrid.first.length;
     final marker = Paint()
       ..color = preview ? const Color(0x889E5233) : const Color(0x886F8750)
       ..strokeWidth = width * .67
