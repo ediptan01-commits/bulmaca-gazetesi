@@ -264,7 +264,8 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
           }else {final indices=spiralPositions(6);put(letter,'$selected');
             if(selected<indices.length-1) { setState(()=>selected++); }}
         },(){if(isCross){if(cross.isEmpty) { return; }final p=cross[active].cells[selected];setState(()=>entered.remove('${p.$1},${p.$2}'));}
-          else setState(()=>entered.remove('$selected'));save();}),
+          else { setState(()=>entered.remove('$selected')); }
+          save();}),
       ])),
     );
   }
@@ -322,7 +323,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     final chosen=(active,selected);
     void setNumber(int n){if(fixed[chosen.$1][chosen.$2]) { return; }
       if(n==0){setState(()=>entered.remove(key));save();}
-      else put('$n',key);}
+      else { put('$n',key); }}
     void check(){feedback(List.generate(9,(r)=>List.generate(9,(c)=>
       fixed[r][c] || int.tryParse(entered['$r,$c']??'')==solved[r][c]).every((ok)=>ok)).every((ok)=>ok));}
     return Column(children:[const Text('Her satır, sütun ve 3×3 alanda 1–9 yalnız bir kez kullanılır.'),
