@@ -13,6 +13,8 @@ class _SearchGameState extends State<SearchGame> {
   final savedStrokes = <String, List<Offset>>{};
   List<Offset> live = [];
   bool ready = false, dragging = false;
+  int? activePointer;
+  Offset? downPoint;
   Offset center((int, int) cell) => Offset(
     (cell.$2 + .5) / searchGrid.length,
     (cell.$1 + .5) / searchGrid.length,
@@ -156,79 +158,94 @@ class _SearchGameState extends State<SearchGame> {
                   (p.dx / width).clamp(0, 1),
                   (p.dy / width).clamp(0, 1),
                 );
-                return GestureDetector(
-                  onPanDown: ready
-                      ? (details) {
-                          panOrigin = position(details.localPosition);
-                          if (!dragging) {
-                            live = [normalized(details.localPosition)];
-                          }
-                        }
-                      : null,
-                  onPanStart: ready
-                      ? (details) => setState(() {
-                          start = panOrigin ?? position(details.localPosition);
-                          end = position(details.localPosition);
-                          live.add(normalized(details.localPosition));
-                          dragging = true;
-                        })
-                      : null,
-                  onPanUpdate: ready
-                      ? (details) => setState(() {
-                          end = position(details.localPosition);
-                          if (live.length < 512) {
-                            live.add(normalized(details.localPosition));
-                          }
-                        })
-                      : null,
-                  onPanEnd: ready
-                      ? (_) {
-                          if (end != null) finish(end!);
-                        }
-                      : null,
-                  onPanCancel: () {
-                    if (dragging) cancel();
+                return RawGestureDetector(
+                  gestures: {
+                    EagerGestureRecognizer:
+                        GestureRecognizerFactoryWithHandlers<
+                          EagerGestureRecognizer
+                        >(() => EagerGestureRecognizer(), (_) {}),
                   },
-                  child: Stack(
-                    children: [
-                      PaperGrid(
-                        size: searchGrid.length,
-                        cell: (r, c) => Semantics(
-                          label:
-                              'Satır ${r + 1}, sütun ${c + 1}, ${searchGrid[r][c]}',
-                          button: true,
-                          child: InkWell(
-                            onTap: () => select((r, c)),
-                            child: Container(
-                              key: ValueKey('search_$r,$c'),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: rule, width: .25),
-                              ),
-                              alignment: Alignment.center,
-                              child: FittedBox(
-                                child: Text(
-                                  searchGrid[r][c],
-                                  style: const TextStyle(
-                                    fontFamily: 'serif',
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold,
+                  child: Listener(
+                    behavior: HitTestBehavior.opaque,
+                    onPointerDown: (event) {
+                      if (!ready || activePointer != null) return;
+                      activePointer = event.pointer;
+                      downPoint = event.localPosition;
+                      panOrigin = position(event.localPosition);
+                      live = [normalized(event.localPosition)];
+                    },
+                    onPointerMove: (event) {
+                      if (event.pointer != activePointer || downPoint == null)
+                        return;
+                      if (!dragging &&
+                          (event.localPosition - downPoint!).distance < 4)
+                        return;
+                      setState(() {
+                        if (!dragging) {
+                          start = panOrigin;
+                          dragging = true;
+                        }
+                        end = position(event.localPosition);
+                        if (live.length < 512)
+                          live.add(normalized(event.localPosition));
+                      });
+                    },
+                    onPointerUp: (event) {
+                      if (event.pointer != activePointer) return;
+                      activePointer = null;
+                      if (dragging) {
+                        finish(position(event.localPosition));
+                      } else {
+                        select(position(event.localPosition));
+                      }
+                    },
+                    onPointerCancel: (event) {
+                      if (event.pointer == activePointer) {
+                        activePointer = null;
+                        cancel();
+                      }
+                    },
+                    child: Stack(
+                      children: [
+                        PaperGrid(
+                          size: searchGrid.length,
+                          cell: (r, c) => Semantics(
+                            label:
+                                'Satır ${r + 1}, sütun ${c + 1}, ${searchGrid[r][c]}',
+                            button: true,
+                            child: InkWell(
+                              onTap: () => select((r, c)),
+                              child: Container(
+                                key: ValueKey('search_$r,$c'),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: rule, width: .25),
+                                ),
+                                alignment: Alignment.center,
+                                child: FittedBox(
+                                  child: Text(
+                                    searchGrid[r][c],
+                                    style: const TextStyle(
+                                      fontFamily: 'serif',
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Positioned.fill(
-                        child: WordSearchInk(
-                          strokes: strokes,
-                          live: start != null || dragging
-                              ? List.of(live)
-                              : const [],
+                        Positioned.fill(
+                          child: WordSearchInk(
+                            strokes: strokes,
+                            live: start != null || dragging
+                                ? List.of(live)
+                                : const [],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },
