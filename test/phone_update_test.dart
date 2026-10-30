@@ -54,7 +54,7 @@ void main() {
   testWidgets('Eski eğri karalamalar açılırken düz merkez çizgisine dönüşür', (
     tester,
   ) async {
-    expect(searchWords.length, 8);
+    expect(searchWords.length, 11);
     final entry = searchEntries.first;
     await Store.write('search_found', entry.$1);
     await Store.write(
