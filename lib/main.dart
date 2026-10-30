@@ -27,9 +27,11 @@ class Store {
       ['sudoku_board', 'done_sudoku'].contains(key)
       ? key
       : ['cross_true', 'cross_false', 'done_cengel', 'done_kare'].contains(key)
-      ? 'edition3_$key'
+      ? 'edition5_$key'
       : ['picture_cipher', 'done_resim'].contains(key)
       ? 'edition4_$key'
+      : key.startsWith('search_') || key == 'done_av'
+      ? 'edition5_$key'
       : 'edition2_$key';
   static Future<void> write(String key, String val) =>
       _prefs.setString(_key(key), val);
@@ -233,7 +235,7 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Bu sayı: 22 kare, 22 çengel sorusu; 8 kelime ve 49 kutuluk dairesel sarmal. Çözümleriniz cihazınızda saklanır.',
+                    'Bu sayı: 22 kare, 30 çengel sorusu; 11 kelime ve 49 kutuluk dairesel sarmal. Çözümleriniz cihazınızda saklanır.',
                     style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],
@@ -369,7 +371,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                 children: [
                   EditionHeading(
                     label: widget.puzzle.id == 'av'
-                        ? 'KÜLTÜR & EDEBİYAT • 8 KELİME'
+                        ? 'KÜLTÜR & EDEBİYAT • 11 KELİME'
                         : widget.puzzle.subtitle,
                   ),
                   const SizedBox(height: 14),
