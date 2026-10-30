@@ -137,7 +137,7 @@ void main() {
       }
       expect(
         tester.widget<WordSearchInk>(find.byType(WordSearchInk)).strokes,
-        hasLength(12),
+        hasLength(8),
       );
     },
   );

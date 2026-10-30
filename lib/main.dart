@@ -9,6 +9,7 @@ part 'newspaper.dart';
 part 'newspaper_ui.dart';
 part 'newspaper_components.dart';
 part 'search_game.dart';
+part 'picture_game.dart';
 
 void main() => runApp(const BulmacaApp());
 const paper = Color(0xFFF7F0E2);
@@ -23,15 +24,12 @@ class Store {
   static final _prefs = SharedPreferencesAsync();
   static Future<String?> read(String key) => _prefs.getString(_key(key));
   static String _key(String key) =>
-      [
-        'sudoku_board',
-        'done_sudoku',
-        'picture_index',
-        'done_resim',
-      ].contains(key)
+      ['sudoku_board', 'done_sudoku'].contains(key)
       ? key
       : ['cross_true', 'cross_false', 'done_cengel', 'done_kare'].contains(key)
       ? 'edition3_$key'
+      : ['picture_cipher', 'done_resim'].contains(key)
+      ? 'edition4_$key'
       : 'edition2_$key';
   static Future<void> write(String key, String val) =>
       _prefs.setString(_key(key), val);
@@ -50,7 +48,7 @@ const puzzles = <Puzzle>[
   Puzzle('sudoku', 'Sudoku', '1–9 sayı mantığı', '🔢'),
   Puzzle('av', 'Kelime Avı', 'Harflere dokunarak bul', '🔎'),
   Puzzle('sarmal', 'Sarmal Bulmaca', 'İç içe ilerleyen kelimeler', '🌀'),
-  Puzzle('resim', 'Resimli Bulmaca', 'Görsellerden sözcüklere', '🖼️'),
+  Puzzle('resim', 'Resimli Bulmaca', 'Resimlerden gizli şifreye', '🖼️'),
 ];
 
 class BulmacaApp extends StatelessWidget {
@@ -235,7 +233,7 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Bu sayı: 22 kare, 22 çengel sorusu; 12 karalamalı kelime ve 49 kutuluk dairesel sarmal. Çözümleriniz cihazınızda saklanır.',
+                    'Bu sayı: 22 kare, 22 çengel sorusu; 8 kelime ve 49 kutuluk dairesel sarmal. Çözümleriniz cihazınızda saklanır.',
                     style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],
@@ -364,14 +362,14 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
         ],
       ),
       body: SafeArea(
-        child: ['cengel', 'kare', 'sarmal'].contains(widget.puzzle.id)
+        child: ['cengel', 'kare', 'sarmal', 'resim'].contains(widget.puzzle.id)
             ? game
             : ListView(
                 padding: const EdgeInsets.all(14),
                 children: [
                   EditionHeading(
                     label: widget.puzzle.id == 'av'
-                        ? 'KÜLTÜR & EDEBİYAT • 12 KELİME'
+                        ? 'KÜLTÜR & EDEBİYAT • 8 KELİME'
                         : widget.puzzle.subtitle,
                   ),
                   const SizedBox(height: 14),
@@ -601,121 +599,4 @@ List<(int, int)> spiralPositions(int n) {
     }
   }
   return result;
-}
-
-const pictureQuestions = [
-  ('🌞 + 🌻', 'GÜNEBAKAN', 'Güneşe yönelen çiçek'),
-  ('❄️ + 👨', 'KARDANADAM', 'Kışın kardan yapılan figür'),
-  ('🦷 + 🪥', 'DİŞ FIRÇASI', 'Dişleri temizlemek için kullanılır'),
-  ('🌊 + 🐴', 'DENİZATI', 'Denizde yaşayan küçük canlı'),
-];
-
-class PictureGame extends StatefulWidget {
-  final VoidCallback onSolved;
-  const PictureGame({super.key, required this.onSolved});
-  @override
-  State<PictureGame> createState() => _PictureGameState();
-}
-
-class _PictureGameState extends State<PictureGame> {
-  int index = 0;
-  final ctrl = TextEditingController();
-  bool hint = false;
-  @override
-  void initState() {
-    super.initState();
-    restore();
-  }
-
-  Future<void> restore() async {
-    final x = await Store.read('picture_index');
-    final n = int.tryParse(x ?? '') ?? 0;
-    if (mounted) {
-      setState(() => index = n.clamp(0, pictureQuestions.length - 1));
-    }
-  }
-
-  @override
-  void dispose() {
-    ctrl.dispose();
-    super.dispose();
-  }
-
-  void check() {
-    final q = pictureQuestions[index],
-        a = normalize(ctrl.text.replaceAll(' ', '')),
-        b = normalize(q.$2.replaceAll(' ', ''));
-    if (a == b) {
-      if (index == pictureQuestions.length - 1) {
-        widget.onSolved();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bütün resimli bulmacalar çözüldü!')),
-        );
-      } else {
-        setState(() {
-          index++;
-          ctrl.clear();
-          hint = false;
-        });
-        Store.write('picture_index', '$index');
-      }
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Tekrar dene!')));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final q = pictureQuestions[index];
-    return Column(
-      children: [
-        Text(
-          'SORU ${index + 1} / ${pictureQuestions.length}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          child: SizedBox(
-            height: 155,
-            width: double.infinity,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: FittedBox(
-                  child: Text(q.$1, style: const TextStyle(fontSize: 60)),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text('${q.$2.replaceAll(' ', '').length} harf'),
-        if (hint) Text('İpucu: ${q.$3}', style: const TextStyle(color: rust)),
-        const SizedBox(height: 10),
-        TextField(
-          controller: ctrl,
-          textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Cevabını yaz',
-          ),
-          onSubmitted: (_) => check(),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          alignment: WrapAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () => setState(() => hint = true),
-              child: const Text('İpucu göster'),
-            ),
-            FilledButton(onPressed: check, child: const Text('Kontrol et')),
-          ],
-        ),
-      ],
-    );
-  }
 }

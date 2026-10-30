@@ -97,7 +97,7 @@ void main() {
 
   test('Kelime avındaki tüm cevaplar sekiz yönde erişilebilir', () {
     expect(searchGrid.length, 12);
-    expect(searchWords.length, 12);
+    expect(searchWords.length, 8);
     expect(searchGrid.every((row) => row.length == searchGrid.length), isTrue);
     expect(searchEntries.map((e) => (e.$4, e.$5)).toSet().length, 8);
     for (final e in searchEntries) {

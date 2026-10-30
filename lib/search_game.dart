@@ -26,32 +26,15 @@ class _SearchGameState extends State<SearchGame> {
   }
 
   Future<void> restore() async {
-    final raw = await Store.read('search_found'),
-        strokes = await Store.read('search_ink');
+    final raw = await Store.read('search_found');
     if (!mounted) return;
     found.addAll((raw ?? '').split('|').where(searchWords.contains));
-    if (strokes != null) {
-      try {
-        final data = jsonDecode(strokes) as Map<String, dynamic>;
-        for (final word in found) {
-          if (data[word] is! List) continue;
-          final points = <Offset>[];
-          for (final item in (data[word] as List).take(512)) {
-            if (item is List &&
-                item.length == 2 &&
-                item[0] is num &&
-                item[1] is num) {
-              final x = (item[0] as num).toDouble(),
-                  y = (item[1] as num).toDouble();
-              if (x.isFinite && y.isFinite) {
-                points.add(Offset(x.clamp(0, 1), y.clamp(0, 1)));
-              }
-            }
-          }
-          if (points.length >= 2) savedStrokes[word] = points;
-        }
-      } catch (_) {
-        /* Bulunan kelimeler, eski kayıtlarda da çizgiyle gösterilir. */
+    for (final entry in searchEntries) {
+      if (found.contains(entry.$1)) {
+        savedStrokes[entry.$1] = [
+          center(searchCells(entry).first),
+          center(searchCells(entry).last),
+        ];
       }
     }
     setState(() => ready = true);
@@ -78,6 +61,7 @@ class _SearchGameState extends State<SearchGame> {
   });
   void finish((int, int) pos) {
     if (start == null) return;
+    pos = snapSearchEnd(start!, pos);
     String? match;
     for (final entry in searchEntries) {
       final cells = searchCells(entry);
@@ -90,9 +74,11 @@ class _SearchGameState extends State<SearchGame> {
     setState(() {
       if (match != null) {
         found.add(match);
-        savedStrokes[match] = dragging && live.length > 1
-            ? List.of(live)
-            : [center(start!), center(pos)];
+        final entry = searchEntries.firstWhere((e) => e.$1 == match);
+        savedStrokes[match] = [
+          center(searchCells(entry).first),
+          center(searchCells(entry).last),
+        ];
       }
       start = null;
       end = null;
@@ -137,7 +123,7 @@ class _SearchGameState extends State<SearchGame> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Kelimenin harflerini parmağınla karala. Kalem izi parmağını izler; doğru kelimenin üstündeki çizgi kalır. Sözcükler sekiz yönde saklı.',
+              'Kelimenin harflerini parmağınla karala. Çizgi harflere düzgün oturur. 8 kelime, sekiz yön.',
               style: TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 12),
@@ -154,10 +140,6 @@ class _SearchGameState extends State<SearchGame> {
                     searchGrid.length - 1,
                   ),
                 );
-                Offset normalized(Offset p) => Offset(
-                  (p.dx / width).clamp(0, 1),
-                  (p.dy / width).clamp(0, 1),
-                );
                 return RawGestureDetector(
                   gestures: {
                     EagerGestureRecognizer:
@@ -172,7 +154,7 @@ class _SearchGameState extends State<SearchGame> {
                       activePointer = event.pointer;
                       downPoint = event.localPosition;
                       panOrigin = position(event.localPosition);
-                      live = [normalized(event.localPosition)];
+                      live = [center(panOrigin!)];
                     },
                     onPointerMove: (event) {
                       if (event.pointer != activePointer || downPoint == null) {
@@ -187,10 +169,11 @@ class _SearchGameState extends State<SearchGame> {
                           start = panOrigin;
                           dragging = true;
                         }
-                        end = position(event.localPosition);
-                        if (live.length < 512) {
-                          live.add(normalized(event.localPosition));
-                        }
+                        end = snapSearchEnd(
+                          start!,
+                          position(event.localPosition),
+                        );
+                        live = [center(start!), center(end!)];
                       });
                     },
                     onPointerUp: (event) {
@@ -288,4 +271,23 @@ class _SearchGameState extends State<SearchGame> {
       ),
     );
   }
+}
+
+(int, int) snapSearchEnd((int, int) start, (int, int) end) {
+  final dr = end.$1 - start.$1, dc = end.$2 - start.$2;
+  if (dr == 0 && dc == 0) return start;
+  final angle =
+      (math.atan2(dr.toDouble(), dc.toDouble()) / (math.pi / 4)).round() *
+      math.pi /
+      4;
+  final dy = math.sin(angle).round(), dx = math.cos(angle).round();
+  var count = math.max(dr.abs(), dc.abs());
+  while (count > 0 &&
+      (start.$1 + count * dy < 0 ||
+          start.$1 + count * dy >= searchGrid.length ||
+          start.$2 + count * dx < 0 ||
+          start.$2 + count * dx >= searchGrid.length)) {
+    count--;
+  }
+  return (start.$1 + count * dy, start.$2 + count * dx);
 }

@@ -88,10 +88,6 @@ const searchEntries = <(String, int, int, int, int)>[
   ('TARİH', 10, 2, -1, 0),
   ('SANAT', 4, 7, -1, -1),
   ('ŞİİR', 3, 3, 1, -1),
-  ('ROMAN', 1, 1, 0, 1),
-  ('YAZAR', 0, 4, 1, 0),
-  ('OKUR', 3, 0, 1, 1),
-  ('HABER', 4, 5, -1, 1),
 ];
 final searchWords = searchEntries.map((e) => e.$1).toList();
 const spiralWords = [

@@ -97,12 +97,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(await Store.read('search_found'), entry.$1);
-    expect(find.text('1 / 12 kelime bulundu'), findsOneWidget);
+    expect(find.text('1 / 8 kelime bulundu'), findsOneWidget);
     await open(
       tester,
       SearchGame(key: const ValueKey('reopen'), onSolved: () => solved++),
     );
-    expect(find.text('1 / 12 kelime bulundu'), findsOneWidget);
+    expect(find.text('1 / 8 kelime bulundu'), findsOneWidget);
     expect(solved, 0);
   });
 

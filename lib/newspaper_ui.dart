@@ -356,40 +356,28 @@ class _CrossGameState extends State<CrossGame> {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(12, 6, 12, 16),
+            padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 660),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    EditionHeading(
-                      label:
-                          '${widget.arrow ? 'OKLU ÇENGEL' : 'KLASİK KARE'} • ${words.length} SORU • SAYI 003',
-                    ),
                     ZoomablePaper(
                       gridSize: size,
-                      minimumCellSize: widget.arrow ? 62 : 0,
-                      focusedCell: words[active].cells[selected],
+                      minimumCellSize: 0,
+                      onCheck: ready ? check : null,
                       child: PaperGrid(size: size, cell: cell),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.arrow
-                          ? 'Gri soru kutusuna dokun, ok yönünde yaz. Küçük ipuçlarını büyüterek okuyabilirsin.'
-                          : 'Numarayı ipucuyla eşleştir. Kesişim kutusuna yeniden dokunarak yönü değiştir.',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
+                    if (!widget.arrow)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: clues(false)),
+                          const SizedBox(width: 12),
+                          Expanded(child: clues(true)),
+                        ],
                       ),
-                    ),
-                    if (!widget.arrow) ...[clues(false), clues(true)],
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: ready ? check : null,
-                      icon: const Icon(Icons.fact_check_outlined),
-                      label: const Text('Cevapları kontrol et'),
-                    ),
                   ],
                 ),
               ),

@@ -79,13 +79,13 @@ class ZoomablePaper extends StatefulWidget {
   final Widget child;
   final int gridSize;
   final double minimumCellSize;
-  final (int, int)? focusedCell;
+  final VoidCallback? onCheck;
   const ZoomablePaper({
     super.key,
     required this.child,
     required this.gridSize,
     this.minimumCellSize = 0,
-    this.focusedCell,
+    this.onCheck,
   });
   @override
   State<ZoomablePaper> createState() => _ZoomablePaperState();
@@ -100,47 +100,14 @@ class _ZoomablePaperState extends State<ZoomablePaper> {
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant ZoomablePaper oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.focusedCell != oldWidget.focusedCell) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => reveal());
-    }
-  }
-
-  void reveal() {
-    if (!mounted || widget.focusedCell == null || extent == 0) return;
-    final pos = widget.focusedCell!,
-        scale = controller.value.getMaxScaleOnAxis();
-    final point = Offset(
-      (pos.$2 + .5) * extent / widget.gridSize,
-      (pos.$1 + .5) * extent / widget.gridSize,
-    );
-    final translation = controller.value.getTranslation();
-    var x = translation.x, y = translation.y;
-    final screen = point * scale + Offset(x, y),
-        margin = (extent / widget.gridSize * scale / 2).clamp(
-          15.0,
-          viewport / 3,
-        );
-    if (screen.dx < margin) x += margin - screen.dx;
-    if (screen.dx > viewport - margin) x -= screen.dx - viewport + margin;
-    if (screen.dy < margin) y += margin - screen.dy;
-    if (screen.dy > viewport - margin) y -= screen.dy - viewport + margin;
-    final min = math.min(0.0, viewport - extent * scale);
-    controller.value = Matrix4.diagonal3Values(scale, scale, 1)
-      ..setTranslationRaw(x.clamp(min, 0), y.clamp(min, 0), 0);
-  }
-
   void zoom(double factor) {
-    final old = controller.value.getMaxScaleOnAxis(),
+    final old = controller.value.entry(0, 0).abs(),
         target = (old * factor).clamp(viewport / extent, 4.0);
     final t = controller.value.getTranslation(), ratio = target / old;
     final x = viewport / 2 - (viewport / 2 - t.x) * ratio,
         y = viewport / 2 - (viewport / 2 - t.y) * ratio;
     controller.value = Matrix4.diagonal3Values(target, target, 1)
       ..setTranslationRaw(x, y, 0);
-    reveal();
   }
 
   @override
@@ -151,35 +118,6 @@ class _ZoomablePaperState extends State<ZoomablePaper> {
       final fit = viewport / extent;
       return Column(
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Kaydırarak gez • İki parmakla büyüt',
-                  style: TextStyle(fontSize: 11, color: Colors.black54),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Küçült',
-                visualDensity: VisualDensity.compact,
-                onPressed: () => zoom(1 / 1.25),
-                icon: const Icon(Icons.remove, size: 20),
-              ),
-              IconButton(
-                tooltip: 'Büyüt',
-                visualDensity: VisualDensity.compact,
-                onPressed: () => zoom(1.25),
-                icon: const Icon(Icons.add, size: 20),
-              ),
-              IconButton(
-                tooltip: 'Tüm bulmacayı göster',
-                visualDensity: VisualDensity.compact,
-                onPressed: () =>
-                    controller.value = Matrix4.diagonal3Values(fit, fit, 1),
-                icon: const Icon(Icons.fit_screen, size: 20),
-              ),
-            ],
-          ),
           SizedBox(
             width: viewport,
             height: viewport,
@@ -196,6 +134,41 @@ class _ZoomablePaperState extends State<ZoomablePaper> {
                   child: widget.child,
                 ),
               ),
+            ),
+          ),
+          SizedBox(
+            height: 34,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: widget.onCheck,
+                      child: const FittedBox(child: Text('Kontrol et')),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Küçült',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => zoom(1 / 1.25),
+                  icon: const Icon(Icons.remove, size: 19),
+                ),
+                IconButton(
+                  tooltip: 'Büyüt',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () => zoom(1.25),
+                  icon: const Icon(Icons.add, size: 19),
+                ),
+                IconButton(
+                  tooltip: 'Tüm bulmacayı göster',
+                  visualDensity: VisualDensity.compact,
+                  onPressed: () =>
+                      controller.value = Matrix4.diagonal3Values(fit, fit, 1),
+                  icon: const Icon(Icons.fit_screen, size: 19),
+                ),
+              ],
             ),
           ),
         ],
@@ -460,8 +433,8 @@ class _WordSearchInkPainter extends CustomPainter {
     if (points.isEmpty) return;
     final path = Path()
       ..moveTo(points.first.dx * size.width, points.first.dy * size.height);
-    for (final point in points.skip(1)) {
-      path.lineTo(point.dx * size.width, point.dy * size.height);
+    if (points.length > 1) {
+      path.lineTo(points.last.dx * size.width, points.last.dy * size.height);
     }
     final width = size.width / searchGrid.length;
     final marker = Paint()
@@ -478,17 +451,6 @@ class _WordSearchInkPainter extends CustomPainter {
       );
     } else {
       canvas.drawPath(path, marker);
-      canvas.save();
-      canvas.translate(width * .035, width * .06);
-      canvas.drawPath(
-        path,
-        Paint()
-          ..color = const Color(0x554B583B)
-          ..strokeWidth = width * .08
-          ..strokeCap = StrokeCap.round
-          ..style = PaintingStyle.stroke,
-      );
-      canvas.restore();
     }
   }
 
