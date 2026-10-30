@@ -14,10 +14,12 @@ void main() {
   });
   test('Kare ve çengel kelimeleri ızgara dışında değil', () {
     for (final w in [...crossWords, ...arrowWords]) {
-      final size = arrowWords.contains(w) ? arrowSize : crossSize;
+      final isArrow = arrowWords.contains(w);
+      final columns = isArrow ? arrowSize : crossSize;
+      final rows = isArrow ? arrowRows : crossSize;
       expect(w.text.isNotEmpty, true);
-      expect(w.r + (w.vertical ? w.text.length : 1) <= size, true);
-      expect(w.c + (w.vertical ? 1 : w.text.length) <= size, true);
+      expect(w.r + (w.vertical ? w.text.length : 1) <= rows, true);
+      expect(w.c + (w.vertical ? 1 : w.text.length) <= columns, true);
     }
   });
   test('Sudoku çözümünde satırlar 1-9 içerir', () {
