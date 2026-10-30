@@ -1,15 +1,17 @@
-# Bulmaca Gazetesi — Flutter MVP
+# Bulmaca Gazetesi — Sayı 002
 
 Bağımsız bir Android bulmaca oyunu. **Gazete kapağı + modern kategori seçimi**, altı oynanabilir oyun türü:
 
-- Çengel tarzı ızgara: ipucunu seç, harfleri yerleştir, cevapları kontrol et.
-- Kare bulmaca: kesişen kelimeleri doldur.
+- Çengel: 11×11 ızgarada, soru hücreleri ve yön oklarıyla 21 ipucu.
+- Kare: 11×11 bağlı ızgarada, numaralandırılmış yatay/dikey 22 ipucu.
 - Sudoku: sayı girme, not alma ve çözüm kontrolü.
-- Kelime avı: ilk/son harfe dokunarak yatay, dikey veya çapraz kelime seç.
-- Sarmal: merkez yönüne doğru ortak harfli kelimeleri doldur.
+- Kelime avı: 12×12 alanda sekiz yöne saklanmış 12 sözcük; uçlara dokunma veya sürükleyerek seçim.
+- Sarmal: 13 soruluk doğru kelime zinciriyle dolan 7×7 / 49 kutuluk sayfa.
 - Resimli: emoji ipuçlarına cevap ver.
 
-İlerleme ve bazı cevaplar cihazda `shared_preferences` ile kaydedilir. **İlk sürümde tek sabit örnek gazete sayısı vardır; tarihe göre otomatik yeni gazete üretilmez.** Reklam, IAP, sunucu ve hesap sistemi yoktur. İlk Android APK, CI üzerinde debug/test anahtarıyla imzalanmış olabilir: Google Play üretimi için kendi kalıcı yükleme anahtarınızla yeniden imzalama gerekir.
+İlerleme ve cevaplar cihazda `shared_preferences` ile kaydedilir. **Tek bir sabit gazete sayısı vardır; tarihe göre otomatik yeni içerik üretilmez.** Yeni içerikli dört bulmaca eski örneklerin kayıtlarını kullanmaz; sudoku ve resimli bulmaca kayıtları korunur. Reklam, IAP, sunucu ve hesap sistemi yoktur. Android APK, CI üzerinde debug/test anahtarıyla imzalanabilir; Google Play üretimi kendi kalıcı yükleme anahtarınızı gerektirir.
+
+Kare ve sarmal ekranlarında klavye sabittir. Seçili soru klavyenin üzerinde gösterilir. Karede kesişime tekrar dokunmak yönü değiştirir. Çengel/kare ızgarasını iki parmakla büyütüp kaydırabilirsiniz; çengelde soru hücresine dokunmak ipucunu tam boy gösterir. Kontrol düğmesi hatalı harfleri işaretler, cevapları açıklamaz.
 
 ## Kurulum
 
@@ -24,10 +26,10 @@ flutter run
 flutter build apk --release
 ```
 
-Repo'ya yüklediğinizde `.github/workflows/android.yml` otomatik Android APK/AAB üretir. GitHub Actions → Android APK ve AAB → Run workflow → Artifacts.
+Repo'ya yüklediğinizde `.github/workflows/android.yaml` otomatik analiz, test ve Android APK/AAB üretimini çalıştırır. GitHub Actions → Android APK ve AAB → Artifacts.
 
 ## İçerik ve geliştirme notları
 
-Oyun soruları ve örnek ızgaralar `lib/main.dart` içinde tanımlıdır. Günlük gerçek bulmaca sayıları, daha büyük sözlük, otomatik çapraz/çengel yerleştirme algoritması ve benzersiz sudoku üretimi sonraki aşamadır. Çengel ilk sürümde ok yönlü klasik yerleşimden esinlenen bir ızgaradır; gazete standardında ipucu hücreleri ızgara içinde değildir. Emoji bulmacalarda görseller emoji ile temsil edilir.
+Bulmaca verileri `lib/newspaper.dart`, gazete oyun ekranları `lib/newspaper_ui.dart`, ana sayfa/sudoku/resimli oyun `lib/main.dart` içindedir. Yerleşim testleri her kesişmenin tutarlılığını, ipucusuz harf dizisi olmadığını, çengel sorularının harflerle çakışmadığını, kelime avının sekiz yönünü ve sarmalın 49 kutusunu doğrular. Etkileşim testleri kayıtları, seçimleri, tamamlanmayı ve 320 piksel genişlikte büyük metinle altı ekranı denetler. Resimli sorularda görseller emoji ile temsil edilir.
 
 Google Play'e yüklemeden önce paket adı, imza, uygulama ikonu, gizlilik politikası ve cihaz testlerini tamamlayın.

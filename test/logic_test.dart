@@ -15,8 +15,8 @@ void main() {
   test('Kare ve çengel kelimeleri ızgara dışında değil', () {
     for (final w in [...crossWords, ...arrowWords]) {
       expect(w.text.isNotEmpty, true);
-      expect(w.r + (w.vertical ? w.text.length : 1) <= 7, true);
-      expect(w.c + (w.vertical ? 1 : w.text.length) <= 7, true);
+      expect(w.r + (w.vertical ? w.text.length : 1) <= crossSize, true);
+      expect(w.c + (w.vertical ? 1 : w.text.length) <= crossSize, true);
     }
   });
   test('Sudoku çözümünde satırlar 1-9 içerir', () {
