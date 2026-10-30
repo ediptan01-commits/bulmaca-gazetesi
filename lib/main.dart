@@ -206,7 +206,33 @@ class _SearchGameState extends State<SearchGame>{
 }
 
 // Sarmalın konumları dış kenardan başlayıp merkeze ilerler.
-List<(int,int)> spiralPositions(int n){final result=<(int,int)>[];int top=0,left=0,bottom=n-1,right=n-1;while(top<=bottom&&left<=right){for(var c=left;c<=right;c++)result.add((top,c));top++;for(var r=top;r<=bottom;r++)result.add((r,right));right--;if(top<=bottom){for(var c=right;c>=left;c--)result.add((bottom,c));bottom--;}if(left<=right){for(var r=bottom;r>=top;r--)result.add((r,left));left++;}}return result;}
+List<(int, int)> spiralPositions(int n) {
+  final result = <(int, int)>[];
+  int top = 0, left = 0, bottom = n - 1, right = n - 1;
+  while (top <= bottom && left <= right) {
+    for (var c = left; c <= right; c++) {
+      result.add((top, c));
+    }
+    top++;
+    for (var r = top; r <= bottom; r++) {
+      result.add((r, right));
+    }
+    right--;
+    if (top <= bottom) {
+      for (var c = right; c >= left; c--) {
+        result.add((bottom, c));
+      }
+      bottom--;
+    }
+    if (left <= right) {
+      for (var r = bottom; r >= top; r--) {
+        result.add((r, left));
+      }
+      left++;
+    }
+  }
+  return result;
+}
 const spiralWords=[('KALEM','Yazmaya yarayan nesne'),('MASA','Üzerinde yemek yenir'),('ARABA','Tekerlekli taşıt'),('ANAHTAR','Kapıyı açar'),('RENK','Kırmızı, mavi, yeşil')];
 class SpiralGame extends StatefulWidget{final VoidCallback onSolved;const SpiralGame({super.key,required this.onSolved});@override State<SpiralGame> createState()=>_SpiralGameState();}
 class _SpiralGameState extends State<SpiralGame>{
