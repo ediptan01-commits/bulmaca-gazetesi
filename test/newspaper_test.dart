@@ -18,6 +18,7 @@ void main() {
       '${arrow ? 'Çengel' : 'Kare'}: kesişimler, sorular ve bütünlük doğru',
       () {
         final words = arrow ? arrowWords : crossWords;
+        final size = arrow ? arrowSize : crossSize;
         final grid = <(int, int), String>{};
         expect(words.length, greaterThanOrEqualTo(20));
         expect(words.map((w) => w.text).toSet().length, words.length);
@@ -25,8 +26,8 @@ void main() {
           expect(w.clue, isNotEmpty);
           for (var i = 0; i < w.cells.length; i++) {
             final cell = w.cells[i];
-            expect(cell.$1, inInclusiveRange(0, crossSize - 1));
-            expect(cell.$2, inInclusiveRange(0, crossSize - 1));
+            expect(cell.$1, inInclusiveRange(0, size - 1));
+            expect(cell.$2, inInclusiveRange(0, size - 1));
             if (grid.containsKey(cell)) {
               expect(
                 grid[cell],
@@ -76,8 +77,8 @@ void main() {
         expect(reached.length, grid.length);
         if (arrow) {
           for (final w in words) {
-            expect(w.clueCell.$1, inInclusiveRange(0, crossSize - 1));
-            expect(w.clueCell.$2, inInclusiveRange(0, crossSize - 1));
+            expect(w.clueCell.$1, inInclusiveRange(0, size - 1));
+            expect(w.clueCell.$2, inInclusiveRange(0, size - 1));
             expect(
               grid.containsKey(w.clueCell),
               isFalse,
@@ -85,6 +86,11 @@ void main() {
             );
           }
         }
+        final clueCells = arrow
+            ? words.map((w) => w.clueCell).toSet().length
+            : 0;
+        final black = size * size - grid.length - clueCells;
+        expect(black / (size * size), lessThan(arrow ? .06 : .2));
       },
     );
   }

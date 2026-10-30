@@ -48,18 +48,18 @@ void main() {
     tester,
   ) async {
     await open(tester, CrossGame(arrow: false, onSolved: () {}));
-    // DEMİR ve DÜĞME aynı başlangıç kutusunda kesişir.
+    // BAL ve BEL aynı başlangıç kutusunda kesişir.
     await tester.tap(find.byKey(const ValueKey('cross_0,0')));
     await tester.pump();
     expect(
-      find.textContaining('Giysiyi iliklemeye yarayan parça'),
+      find.textContaining('Gövdenin kalça üstündeki bölümü'),
       findsWidgets,
     );
-    await tester.tap(find.byKey(const ValueKey('letter_D')));
+    await tester.tap(find.byKey(const ValueKey('letter_B')));
     await tester.pumpAndSettle();
     final saved =
         jsonDecode((await Store.read('cross_false'))!) as Map<String, dynamic>;
-    expect(saved['0,0'], 'D');
+    expect(saved['0,0'], 'B');
     expect(saved.length, 1);
     await tester.tap(find.byTooltip('Harf sil'));
     await tester.pumpAndSettle();

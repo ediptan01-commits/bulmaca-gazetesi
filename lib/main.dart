@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'newspaper.dart';
 part 'newspaper_ui.dart';
+part 'newspaper_components.dart';
+part 'search_game.dart';
 
 void main() => runApp(const BulmacaApp());
 const paper = Color(0xFFF7F0E2);
@@ -26,6 +29,8 @@ class Store {
         'done_resim',
       ].contains(key)
       ? key
+      : ['cross_true', 'cross_false', 'done_cengel', 'done_kare'].contains(key)
+      ? 'edition3_$key'
       : 'edition2_$key';
   static Future<void> write(String key, String val) =>
       _prefs.setString(_key(key), val);
@@ -162,7 +167,7 @@ class _HomeState extends State<Home> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'SAYI 002 • $date',
+                              'SAYI 003 • $date',
                               style: const TextStyle(fontSize: 12),
                             ),
                             const Text(
@@ -229,7 +234,7 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Bu sayı: 22 kare, 21 çengel sorusu; 12 gizli kelime ve 49 kutuluk sarmal. Çözümleriniz cihazınızda saklanır.',
+                    'Bu sayı: 22 kare, 22 çengel sorusu; 12 karalamalı kelime ve 49 kutuluk dairesel sarmal. Çözümleriniz cihazınızda saklanır.',
                     style: TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],

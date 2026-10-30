@@ -29,75 +29,6 @@ class EditionHeading extends StatelessWidget {
   );
 }
 
-class LetterKeyboard extends StatelessWidget {
-  final ValueChanged<String> onLetter;
-  final VoidCallback onDelete;
-  const LetterKeyboard({
-    super.key,
-    required this.onLetter,
-    required this.onDelete,
-  });
-  @override
-  Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(
-      color: paper,
-      border: Border(top: BorderSide(color: rule)),
-    ),
-    padding: const EdgeInsets.fromLTRB(5, 7, 5, 4),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final row in ['ABCÇDEFG', 'ĞHIİJKLM', 'NOÖPRSŞT', 'UÜVYZ'])
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              for (final letter in row.split(''))
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: SizedBox(
-                      height: 38,
-                      child: OutlinedButton(
-                        key: ValueKey('letter_$letter'),
-                        style: OutlinedButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          foregroundColor: ink,
-                          visualDensity: VisualDensity.compact,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                        onPressed: () => onLetter(letter),
-                        child: Text(
-                          letter,
-                          style: const TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              if (row == 'UÜVYZ')
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 38,
-                    child: IconButton(
-                      tooltip: 'Harf sil',
-                      onPressed: onDelete,
-                      icon: const Icon(Icons.backspace_outlined),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-      ],
-    ),
-  );
-}
-
 class PaperGrid extends StatelessWidget {
   final int size;
   final Widget Function(int, int) cell;
@@ -123,55 +54,6 @@ class PaperGrid extends StatelessWidget {
   );
 }
 
-class ZoomablePaper extends StatefulWidget {
-  final Widget child;
-  const ZoomablePaper({super.key, required this.child});
-  @override
-  State<ZoomablePaper> createState() => _ZoomablePaperState();
-}
-
-class _ZoomablePaperState extends State<ZoomablePaper> {
-  final controller = TransformationController();
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      Row(
-        children: [
-          const Expanded(
-            child: Text(
-              'İki parmakla büyüt • Kaydırarak gez',
-              style: TextStyle(fontSize: 11, color: Colors.black54),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Izgarayı sıfırla',
-            visualDensity: VisualDensity.compact,
-            onPressed: () => controller.value = Matrix4.identity(),
-            icon: const Icon(Icons.fit_screen, size: 20),
-          ),
-        ],
-      ),
-      AspectRatio(
-        aspectRatio: 1,
-        child: ClipRect(
-          child: InteractiveViewer(
-            transformationController: controller,
-            minScale: 1,
-            maxScale: 4,
-            child: widget.child,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
 class CrossGame extends StatefulWidget {
   final bool arrow;
   final VoidCallback onSolved;
@@ -182,6 +64,7 @@ class CrossGame extends StatefulWidget {
 
 class _CrossGameState extends State<CrossGame> {
   late final words = widget.arrow ? arrowWords : crossWords;
+  int get size => widget.arrow ? arrowSize : crossSize;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -328,12 +211,12 @@ class _CrossGameState extends State<CrossGame> {
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: SizedBox(
-                                  width: 40,
+                                  width: 56,
                                   child: Text(
                                     words[i].clue,
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
-                                      fontSize: 7,
+                                      fontSize: 11,
                                       height: 1.05,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -411,7 +294,7 @@ class _CrossGameState extends State<CrossGame> {
                           child: Text(
                             filled[key] ?? '',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: widget.arrow ? 24 : 22,
                               fontWeight: FontWeight.w600,
                               color: errors.contains(key)
                                   ? Colors.red.shade800
@@ -482,10 +365,13 @@ class _CrossGameState extends State<CrossGame> {
                   children: [
                     EditionHeading(
                       label:
-                          '${widget.arrow ? 'OKLU ÇENGEL' : 'KLASİK KARE'} • ${words.length} SORU • SAYI 002',
+                          '${widget.arrow ? 'OKLU ÇENGEL' : 'KLASİK KARE'} • ${words.length} SORU • SAYI 003',
                     ),
                     ZoomablePaper(
-                      child: PaperGrid(size: crossSize, cell: cell),
+                      gridSize: size,
+                      minimumCellSize: widget.arrow ? 62 : 0,
+                      focusedCell: words[active].cells[selected],
+                      child: PaperGrid(size: size, cell: cell),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -550,219 +436,6 @@ List<(int, int)> searchCells((String, int, int, int, int) entry) =>
       (i) => (entry.$2 + i * entry.$4, entry.$3 + i * entry.$5),
     );
 
-class SearchGame extends StatefulWidget {
-  final VoidCallback onSolved;
-  const SearchGame({super.key, required this.onSolved});
-  @override
-  State<SearchGame> createState() => _SearchGameState();
-}
-
-class _SearchGameState extends State<SearchGame> {
-  (int, int)? start, end, panOrigin;
-  final found = <String>{};
-  bool ready = false, dragging = false;
-  @override
-  void initState() {
-    super.initState();
-    restore();
-  }
-
-  Future<void> restore() async {
-    final raw = await Store.read('search_found');
-    if (!mounted) return;
-    setState(() {
-      found.addAll((raw ?? '').split('|').where(searchWords.contains));
-      ready = true;
-    });
-  }
-
-  Set<(int, int)> get preview {
-    if (start == null || end == null) return {};
-    final dr = end!.$1 - start!.$1, dc = end!.$2 - start!.$2;
-    if (dr != 0 && dc != 0 && dr.abs() != dc.abs()) return {start!};
-    final length = (dr.abs() > dc.abs() ? dr.abs() : dc.abs()) + 1;
-    return {
-      for (var i = 0; i < length; i++)
-        (start!.$1 + i * dr.sign, start!.$2 + i * dc.sign),
-    };
-  }
-
-  void select((int, int) pos) {
-    if (!ready) return;
-    if (start == null) {
-      setState(() {
-        start = pos;
-        end = pos;
-      });
-    } else {
-      finish(pos);
-    }
-  }
-
-  void finish((int, int) pos) {
-    if (start == null) return;
-    String? match;
-    for (final entry in searchEntries) {
-      final cells = searchCells(entry);
-      if ((start == cells.first && pos == cells.last) ||
-          (pos == cells.first && start == cells.last)) {
-        match = entry.$1;
-        break;
-      }
-    }
-    setState(() {
-      if (match != null) found.add(match);
-      start = null;
-      end = null;
-      dragging = false;
-    });
-    if (match != null) {
-      Store.write('search_found', found.join('|'));
-      if (found.length == searchWords.length) widget.onSolved();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Seçilen çizgide aranan bir kelime yok.'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final marked = {
-      for (final e in searchEntries)
-        if (found.contains(e.$1)) ...searchCells(e),
-    };
-    final selection = preview;
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 660),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Kelimeler sekiz yönde gizli: yatay, dikey, çapraz ve tersten. İlk ve son harfe dokun veya parmağını sürükle.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                (int, int) position(Offset p) {
-                  final cell = constraints.maxWidth / searchGrid.length;
-                  return (
-                    (p.dy / cell).floor().clamp(0, searchGrid.length - 1),
-                    (p.dx / cell).floor().clamp(0, searchGrid.length - 1),
-                  );
-                }
-
-                return GestureDetector(
-                  onPanDown: ready
-                      ? (details) => panOrigin = position(details.localPosition)
-                      : null,
-                  onPanStart: ready
-                      ? (details) => setState(() {
-                          start = panOrigin ?? position(details.localPosition);
-                          end = start;
-                          dragging = true;
-                        })
-                      : null,
-                  onPanUpdate: ready
-                      ? (details) => setState(
-                          () => end = position(details.localPosition),
-                        )
-                      : null,
-                  onPanEnd: ready
-                      ? (_) {
-                          if (end != null) finish(end!);
-                        }
-                      : null,
-                  onPanCancel: () {
-                    if (dragging) {
-                      setState(() {
-                        start = null;
-                        end = null;
-                        dragging = false;
-                      });
-                    }
-                  },
-                  child: PaperGrid(
-                    size: searchGrid.length,
-                    cell: (r, c) => Semantics(
-                      label:
-                          'Satır ${r + 1}, sütun ${c + 1}, ${searchGrid[r][c]}',
-                      button: true,
-                      child: InkWell(
-                        onTap: () => select((r, c)),
-                        child: Container(
-                          key: ValueKey('search_$r,$c'),
-                          decoration: BoxDecoration(
-                            color: selection.contains((r, c))
-                                ? selectedPaper
-                                : marked.contains((r, c))
-                                ? const Color(0xFFCDDDC4)
-                                : Colors.white,
-                            border: Border.all(color: rule, width: .25),
-                          ),
-                          alignment: Alignment.center,
-                          child: FittedBox(
-                            child: Text(
-                              searchGrid[r][c],
-                              style: const TextStyle(
-                                fontFamily: 'serif',
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 16,
-              runSpacing: 12,
-              children: [
-                for (final word in searchWords)
-                  Text(
-                    word,
-                    style: TextStyle(
-                      fontFamily: 'serif',
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: found.contains(word) ? green : ink,
-                      decoration: found.contains(word)
-                          ? TextDecoration.lineThrough
-                          : null,
-                    ),
-                  ),
-              ],
-            ),
-            const Divider(color: ink, height: 28),
-            Text(
-              '${found.length} / ${searchWords.length} kelime bulundu',
-              textAlign: TextAlign.center,
-            ),
-            if (start != null)
-              TextButton(
-                onPressed: () => setState(() {
-                  start = null;
-                  end = null;
-                }),
-                child: const Text('Seçimi iptal et'),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class SpiralGame extends StatefulWidget {
   final VoidCallback onSolved;
   const SpiralGame({super.key, required this.onSolved});
@@ -772,7 +445,6 @@ class SpiralGame extends StatefulWidget {
 
 class _SpiralGameState extends State<SpiralGame> {
   final entered = <int, String>{};
-  final positions = spiralPositions(7);
   final errors = <int>{};
   final starts = spiralStarts;
   int selected = 0, active = 0;
@@ -851,79 +523,6 @@ class _SpiralGameState extends State<SpiralGame> {
     if (ok) widget.onSolved();
   }
 
-  Widget cell(int r, int c) {
-    final index = positions.indexOf((r, c));
-    final inWord =
-        index >= starts[active] &&
-        index < starts[active] + spiralWords[active].$1.length;
-    final beginning = starts.indexOf(index);
-    final next = index < positions.length - 1 ? positions[index + 1] : null;
-    final arrow = next == null
-        ? '•'
-        : next.$1 > r
-        ? '↓'
-        : next.$1 < r
-        ? '↑'
-        : next.$2 > c
-        ? '→'
-        : '←';
-    return Semantics(
-      label: '${index + 1}. kutu, ${entered[index] ?? 'boş'}',
-      button: true,
-      child: InkWell(
-        onTap: () => setState(() => move(index)),
-        child: Container(
-          key: ValueKey('spiral_$index'),
-          decoration: BoxDecoration(
-            color: selected == index
-                ? const Color(0xFFD3AE68)
-                : inWord
-                ? selectedPaper
-                : Colors.white,
-            border: Border.all(
-              color: selected == index ? rust : rule,
-              width: selected == index ? 1.7 : .4,
-            ),
-          ),
-          child: Stack(
-            children: [
-              if (beginning >= 0)
-                Positioned(
-                  top: 2,
-                  left: 3,
-                  child: Text(
-                    '${beginning + 1}',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              Positioned(
-                bottom: 1,
-                right: 3,
-                child: Text(
-                  arrow,
-                  style: const TextStyle(color: rule, fontSize: 11),
-                ),
-              ),
-              Center(
-                child: Text(
-                  entered[index] ?? '',
-                  style: TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w600,
-                    color: errors.contains(index) ? Colors.red.shade800 : ink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) => Column(
     children: [
@@ -936,15 +535,24 @@ class _SpiralGameState extends State<SpiralGame> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const EditionHeading(label: 'SARMAL • 13 SORU • 49 KUTU'),
+                  const EditionHeading(
+                    label: 'DAİRESEL SARMAL • 13 SORU • 49 KUTU',
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      'Sol üstten başla, okları izleyerek merkeze ilerle. Her cevabın son harfi sonraki cevabın ilk harfidir. Ortak harf tek kutuya yazılır.',
+                      'Dış halkadaki 1’den başla, saat yönünde ilerle; halkayı bitirince okla bir iç halkaya geç. Her cevabın son harfi sonraki cevabın ilk harfidir.',
                       style: TextStyle(fontSize: 13),
                     ),
                   ),
-                  PaperGrid(size: 7, cell: cell),
+                  CircularSpiralBoard(
+                    entered: entered,
+                    errors: errors,
+                    selected: selected,
+                    activeStart: starts[active],
+                    activeLength: spiralWords[active].$1.length,
+                    onSelect: (index) => setState(() => move(index)),
+                  ),
                   const SizedBox(height: 12),
                   for (var i = 0; i < spiralWords.length; i++)
                     InkWell(

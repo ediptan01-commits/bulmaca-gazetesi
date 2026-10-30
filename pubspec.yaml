@@ -1,7 +1,7 @@
 name: bulmaca_gazetesi
 description: Gazete ve modern kategori deneyimini birleştiren Türkçe bulmaca oyunu.
 publish_to: none
-version: 1.1.0+2
+version: 1.2.0+3
 environment:
   sdk: '>=3.11.0 <4.0.0'
 dependencies:
