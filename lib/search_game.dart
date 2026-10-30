@@ -168,7 +168,8 @@ class _SearchGameState extends State<SearchGame> {
                   onPanStart: ready
                       ? (details) => setState(() {
                           start = panOrigin ?? position(details.localPosition);
-                          end = start;
+                          end = position(details.localPosition);
+                          live.add(normalized(details.localPosition));
                           dragging = true;
                         })
                       : null,

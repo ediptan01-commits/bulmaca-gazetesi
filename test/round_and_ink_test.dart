@@ -106,4 +106,30 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'Gerçek telefon sayfasında hızlı tek hareketli karalama çalışır',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PuzzleScreen(puzzle: puzzles.firstWhere((p) => p.id == 'av')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final cells = searchCells(searchEntries.first);
+      final from = tester.getCenter(
+        find.byKey(ValueKey('search_${cells.first.$1},${cells.first.$2}')),
+      );
+      final to = tester.getCenter(
+        find.byKey(ValueKey('search_${cells.last.$1},${cells.last.$2}')),
+      );
+      await tester.dragFrom(from, to - from);
+      await tester.pumpAndSettle();
+      expect(await Store.read('search_found'), searchEntries.first.$1);
+    },
+  );
 }
