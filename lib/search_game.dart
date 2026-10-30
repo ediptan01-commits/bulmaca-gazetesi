@@ -175,19 +175,22 @@ class _SearchGameState extends State<SearchGame> {
                       live = [normalized(event.localPosition)];
                     },
                     onPointerMove: (event) {
-                      if (event.pointer != activePointer || downPoint == null)
+                      if (event.pointer != activePointer || downPoint == null) {
                         return;
+                      }
                       if (!dragging &&
-                          (event.localPosition - downPoint!).distance < 4)
+                          (event.localPosition - downPoint!).distance < 4) {
                         return;
+                      }
                       setState(() {
                         if (!dragging) {
                           start = panOrigin;
                           dragging = true;
                         }
                         end = position(event.localPosition);
-                        if (live.length < 512)
+                        if (live.length < 512) {
                           live.add(normalized(event.localPosition));
+                        }
                       });
                     },
                     onPointerUp: (event) {
