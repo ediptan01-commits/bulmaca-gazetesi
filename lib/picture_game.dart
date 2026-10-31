@@ -50,12 +50,16 @@ String get pictureSecret =>
 
 class PictureGame extends StatefulWidget {
   final VoidCallback onSolved;
-  const PictureGame({super.key, required this.onSolved});
+  final int level;
+  const PictureGame({super.key, this.level = 1, required this.onSolved});
   @override
   State<PictureGame> createState() => _PictureGameState();
 }
 
 class _PictureGameState extends State<PictureGame> {
+  List<PictureClue> get clues => pictureCluesForLevel(widget.level);
+  String get saveKey =>
+      widget.level == 1 ? 'picture_cipher' : 'picture_scene_${widget.level}';
   final answers = <int, String>{};
   final solved = <int>{};
   int active = 0, selected = 0;
@@ -67,17 +71,16 @@ class _PictureGameState extends State<PictureGame> {
   }
 
   Future<void> restore() async {
-    final raw = await Store.read('picture_cipher');
+    final raw = await Store.read(saveKey);
     if (!mounted) return;
     if (raw != null) {
       try {
         final data = jsonDecode(raw) as Map<String, dynamic>;
-        for (var i = 0; i < pictureClues.length; i++) {
+        for (var i = 0; i < clues.length; i++) {
           final value = data['$i'];
-          if (value is String &&
-              value.length <= pictureClues[i].answer.length) {
+          if (value is String && value.length <= clues[i].answer.length) {
             answers[i] = value;
-            if (value == pictureClues[i].answer) solved.add(i);
+            if (value == clues[i].answer) solved.add(i);
           }
         }
       } catch (_) {
@@ -85,16 +88,14 @@ class _PictureGameState extends State<PictureGame> {
       }
     }
     setState(() {
-      active = pictureClues.indexWhere(
-        (c) => !solved.contains(pictureClues.indexOf(c)),
-      );
+      active = clues.indexWhere((c) => !solved.contains(clues.indexOf(c)));
       if (active < 0) active = 0;
       ready = true;
     });
   }
 
   void save() => Store.write(
-    'picture_cipher',
+    saveKey,
     jsonEncode({for (final e in answers.entries) '${e.key}': e.value}),
   );
   void choose(int index) => setState(() {
@@ -106,7 +107,7 @@ class _PictureGameState extends State<PictureGame> {
     if (!ready || solved.contains(active)) return;
     setState(() {
       final chars = (answers[active] ?? '')
-          .padRight(pictureClues[active].answer.length, '_')
+          .padRight(clues[active].answer.length, '_')
           .split('');
       chars[selected] = value;
       answers[active] = chars.join();
@@ -119,7 +120,7 @@ class _PictureGameState extends State<PictureGame> {
     if (!ready || solved.contains(active)) return;
     setState(() {
       final chars = (answers[active] ?? '')
-          .padRight(pictureClues[active].answer.length, '_')
+          .padRight(clues[active].answer.length, '_')
           .split('');
       if (chars[selected] == '_' && selected > 0) selected--;
       chars[selected] = '_';
@@ -129,7 +130,7 @@ class _PictureGameState extends State<PictureGame> {
   }
 
   void check() {
-    if (answers[active] != pictureClues[active].answer) {
+    if (answers[active] != clues[active].answer) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Resimdeki nesnenin adını kutulara yaz.')),
       );
@@ -140,11 +141,11 @@ class _PictureGameState extends State<PictureGame> {
       hint = false;
     });
     save();
-    if (solved.length == pictureClues.length) {
+    if (solved.length == clues.length) {
       widget.onSolved();
     } else {
       final next = List.generate(
-        pictureClues.length,
+        clues.length,
         (i) => i,
       ).firstWhere((i) => !solved.contains(i));
       choose(next);
@@ -153,7 +154,7 @@ class _PictureGameState extends State<PictureGame> {
 
   @override
   Widget build(BuildContext context) {
-    final clue = pictureClues[active],
+    final clue = clues[active],
         value = (answers[active] ?? '').padRight(clue.answer.length, '_');
     return Column(
       children: [
@@ -177,11 +178,12 @@ class _PictureGameState extends State<PictureGame> {
                             ),
                           ),
                         ),
-                        Text('${solved.length} / 6'),
+                        Text('${solved.length} / ${clues.length}'),
                       ],
                     ),
                     const SizedBox(height: 6),
                     PictureScene(
+                      level: widget.level,
                       active: active,
                       solved: solved,
                       onSelect: choose,
@@ -190,7 +192,7 @@ class _PictureGameState extends State<PictureGame> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        for (var i = 0; i < pictureClues.length; i++)
+                        for (var i = 0; i < clues.length; i++)
                           SizedBox(
                             width: 44,
                             height: 38,
@@ -275,7 +277,7 @@ class _PictureGameState extends State<PictureGame> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        for (var i = 0; i < pictureClues.length; i++)
+                        for (var i = 0; i < clues.length; i++)
                           Container(
                             width: 35,
                             height: 37,
@@ -287,8 +289,7 @@ class _PictureGameState extends State<PictureGame> {
                             ),
                             child: Text(
                               solved.contains(i)
-                                  ? pictureClues[i].answer[pictureClues[i]
-                                        .secretIndex]
+                                  ? clues[i].answer[clues[i].secretIndex]
                                   : '·',
                               style: const TextStyle(
                                 fontFamily: 'serif',
@@ -299,9 +300,9 @@ class _PictureGameState extends State<PictureGame> {
                           ),
                       ],
                     ),
-                    if (solved.length == pictureClues.length)
+                    if (solved.length == clues.length)
                       Text(
-                        'Şifre çözüldü: $pictureSecret',
+                        'Şifre çözüldü: ${clues.map((c) => c.answer[c.secretIndex]).join()}',
                         style: const TextStyle(
                           color: green,
                           fontWeight: FontWeight.bold,
@@ -322,11 +323,14 @@ class _PictureGameState extends State<PictureGame> {
 
 class PictureScene extends StatelessWidget {
   final int active;
+  final int level;
+  List<PictureClue> get clues => pictureCluesForLevel(level);
   final Set<int> solved;
   final ValueChanged<int> onSelect;
   const PictureScene({
     super.key,
     required this.active,
+    this.level = 1,
     required this.solved,
     required this.onSelect,
   });
@@ -338,14 +342,20 @@ class PictureScene extends StatelessWidget {
         decoration: BoxDecoration(border: Border.all(color: ink)),
         child: Stack(
           children: [
-            Positioned.fill(child: CustomPaint(painter: _ParkScenePainter())),
-            for (var i = 0; i < pictureClues.length; i++)
+            Positioned.fill(
+              child: CustomPaint(
+                painter: level == 1
+                    ? _ParkScenePainter()
+                    : _NewPictureScenePainter(level),
+              ),
+            ),
+            for (var i = 0; i < clues.length; i++)
               Positioned.fromRect(
                 rect: Rect.fromLTWH(
-                  pictureClues[i].area.left * constraints.maxWidth,
-                  pictureClues[i].area.top * constraints.maxHeight,
-                  pictureClues[i].area.width * constraints.maxWidth,
-                  pictureClues[i].area.height * constraints.maxHeight,
+                  clues[i].area.left * constraints.maxWidth,
+                  clues[i].area.top * constraints.maxHeight,
+                  clues[i].area.width * constraints.maxWidth,
+                  clues[i].area.height * constraints.maxHeight,
                 ),
                 child: Semantics(
                   label: '${i + 1}. görsel',
@@ -509,4 +519,267 @@ class _ParkScenePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ParkScenePainter old) => false;
+}
+
+const gardenPictureClues = [
+  PictureClue(
+    'BALON',
+    'İçi havayla dolan, ipinden tutulan oyuncak',
+    0,
+    Rect.fromLTWH(.03, .04, .23, .43),
+  ),
+  PictureClue(
+    'AĞAÇ',
+    'Gövdesi ve dalları olan bitki',
+    0,
+    Rect.fromLTWH(.31, .05, .32, .52),
+  ),
+  PictureClue(
+    'HAVUÇ',
+    'Toprak altında yetişen turuncu sebze',
+    0,
+    Rect.fromLTWH(.72, .33, .22, .32),
+  ),
+  PictureClue(
+    'ÇİÇEK',
+    'Renkli yapraklarıyla açan bitki',
+    0,
+    Rect.fromLTWH(.03, .53, .24, .42),
+  ),
+  PictureClue(
+    'ELMA',
+    'Amasya ile anılan meyve',
+    0,
+    Rect.fromLTWH(.35, .65, .23, .29),
+  ),
+  PictureClue(
+    'MANTAR',
+    'Şapka biçimli başlığı olan canlı',
+    0,
+    Rect.fromLTWH(.70, .68, .26, .28),
+  ),
+];
+const roomPictureClues = [
+  PictureClue(
+    'BALON',
+    'İpi olan, havayla şişirilen oyuncak',
+    0,
+    Rect.fromLTWH(.03, .03, .23, .48),
+  ),
+  PictureClue(
+    'İNCİ',
+    'İstiridyeden çıkan değerli, yuvarlak süs',
+    0,
+    Rect.fromLTWH(.28, .65, .22, .28),
+  ),
+  PictureClue(
+    'LAMBA',
+    'Masayı aydınlatan elektrikli araç',
+    0,
+    Rect.fromLTWH(.50, .20, .23, .55),
+  ),
+  PictureClue(
+    'GÜNEŞ',
+    'Pencereden görünen yıldız',
+    0,
+    Rect.fromLTWH(.76, .03, .22, .35),
+  ),
+  PictureClue(
+    'İPLİK',
+    'Yumak hâlinde sarılmış ince dokuma lifi',
+    0,
+    Rect.fromLTWH(.73, .69, .23, .26),
+  ),
+  PictureClue(
+    'NAR',
+    'Kırmızı taneleri olan meyve',
+    0,
+    Rect.fromLTWH(.03, .70, .23, .25),
+  ),
+];
+List<PictureClue> pictureCluesForLevel(int level) => switch (level) {
+  2 => gardenPictureClues,
+  3 => roomPictureClues,
+  _ => pictureClues,
+};
+
+class _NewPictureScenePainter extends CustomPainter {
+  final int level;
+  const _NewPictureScenePainter(this.level);
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.scale(size.width / 600, size.height / 380);
+    final pen = Paint()
+      ..color = ink
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    void oval(double x, double y, double w, double h, Color color) {
+      final r = Rect.fromLTWH(x, y, w, h);
+      canvas.drawOval(r, Paint()..color = color);
+      canvas.drawOval(r, pen);
+    }
+
+    void rect(double x, double y, double w, double h, Color color) {
+      final r = Rect.fromLTWH(x, y, w, h);
+      canvas.drawRect(r, Paint()..color = color);
+      canvas.drawRect(r, pen);
+    }
+
+    void line(double x, double y, double a, double b) =>
+        canvas.drawLine(Offset(x, y), Offset(a, b), pen);
+    void polygon(List<Offset> points, Color color) {
+      final p = Path()..addPolygon(points, true);
+      canvas.drawPath(p, Paint()..color = color);
+      canvas.drawPath(p, pen);
+    }
+
+    // Ortak balon: her sahnede nesne kendi numarasından seçilebilir.
+    canvas.drawRect(
+      const Rect.fromLTWH(0, 0, 600, 380),
+      Paint()
+        ..color = level == 2
+            ? const Color(0xFFE3F0EA)
+            : const Color(0xFFF2E6D2),
+    );
+    if (level == 2) {
+      canvas.drawOval(
+        const Rect.fromLTWH(-120, 180, 850, 430),
+        Paint()..color = const Color(0xFFDCE5C5),
+      );
+      rect(270, 145, 24, 95, const Color(0xFFAE805B));
+      oval(205, 70, 100, 110, const Color(0xFF7C9F73));
+      oval(260, 60, 95, 110, const Color(0xFF89AA79));
+      oval(235, 30, 90, 110, const Color(0xFF9BB786));
+      // Havuç ve yaprakları.
+      polygon(const [
+        Offset(452, 172),
+        Offset(501, 192),
+        Offset(452, 247),
+      ], const Color(0xFFE99A47));
+      line(468, 165, 472, 137);
+      line(478, 172, 502, 149);
+      line(459, 172, 447, 145);
+      line(468, 195, 482, 201);
+      // Çiçek.
+      line(89, 274, 89, 350);
+      oval(91, 309, 30, 14, const Color(0xFF88A47C));
+      for (var i = 0; i < 6; i++) {
+        final a = i * math.pi / 3;
+        oval(
+          77 + math.cos(a) * 23,
+          260 + math.sin(a) * 23,
+          28,
+          28,
+          const Color(0xFFD18C9B),
+        );
+      }
+      oval(79, 264, 25, 25, const Color(0xFFE6BC56));
+      // Elma.
+      oval(236, 277, 49, 61, const Color(0xFFC56C57));
+      oval(263, 277, 49, 61, const Color(0xFFC56C57));
+      line(273, 283, 279, 264);
+      oval(280, 260, 26, 12, const Color(0xFF88A47C));
+      // Mantar.
+      rect(481, 310, 22, 41, const Color(0xFFF5E7CE));
+      final cap = Path()
+        ..moveTo(447, 316)
+        ..quadraticBezierTo(492, 242, 539, 316)
+        ..close();
+      canvas.drawPath(cap, Paint()..color = const Color(0xFFBD6D5B));
+      canvas.drawPath(cap, pen);
+      for (final p in [
+        const Offset(475, 299),
+        const Offset(501, 286),
+        const Offset(518, 305),
+      ]) {
+        oval(p.dx, p.dy, 9, 9, paper);
+      }
+    } else {
+      // Pencere ve çalışma masası.
+      rect(448, 14, 139, 132, const Color(0xFFDCECF0));
+      line(448, 144, 587, 144);
+      oval(495, 39, 50, 50, const Color(0xFFE6BC56));
+      for (var i = 0; i < 8; i++) {
+        final a = i * math.pi / 4;
+        line(
+          520 + math.cos(a) * 32,
+          64 + math.sin(a) * 32,
+          520 + math.cos(a) * 39,
+          64 + math.sin(a) * 39,
+        );
+      }
+      rect(20, 287, 560, 18, const Color(0xFFB68D64));
+      line(46, 305, 46, 378);
+      line(552, 305, 552, 378);
+      // Masa lambası.
+      rect(332, 265, 75, 10, const Color(0xFF749C83));
+      line(369, 265, 369, 181);
+      polygon(const [
+        Offset(345, 114),
+        Offset(393, 114),
+        Offset(420, 180),
+        Offset(318, 180),
+      ], const Color(0xFF88A47C));
+      // İnci kolye.
+      for (var i = 0; i < 13; i++) {
+        final a = i * math.pi / 6;
+        oval(
+          225 + math.cos(a) * 40,
+          306 + math.sin(a) * 22,
+          12,
+          12,
+          const Color(0xFFFFFAF0),
+        );
+      }
+      // İplik yumağı.
+      oval(470, 300, 65, 49, const Color(0xFFB197BF));
+      for (var i = 0; i < 4; i++) {
+        line(480 + i * 9, 307, 500 + i * 7, 342);
+      }
+      canvas.drawPath(
+        Path()
+          ..moveTo(527, 332)
+          ..quadraticBezierTo(569, 331, 557, 359),
+        pen,
+      );
+      // Nar, ayırt edici taç ve görünür taneler.
+      oval(52, 302, 65, 51, const Color(0xFFC36B60));
+      polygon(const [
+        Offset(76, 305),
+        Offset(73, 294),
+        Offset(83, 299),
+        Offset(91, 290),
+        Offset(94, 305),
+      ], const Color(0xFFC36B60));
+      oval(90, 316, 19, 25, const Color(0xFFF1C4A5));
+      for (var i = 0; i < 4; i++) {
+        oval(
+          94 + (i % 2) * 6,
+          322 + (i ~/ 2) * 7,
+          3,
+          3,
+          const Color(0xFF9B4141),
+        );
+      }
+    }
+    oval(48, 30, 70, 93, const Color(0xFFD99A75));
+    polygon(const [
+      Offset(78, 121),
+      Offset(72, 132),
+      Offset(88, 132),
+    ], const Color(0xFFD99A75));
+    canvas.drawPath(
+      Path()
+        ..moveTo(80, 132)
+        ..cubicTo(55, 157, 108, 164, 80, 190),
+      pen,
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _NewPictureScenePainter oldDelegate) =>
+      oldDelegate.level != level;
 }

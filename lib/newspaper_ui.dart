@@ -17,7 +17,7 @@ class EditionHeading extends StatelessWidget {
       ),
     ),
     child: Text(
-      label.toUpperCase(),
+      trUpper(label),
       textAlign: TextAlign.center,
       style: const TextStyle(
         fontFamily: 'serif',
@@ -62,14 +62,22 @@ class PaperGrid extends StatelessWidget {
 
 class CrossGame extends StatefulWidget {
   final bool arrow;
+  final int level;
   final VoidCallback onSolved;
-  const CrossGame({super.key, required this.arrow, required this.onSolved});
+  const CrossGame({
+    super.key,
+    required this.arrow,
+    this.level = 1,
+    required this.onSolved,
+  });
   @override
   State<CrossGame> createState() => _CrossGameState();
 }
 
 class _CrossGameState extends State<CrossGame> {
-  late final words = widget.arrow ? arrowWords : crossWords;
+  late final words = widget.arrow
+      ? arrowWordsForLevel(widget.level)
+      : crossWords;
   int get size => widget.arrow ? arrowSize : crossSize;
   int get rows => widget.arrow ? arrowRows : crossSize;
   late final solution = <(int, int), String>{
@@ -92,8 +100,11 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
+  String get saveKey => widget.arrow && widget.level > 1
+      ? 'arrow_v2_${widget.level}'
+      : 'cross_${widget.arrow}';
   Future<void> restore() async {
-    final data = await Store.read('cross_${widget.arrow}');
+    final data = await Store.read(saveKey);
     if (!mounted) return;
     if (data != null) {
       try {
@@ -110,7 +121,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   void save() {
-    Store.write('cross_${widget.arrow}', jsonEncode(filled));
+    Store.write(saveKey, jsonEncode(filled));
   }
 
   void choose(int index) => setState(() {
@@ -362,31 +373,43 @@ class _CrossGameState extends State<CrossGame> {
     return Column(
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 660),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ZoomablePaper(
-                      gridSize: size,
-                      gridRows: rows,
-                      minimumCellSize: 0,
-                      onCheck: ready ? check : null,
-                      child: PaperGrid(size: size, rows: rows, cell: cell),
-                    ),
-                    if (!widget.arrow)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: clues(false)),
-                          const SizedBox(width: 12),
-                          Expanded(child: clues(true)),
-                        ],
+          child: LayoutBuilder(
+            builder: (context, available) => SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: widget.arrow
+                        ? math.max(
+                            120,
+                            math.min(
+                              available.maxWidth - 8,
+                              available.maxHeight - 44,
+                            ),
+                          )
+                        : 660,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ZoomablePaper(
+                        gridSize: size,
+                        gridRows: rows,
+                        minimumCellSize: 0,
+                        onCheck: ready ? check : null,
+                        child: PaperGrid(size: size, rows: rows, cell: cell),
                       ),
-                  ],
+                      if (!widget.arrow)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: clues(false)),
+                            const SizedBox(width: 12),
+                            Expanded(child: clues(true)),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

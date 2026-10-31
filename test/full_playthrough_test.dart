@@ -88,6 +88,12 @@ void main() {
           expect(await Store.read(chapter), isNull);
           switch (puzzle.id) {
             case 'cengel':
+              final words = arrowWordsForLevel(level);
+              for (var i = 0; i < words.length; i++) {
+                await click(tester, find.byKey(ValueKey('arrow_clue_$i')));
+                await letters(tester, words[i].text);
+              }
+              await click(tester, find.text('Kontrol et'));
             case 'kare':
               final placed = makeCrosswords(pack, arrow: puzzle.id == 'cengel');
               for (var i = 0; i < placed.length; i++) {
@@ -147,19 +153,17 @@ void main() {
               );
               await click(tester, find.text('Sarmalı kontrol et'));
             case 'resim':
-              for (var i = 0; i < 5; i++) {
-                final field = find.byKey(ValueKey('picture_answer_$i'));
-                await tester.ensureVisible(field);
-                await tester.enterText(field, pack.words[i].word);
-                await tester.pump();
+              for (final clue in pictureCluesForLevel(level)) {
+                await letters(tester, clue.answer);
+                await click(tester, find.text('Kontrol et'));
+                await tester.pumpAndSettle();
               }
-              await click(tester, find.text('Cevapları kontrol et'));
           }
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           expect(await Store.read(chapter), '1');
           expect(find.text('Bölüm tamamlandı!'), findsOneWidget);
-          if (puzzle.id != 'av') {
+          if (!['av', 'cengel', 'resim'].contains(puzzle.id)) {
             final data =
                 jsonDecode((await Store.read('extra_${puzzle.id}_$level'))!)
                     as Map<String, dynamic>;

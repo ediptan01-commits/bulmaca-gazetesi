@@ -397,7 +397,35 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isCross = type == 'cengel' || type == 'kare';
+    if (type == 'cengel' || type == 'resim') {
+      return Scaffold(
+        appBar: AppBar(title: Text('${widget.puzzle.name} • ${widget.level}')),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: type == 'cengel'
+                    ? CrossGame(
+                        arrow: true,
+                        level: widget.level,
+                        onSolved: complete,
+                      )
+                    : PictureGame(level: widget.level, onSolved: complete),
+              ),
+              if (done)
+                const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Text(
+                    'Bölüm tamamlandı!',
+                    style: TextStyle(color: green, fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+    final isCross = type == 'kare';
     return Scaffold(
       appBar: AppBar(title: Text('${widget.puzzle.name} • ${widget.level}')),
       body: SafeArea(

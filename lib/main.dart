@@ -710,7 +710,13 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
                       ),
                     ),
                     subtitle: Text(
-                      i == 1 ? 'Klasik gazete bulmacası' : extraTheme(i),
+                      i == 1
+                          ? 'Klasik gazete bulmacası'
+                          : widget.puzzle.id == 'cengel'
+                          ? 'Gazete seçkisi $i'
+                          : widget.puzzle.id == 'resim'
+                          ? (i == 2 ? 'Bahçede keşif' : 'Odada keşif')
+                          : extraTheme(i),
                     ),
                     trailing: Icon(
                       i == 1 || completed.contains(i - 1)

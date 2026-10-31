@@ -1,4 +1,4 @@
-# Bulmaca Dünyası — 1.4.0
+# Bulmaca Dünyası — 1.4.1
 
 **Her Bulmacada Yeni Bir Macera!**
 
@@ -24,3 +24,12 @@ gizlilik politikası ve gerçek Android cihaz kontrolü tamamlanmalıdır.
 
 Bu sürüm bölüm kayıtlarında Set serileştirme hatasını, uzun sarmallarda erken
 bitme sorununu ve ek kelime avında sürükleme desteğini düzeltir.
+
+## 1.4.1 düzeltmeleri
+
+Çengelin üç bölümü 8×8 sabit ve doğrulanmış ızgaralar kullanır. Her kesintisiz
+harf dizisinin sorusu vardır; ipucu kutuları harfleri kapatmaz. Izgara klavyenin
+üzerindeki kullanılabilir yüksekliğe göre sığar. İlk bölümdeki ayrık alt satırlar kaldırıldı.
+
+Resimli bölümlerin tamamı nesne seçme, harf kutuları ve gizli şifre sistemi kullanır:
+park (GAZETE), bahçe (BAHÇEM), oda (BİLGİN). Her bölümün kaydı ayrıdır.
