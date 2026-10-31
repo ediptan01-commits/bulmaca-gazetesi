@@ -33,7 +33,12 @@ class PaperGrid extends StatelessWidget {
   final int size;
   final int? rows;
   final Widget Function(int, int) cell;
-  const PaperGrid({super.key, required this.size, this.rows, required this.cell});
+  const PaperGrid({
+    super.key,
+    required this.size,
+    this.rows,
+    required this.cell,
+  });
   @override
   Widget build(BuildContext context) => AspectRatio(
     aspectRatio: size / (rows ?? size),

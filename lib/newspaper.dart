@@ -134,3 +134,6 @@ List<int> get spiralStarts {
   }
   return starts;
 }
+
+const defaultSearchGrid = searchGrid;
+const defaultSearchEntries = searchEntries;

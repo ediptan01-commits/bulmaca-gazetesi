@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bulmaca_gazetesi/main.dart';
 
 void main() {
-  test('Altı bulmaca türünde ilk sayı ve on yeni sayı vardır', () {
-    expect(levelsPerPuzzle, 11);
+  test('İlk sürüm altı tür ve toplam on sekiz bölüm içerir', () {
+    expect(levelsPerPuzzle, 3);
     expect(puzzles.length, 6);
-    expect((levelsPerPuzzle - 1) * puzzles.length, 60);
+    expect((levelsPerPuzzle - 1) * puzzles.length, 12);
     expect(extraPacks.length, 10);
     expect(extraPacks.map((p) => p.title).toSet().length, 10);
   });
@@ -28,8 +28,9 @@ void main() {
       expect(board.grid.length, 13);
       expect(board.entries.length, extraPacks[level - 2].words.length);
       for (final entry in board.entries) {
-        final actual = List.generate(entry.$1.length, (i) =>
-          board.grid[entry.$2 + i * entry.$4][entry.$3 + i * entry.$5],
+        final actual = List.generate(
+          entry.$1.length,
+          (i) => board.grid[entry.$2 + i * entry.$4][entry.$3 + i * entry.$5],
         ).join();
         expect(actual, entry.$1);
       }

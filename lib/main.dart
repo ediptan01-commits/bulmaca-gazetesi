@@ -13,10 +13,12 @@ part 'picture_game.dart';
 part 'extra_levels.dart';
 
 void main() => runApp(const BulmacaApp());
-const paper = Color(0xFFF7F0E2);
-const ink = Color(0xFF292820);
-const rust = Color(0xFF9E5233);
-const green = Color(0xFF50735A);
+const appName = 'Bulmaca Dünyası';
+const appSlogan = 'Her Bulmacada Yeni Bir Macera!';
+const paper = Color(0xFFF7F2E8);
+const ink = Color(0xFF173E32);
+const rust = Color(0xFF82623E);
+const green = Color(0xFF29654D);
 
 String trUpper(String s) =>
     s.replaceAll('i', 'İ').replaceAll('ı', 'I').toUpperCase();
@@ -58,12 +60,12 @@ class BulmacaApp extends StatelessWidget {
   const BulmacaApp({super.key});
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'Bulmaca Gazetesi',
+    title: appName,
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: paper,
-      colorScheme: ColorScheme.fromSeed(seedColor: rust, surface: paper),
+      colorScheme: ColorScheme.fromSeed(seedColor: green, surface: paper),
       appBarTheme: const AppBarTheme(
         backgroundColor: paper,
         foregroundColor: ink,
@@ -102,9 +104,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int tab = 0;
-  Set<String> complete = {};
-  int totalLevelDone = 0;
+  final Map<String, int> completed = {};
+  int get total => completed.values.fold(0, (a, b) => a + b);
   @override
   void initState() {
     super.initState();
@@ -112,18 +113,26 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> refresh() async {
-    final ids = <String>{};
-    var total = 0;
+    final counts = <String, int>{};
     for (final p in puzzles) {
-      if (await Store.done(p.id)) { ids.add(p.id); total++; }
+      var count = await Store.done(p.id) ? 1 : 0;
       for (var i = 2; i <= levelsPerPuzzle; i++) {
-        if (await Store.read('chapter_${p.id}_$i') == '1') total++;
+        if (await Store.read('chapter_undefined_$i') == '1') {
+          count++;
+        }
       }
+      counts[p.id] = count;
     }
-    if (mounted) setState(() { complete = ids; totalLevelDone = total; });
+    if (mounted) {
+      setState(() {
+        completed
+          ..clear()
+          ..addAll(counts);
+      });
+    }
   }
 
-  void open(Puzzle p) async {
+  Future<void> open(Puzzle p) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => LevelSelectScreen(puzzle: p)),
@@ -132,182 +141,175 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final date =
-        '${today.day.toString().padLeft(2, '0')}.${today.month.toString().padLeft(2, '0')}.${today.year}';
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'BULMACA GAZETESİ',
-          style: TextStyle(
-            fontFamily: 'serif',
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1,
-          ),
-        ),
-        centerTitle: true,
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      centerTitle: false,
+      title: const Text(
+        appName,
+        style: TextStyle(fontWeight: FontWeight.w800, color: ink, fontSize: 24),
       ),
-      body: SafeArea(
-        child: tab == 0
-            ? ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(19),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBF1),
-                      border: Border.all(color: ink, width: 2),
-                    ),
-                    child: Column(
+    ),
+    body: SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 28),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: ink,
+                  borderRadius: BorderRadius.circular(26),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
                       children: [
-                        const Text(
-                          'HAFTA SONU EKİ',
-                          style: TextStyle(
-                            fontFamily: 'serif',
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(color: ink, thickness: 2),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'SAYI 003 • $date',
-                              style: const TextStyle(fontSize: 12),
+                        Icon(Icons.public, color: paper, size: 38),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Keşfet. Düşün. Çöz.',
+                            style: TextStyle(
+                              color: paper,
+                              fontSize: 21,
+                              fontWeight: FontWeight.w700,
                             ),
-                            const Text(
-                              'HER GÜN BEYİN EGZERSİZİ',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 18),
-                        const Icon(Icons.auto_stories, size: 72, color: rust),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Altı bulmaca, 66 bölüm.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontFamily: 'serif', fontSize: 23),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          '$totalLevelDone / 66 bölüm tamamlandı',
-                          style: const TextStyle(
-                            color: green,
-                            fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: totalLevelDone / (puzzles.length * levelsPerPuzzle),
-                          color: green,
-                          backgroundColor: Colors.black12,
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  const Text(
-                    'BUGÜNÜN SAYFALARI',
-                    style: TextStyle(
-                      fontFamily: 'serif',
-                      fontSize: 21,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  ...puzzles.map(
-                    (p) => Card(
-                      child: ListTile(
-                        leading: Text(
-                          p.emoji,
-                          style: const TextStyle(fontSize: 28),
-                        ),
-                        title: Text(
-                          p.name,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        subtitle: Text(p.subtitle),
-                        trailing: Icon(
-                          complete.contains(p.id)
-                              ? Icons.check_circle
-                              : Icons.chevron_right,
-                          color: complete.contains(p.id) ? green : ink,
-                        ),
-                        onTap: () => open(p),
+                    const SizedBox(height: 20),
+                    const Text(
+                      appSlogan,
+                      style: TextStyle(
+                        color: paper,
+                        fontSize: 27,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Bu sayı: 22 kare, 30 çengel sorusu; 11 kelime ve 49 kutuluk dairesel sarmal. Çözümleriniz cihazınızda saklanır.',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
-                ],
-              )
-            : GridView.builder(
-                padding: const EdgeInsets.all(14),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.92,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
+                    const SizedBox(height: 12),
+                    const Text(
+                      '6 bulmaca türü • 18 bölüm',
+                      style: TextStyle(color: Color(0xFFD3E1D5), fontSize: 15),
+                    ),
+                    const SizedBox(height: 22),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: total / 18,
+                        minHeight: 7,
+                        color: const Color(0xFFD9BD80),
+                        backgroundColor: Colors.white24,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '$total / 18 bölüm tamamlandı',
+                      style: const TextStyle(color: paper),
+                    ),
+                  ],
                 ),
-                itemCount: puzzles.length,
-                itemBuilder: (ctx, i) {
-                  final p = puzzles[i];
-                  return InkWell(
-                    onTap: () => open(p),
-                    child: Card(
+              ),
+              const SizedBox(height: 26),
+              const Text(
+                'Bugün hangi macera?',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 23,
+                  color: ink,
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Kaldığın yerden devam et veya yeni bir tür keşfet.',
+                style: TextStyle(color: green, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              for (final p in puzzles)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Material(
+                    color: const Color(0xFFFFFCF6),
+                    borderRadius: BorderRadius.circular(20),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => open(p),
                       child: Padding(
-                        padding: const EdgeInsets.all(13),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        padding: const EdgeInsets.all(18),
+                        child: Row(
                           children: [
-                            Text(p.emoji, style: const TextStyle(fontSize: 44)),
-                            const SizedBox(height: 10),
-                            Text(
-                              p.name,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                            Container(
+                              width: 54,
+                              height: 54,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE5EBDD),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                p.emoji,
+                                style: const TextStyle(fontSize: 28),
                               ),
                             ),
-                            const SizedBox(height: 7),
-                            Text(
-                              complete.contains(p.id)
-                                  ? '✓ Tamamlandı'
-                                  : p.subtitle,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: complete.contains(p.id)
-                                    ? green
-                                    : Colors.black54,
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    p.name,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: ink,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    p.subtitle,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: green,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '${completed[p.id] ?? 0} / 3 bölüm',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: ink,
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: green,
                             ),
                           ],
                         ),
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
+              const SizedBox(height: 8),
+              const Text(
+                'İlerlemen bu cihazda otomatik kaydedilir.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: green),
               ),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: tab,
-        onDestinationSelected: (v) => setState(() => tab = v),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.newspaper), label: 'Gazete'),
-          NavigationDestination(
-            icon: Icon(Icons.grid_view),
-            label: 'Kategoriler',
+            ],
           ),
-        ],
+        ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 class PuzzleScreen extends StatefulWidget {
@@ -609,9 +611,8 @@ List<(int, int)> spiralPositions(int n) {
   return result;
 }
 
-
-/// Bölüm 1 önceki sürümle aynıdır; bölümler 2–11 yeni içeriklerdir.
-const levelsPerPuzzle = 11;
+/// İlk sürümde her tür için üç oynanabilir bölüm.
+const levelsPerPuzzle = 3;
 
 class LevelSelectScreen extends StatefulWidget {
   final Puzzle puzzle;
@@ -638,16 +639,25 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
           : await Store.read('chapter_${widget.puzzle.id}_$level') == '1';
       if (done) ids.add(level);
     }
-    if (mounted) setState(() { completed..clear()..addAll(ids); loading = false; });
+    if (mounted) {
+      setState(() {
+        completed
+          ..clear()
+          ..addAll(ids);
+        loading = false;
+      });
+    }
   }
 
   Future<void> open(int level) async {
     if (level > 1 && !completed.contains(level - 1)) return;
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) =>
-      level == 1
-          ? PuzzleScreen(puzzle: widget.puzzle)
-          : ExtraLevelScreen(puzzle: widget.puzzle, level: level),
-    ));
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => level == 1
+            ? PuzzleScreen(puzzle: widget.puzzle)
+            : ExtraLevelScreen(puzzle: widget.puzzle, level: level),
+      ),
+    );
     reload();
   }
 
@@ -656,31 +666,60 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
     appBar: AppBar(title: Text(widget.puzzle.name)),
     body: loading
         ? const Center(child: CircularProgressIndicator())
-        : ListView(padding: const EdgeInsets.all(16), children: [
-            EditionHeading(label: '${widget.puzzle.name} • 11 BÖLÜM'),
-            const SizedBox(height: 14),
-            Text('${completed.length} / $levelsPerPuzzle bölüm tamamlandı',
-                style: const TextStyle(fontFamily: 'serif', fontSize: 16)),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(value: completed.length / levelsPerPuzzle,
-                color: green, backgroundColor: Colors.black12),
-            const SizedBox(height: 18),
-            for (var i = 1; i <= levelsPerPuzzle; i++)
-              Card(child: ListTile(
-                key: ValueKey('level_$i'),
-                onTap: i == 1 || completed.contains(i - 1) ? () => open(i) : null,
-                leading: CircleAvatar(
-                  backgroundColor: completed.contains(i) ? green : selectedPaper,
-                  foregroundColor: completed.contains(i) ? Colors.white : ink,
-                  child: completed.contains(i)
-                      ? const Icon(Icons.check)
-                      : Text('$i'),
+        : ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              EditionHeading(
+                label: '${widget.puzzle.name} • $levelsPerPuzzle BÖLÜM',
+              ),
+              const SizedBox(height: 14),
+              Text(
+                '${completed.length} / $levelsPerPuzzle bölüm tamamlandı',
+                style: const TextStyle(fontFamily: 'serif', fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: completed.length / levelsPerPuzzle,
+                color: green,
+                backgroundColor: Colors.black12,
+              ),
+              const SizedBox(height: 18),
+              for (var i = 1; i <= levelsPerPuzzle; i++)
+                Card(
+                  child: ListTile(
+                    key: ValueKey('level_$i'),
+                    onTap: i == 1 || completed.contains(i - 1)
+                        ? () => open(i)
+                        : null,
+                    leading: CircleAvatar(
+                      backgroundColor: completed.contains(i)
+                          ? green
+                          : selectedPaper,
+                      foregroundColor: completed.contains(i)
+                          ? Colors.white
+                          : ink,
+                      child: completed.contains(i)
+                          ? const Icon(Icons.check)
+                          : Text('$i'),
+                    ),
+                    title: Text(
+                      'Bölüm $i',
+                      style: const TextStyle(
+                        fontFamily: 'serif',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      i == 1 ? 'Klasik gazete bulmacası' : extraTheme(i),
+                    ),
+                    trailing: Icon(
+                      i == 1 || completed.contains(i - 1)
+                          ? Icons.chevron_right
+                          : Icons.lock_outline,
+                    ),
+                  ),
                 ),
-                title: Text('Bölüm $i', style: const TextStyle(fontFamily: 'serif',fontWeight: FontWeight.bold)),
-                subtitle: Text(i == 1 ? 'Klasik gazete bulmacası' : extraTheme(i)),
-                trailing: Icon(i == 1 || completed.contains(i - 1)
-                    ? Icons.chevron_right : Icons.lock_outline),
-              )),
-          ]),
+            ],
+          ),
   );
 }

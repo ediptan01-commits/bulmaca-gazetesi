@@ -419,19 +419,26 @@ class _CircularSpiralPainter extends CustomPainter {
 }
 
 class WordSearchInk extends StatelessWidget {
+  final int columns;
   final List<List<Offset>> strokes;
   final List<Offset> live;
-  const WordSearchInk({super.key, required this.strokes, required this.live});
+  const WordSearchInk({
+    super.key,
+    required this.strokes,
+    required this.live,
+    this.columns = 12,
+  });
   @override
   Widget build(BuildContext context) => IgnorePointer(
-    child: CustomPaint(painter: _WordSearchInkPainter(strokes, live)),
+    child: CustomPaint(painter: _WordSearchInkPainter(strokes, live, columns)),
   );
 }
 
 class _WordSearchInkPainter extends CustomPainter {
+  final int columns;
   final List<List<Offset>> strokes;
   final List<Offset> live;
-  _WordSearchInkPainter(this.strokes, this.live);
+  _WordSearchInkPainter(this.strokes, this.live, this.columns);
   void draw(Canvas canvas, Size size, List<Offset> points, bool preview) {
     if (points.isEmpty) return;
     final path = Path()
@@ -439,7 +446,7 @@ class _WordSearchInkPainter extends CustomPainter {
     if (points.length > 1) {
       path.lineTo(points.last.dx * size.width, points.last.dy * size.height);
     }
-    final width = size.width / searchGrid.first.length;
+    final width = size.width / columns;
     final marker = Paint()
       ..color = preview ? const Color(0x889E5233) : const Color(0x886F8750)
       ..strokeWidth = width * .67

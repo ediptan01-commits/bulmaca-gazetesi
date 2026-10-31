@@ -2,12 +2,31 @@ part of 'main.dart';
 
 class SearchGame extends StatefulWidget {
   final VoidCallback onSolved;
-  const SearchGame({super.key, required this.onSolved});
+  final ExtraSearchBoard? board;
+  final String savePrefix;
+  final Set<String> legacyFound;
+  const SearchGame({
+    super.key,
+    required this.onSolved,
+    this.board,
+    this.savePrefix = 'search',
+    this.legacyFound = const {},
+  });
   @override
   State<SearchGame> createState() => _SearchGameState();
 }
 
 class _SearchGameState extends State<SearchGame> {
+  List<String> get searchGrid => widget.board?.grid ?? defaultSearchGrid;
+  List<(String, int, int, int, int)> get searchEntries =>
+      widget.board?.entries ?? defaultSearchEntries;
+  List<String> get searchWords => searchEntries.map((e) => e.$1).toList();
+  (int, int) snap((int, int) a, (int, int) b) => snapSearchEnd(
+    a,
+    b,
+    rowCount: searchGrid.length,
+    columnCount: searchGrid.first.length,
+  );
   (int, int)? start, end, panOrigin;
   final found = <String>{};
   final savedStrokes = <String, List<Offset>>{};
@@ -26,9 +45,10 @@ class _SearchGameState extends State<SearchGame> {
   }
 
   Future<void> restore() async {
-    final raw = await Store.read('search_found');
+    final raw = await Store.read('${widget.savePrefix}_found');
     if (!mounted) return;
     found.addAll((raw ?? '').split('|').where(searchWords.contains));
+    found.addAll(widget.legacyFound.where(searchWords.contains));
     for (final entry in searchEntries) {
       if (found.contains(entry.$1)) {
         savedStrokes[entry.$1] = [
@@ -61,7 +81,7 @@ class _SearchGameState extends State<SearchGame> {
   });
   void finish((int, int) pos) {
     if (start == null) return;
-    pos = snapSearchEnd(start!, pos);
+    pos = snap(start!, pos);
     String? match;
     for (final entry in searchEntries) {
       final cells = searchCells(entry);
@@ -86,9 +106,9 @@ class _SearchGameState extends State<SearchGame> {
       dragging = false;
     });
     if (match != null) {
-      Store.write('search_found', found.join('|'));
+      Store.write('${widget.savePrefix}_found', found.join('|'));
       Store.write(
-        'search_ink',
+        '${widget.savePrefix}_ink',
         jsonEncode({
           for (final entry in savedStrokes.entries)
             entry.key: entry.value.map((p) => [p.dx, p.dy]).toList(),
@@ -132,10 +152,7 @@ class _SearchGameState extends State<SearchGame> {
                 final width = constraints.maxWidth;
                 final cellHeight = width / searchGrid.first.length;
                 (int, int) position(Offset p) => (
-                  (p.dy / cellHeight).floor().clamp(
-                    0,
-                    searchGrid.length - 1,
-                  ),
+                  (p.dy / cellHeight).floor().clamp(0, searchGrid.length - 1),
                   (p.dx / width * searchGrid.first.length).floor().clamp(
                     0,
                     searchGrid.first.length - 1,
@@ -170,10 +187,7 @@ class _SearchGameState extends State<SearchGame> {
                           start = panOrigin;
                           dragging = true;
                         }
-                        end = snapSearchEnd(
-                          start!,
-                          position(event.localPosition),
-                        );
+                        end = snap(start!, position(event.localPosition));
                         live = [center(start!), center(end!)];
                       });
                     },
@@ -275,7 +289,12 @@ class _SearchGameState extends State<SearchGame> {
   }
 }
 
-(int, int) snapSearchEnd((int, int) start, (int, int) end) {
+(int, int) snapSearchEnd(
+  (int, int) start,
+  (int, int) end, {
+  int? rowCount,
+  int? columnCount,
+}) {
   final dr = end.$1 - start.$1, dc = end.$2 - start.$2;
   if (dr == 0 && dc == 0) return start;
   final angle =
@@ -286,9 +305,9 @@ class _SearchGameState extends State<SearchGame> {
   var count = math.max(dr.abs(), dc.abs());
   while (count > 0 &&
       (start.$1 + count * dy < 0 ||
-          start.$1 + count * dy >= searchGrid.length ||
+          start.$1 + count * dy >= (rowCount ?? searchGrid.length) ||
           start.$2 + count * dx < 0 ||
-          start.$2 + count * dx >= searchGrid.first.length)) {
+          start.$2 + count * dx >= (columnCount ?? searchGrid.first.length))) {
     count--;
   }
   return (start.$1 + count * dy, start.$2 + count * dx);
