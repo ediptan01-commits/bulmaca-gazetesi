@@ -554,13 +554,11 @@ class _SpiralGameState extends State<SpiralGame> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const EditionHeading(
-                    label: 'DAİRESEL SARMAL • 13 SORU • 49 KUTU',
-                  ),
+                  const EditionHeading(label: 'İÇTEN DIŞA SARMAL • 49 KUTU'),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      'Dış halkadaki 1’den başla, saat yönünde ilerle; halkayı bitirince okla bir iç halkaya geç. Her cevabın son harfi sonraki cevabın ilk harfidir.',
+                      'Merkezdeki 1’den başla; numaraları izleyerek içten dışa ilerle. Her cevabın son harfi sonraki cevabın ilk harfidir.',
                       style: TextStyle(fontSize: 13),
                     ),
                   ),
@@ -588,7 +586,7 @@ class _SpiralGameState extends State<SpiralGame> {
                           ),
                         ),
                         child: Text(
-                          '${i + 1}. ${spiralWords[i].$2} (${spiralWords[i].$1.length})',
+                          '${i + 1}. ${spiralWords[i].$2} (${spiralWords[i].$1.length}) • Kutu ${starts[i] + 1}–${starts[i] + spiralWords[i].$1.length}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: active == i

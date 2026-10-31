@@ -182,64 +182,55 @@ class _ZoomablePaperState extends State<ZoomablePaper> {
 
 class CircularSpiralGeometry {
   final double extent;
-  const CircularSpiralGeometry(this.extent);
-  static const counts = [24, 16, 8, 1];
-  static const radii = [1.0, .72, .43, .16, 0.0];
+  final int cellCount;
+  const CircularSpiralGeometry(this.extent, {this.cellCount = 49});
   Offset get origin => Offset(extent / 2, extent / 2);
-  double get radius => extent / 2 - 2;
-  (int, int) ringPosition(int index) {
-    var offset = 0;
-    for (var ring = 0; ring < counts.length; ring++) {
-      if (index < offset + counts[ring]) return (ring, index - offset);
-      offset += counts[ring];
-    }
-    throw RangeError.index(index, List.filled(49, 0));
+  double get radius => extent / 2 - 3;
+  double get turns => math.max(2.0, (math.sqrt(cellCount) - 1) / 2);
+  double get lane => radius * .87 / (turns + 1);
+  double get slope => lane / (2 * math.pi);
+  double angle(double position) {
+    final a = radius * .13 + lane / 2;
+    final end = a + lane * turns;
+    return (math.sqrt(a * a + position / cellCount * (end * end - a * a)) - a) /
+        slope;
   }
 
-  Offset center(int index) {
-    final (ring, position) = ringPosition(index);
-    if (ring == 3) return origin;
-    final angle = -math.pi / 2 + (position + .5) * 2 * math.pi / counts[ring];
-    final r = radius * (radii[ring] + radii[ring + 1]) / 2;
-    return origin + Offset(math.cos(angle), math.sin(angle)) * r;
+  Offset point(double t, double offset) {
+    final r = radius * .13 + slope * t + offset;
+    return origin + Offset(math.cos(t + math.pi), math.sin(t + math.pi)) * r;
   }
 
+  Offset center(int index) =>
+      point((angle(index.toDouble()) + angle(index + 1.0)) / 2, lane / 2);
+  Offset labelPosition(int index) => point(
+    angle(index.toDouble()) +
+        .16 * (angle(index + 1.0) - angle(index.toDouble())),
+    lane * .22,
+  );
   Path path(int index) {
-    final (ring, position) = ringPosition(index);
-    if (ring == 3) {
-      return Path()
-        ..addOval(Rect.fromCircle(center: origin, radius: radius * radii[3]));
+    final start = angle(index.toDouble()), end = angle(index + 1.0);
+    final result = Path();
+    for (var step = 0; step <= 16; step++) {
+      final p = point(start + (end - start) * step / 16, lane);
+      if (step == 0) {
+        result.moveTo(p.dx, p.dy);
+      } else {
+        result.lineTo(p.dx, p.dy);
+      }
     }
-    final angle = -math.pi / 2 + position * 2 * math.pi / counts[ring],
-        sweep = 2 * math.pi / counts[ring];
-    final outer = radius * radii[ring], inner = radius * radii[ring + 1];
-    return Path()
-      ..moveTo(
-        origin.dx + outer * math.cos(angle),
-        origin.dy + outer * math.sin(angle),
-      )
-      ..arcTo(
-        Rect.fromCircle(center: origin, radius: outer),
-        angle,
-        sweep,
-        false,
-      )
-      ..lineTo(
-        origin.dx + inner * math.cos(angle + sweep),
-        origin.dy + inner * math.sin(angle + sweep),
-      )
-      ..arcTo(
-        Rect.fromCircle(center: origin, radius: inner),
-        angle + sweep,
-        -sweep,
-        false,
-      )
-      ..close();
+    for (var step = 16; step >= 0; step--) {
+      final p = point(start + (end - start) * step / 16, 0);
+      result.lineTo(p.dx, p.dy);
+    }
+    return result..close();
   }
 
   int? hit(Offset point) {
-    for (var i = 0; i < 49; i++) {
-      if (path(i).contains(point)) return i;
+    for (var i = 0; i < cellCount; i++) {
+      if (path(i).contains(point)) {
+        return i;
+      }
     }
     return null;
   }
@@ -249,6 +240,7 @@ class CircularSpiralBoard extends StatelessWidget {
   final Map<int, String> entered;
   final Set<int> errors;
   final int selected, activeStart, activeLength;
+  final int cellCount;
   final ValueChanged<int> onSelect;
   const CircularSpiralBoard({
     super.key,
@@ -258,13 +250,17 @@ class CircularSpiralBoard extends StatelessWidget {
     required this.activeStart,
     required this.activeLength,
     required this.onSelect,
+    this.cellCount = 49,
   });
   @override
   Widget build(BuildContext context) => AspectRatio(
     aspectRatio: 1,
     child: LayoutBuilder(
       builder: (context, constraints) {
-        final geometry = CircularSpiralGeometry(constraints.maxWidth),
+        final geometry = CircularSpiralGeometry(
+              constraints.maxWidth,
+              cellCount: cellCount,
+            ),
             letterBox = constraints.maxWidth * .085;
         return GestureDetector(
           onTapUp: (details) {
@@ -284,7 +280,7 @@ class CircularSpiralBoard extends StatelessWidget {
                   ),
                 ),
               ),
-              for (var i = 0; i < 49; i++)
+              for (var i = 0; i < cellCount; i++)
                 Positioned(
                   left: geometry.center(i).dx - letterBox / 2,
                   top: geometry.center(i).dy - letterBox / 2,
@@ -362,7 +358,7 @@ class _CircularSpiralPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var i = 0; i < 49; i++) {
+    for (var i = 0; i < geometry.cellCount; i++) {
       final path = geometry.path(i), current = i == selected;
       canvas.drawPath(
         path,
@@ -380,38 +376,14 @@ class _CircularSpiralPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = current ? 2 : .75,
       );
-      final number = spiralStarts.indexOf(i);
-      if (number >= 0) {
-        text(
-          canvas,
-          '${number + 1}',
-          geometry.center(i) +
-              Offset(-geometry.extent * .023, -geometry.extent * .035),
-          size: geometry.extent * .023,
-        );
-      }
+      text(
+        canvas,
+        '${i + 1}',
+        geometry.labelPosition(i),
+        size: geometry.extent * .020,
+        color: green,
+      );
     }
-    // Dış halkadan bir iç halkaya geçilen üç noktayı göster.
-    for (final i in [23, 39, 47]) {
-      final p = geometry.center(i), q = geometry.center(i + 1);
-      final direction = (q - p) / (q - p).distance;
-      final start = p + direction * 11, end = q - direction * 12;
-      final paint = Paint()
-        ..color = rust
-        ..strokeWidth = 1.3;
-      canvas.drawLine(start, end, paint);
-      final normal = Offset(-direction.dy, direction.dx);
-      canvas.drawLine(end, end - direction * 5 + normal * 3, paint);
-      canvas.drawLine(end, end - direction * 5 - normal * 3, paint);
-    }
-    canvas.drawCircle(
-      geometry.origin,
-      geometry.radius,
-      Paint()
-        ..color = ink
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.5,
-    );
   }
 
   @override

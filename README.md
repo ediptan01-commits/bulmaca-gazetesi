@@ -33,3 +33,7 @@ harf dizisinin sorusu vardır; ipucu kutuları harfleri kapatmaz. Izgara klavyen
 
 Resimli bölümlerin tamamı nesne seçme, harf kutuları ve gizli şifre sistemi kullanır:
 park (GAZETE), bahçe (BAHÇEM), oda (BİLGİN). Her bölümün kaydı ayrıdır.
+
+Sarmal üç bölümde de merkezden dışa uzanan tek bir spiral şerittir. Her kutu
+sırayla numaralanır; ipuçları cevapların kutu aralığını gösterir. Bölümün cevap
+uzunluğuna göre kutu sayısı değişir; tüm kutular dokunarak seçilebilir.

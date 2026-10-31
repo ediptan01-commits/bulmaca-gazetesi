@@ -20,7 +20,7 @@ void main() {
 
   test('Dairesel sarmalın 49 dilimi daire içinde ve ayrı ayrı seçilebilir', () {
     const geometry = CircularSpiralGeometry(360);
-    expect(CircularSpiralGeometry.counts.reduce((a, b) => a + b), 49);
+    expect(geometry.cellCount, 49);
     for (var i = 0; i < 49; i++) {
       expect(geometry.hit(geometry.center(i)), i);
       expect(
@@ -29,7 +29,10 @@ void main() {
       );
     }
     expect(geometry.hit(const Offset(0, 0)), isNull);
-    expect(geometry.center(48), geometry.origin);
+    expect(
+      (geometry.center(0) - geometry.origin).distance,
+      lessThan((geometry.center(48) - geometry.origin).distance),
+    );
   });
 
   testWidgets('Klavye Türkçe Q sırasındadır ve Q W X içerir', (tester) async {

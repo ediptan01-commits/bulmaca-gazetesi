@@ -775,62 +775,39 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
         .map((e) => ExtraAnswer(trUpper(e.word), e.clue))
         .toList();
     final answer = words.map((e) => e.word).join();
-    final cells = spiralPositions(12);
-    final shown = math.min(answer.length, cells.length);
-    final path = <(int, int), int>{for (var i = 0; i < shown; i++) cells[i]: i};
+    final shown = answer.length;
     void check() => feedback(
       List.generate(shown, (i) => entered['$i'] == answer[i]).every((v) => v),
     );
+    final starts = <int>[];
+    var offset = 0;
+    for (final word in words) {
+      starts.add(offset);
+      offset += word.word.length;
+    }
+    final activeWord = starts.lastIndexWhere((v) => v <= selected);
     return Column(
       children: [
-        const Text(
-          'Dıştan merkeze doğru ilerle. İpuçlarının cevapları peş peşe yazılır.',
-        ),
+        const Text('İÇTEN DIŞA • Merkezdeki 1’den başla, numaraları izle.'),
         const SizedBox(height: 12),
-        AspectRatio(
-          aspectRatio: 1,
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: 144,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 12,
-            ),
-            itemBuilder: (context, i) {
-              final r = i ~/ 12, c = i % 12, index = path[(r, c)];
-              return InkWell(
-                onTap: index == null
-                    ? null
-                    : () => setState(() => selected = index),
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: index == null
-                        ? ink
-                        : index == selected
-                        ? selectedPaper
-                        : Colors.white,
-                    border: Border.all(color: rule, width: .4),
-                  ),
-                  child: index == null
-                      ? null
-                      : Text(
-                          entered['$index'] ?? '',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                ),
-              );
-            },
-          ),
+        CircularSpiralBoard(
+          cellCount: shown,
+          entered: {
+            for (final e in entered.entries)
+              if (int.tryParse(e.key) != null) int.parse(e.key): e.value,
+          },
+          errors: const {},
+          selected: selected,
+          activeStart: starts[activeWord],
+          activeLength: words[activeWord].word.length,
+          onSelect: (i) => setState(() => selected = i),
         ),
         const SizedBox(height: 12),
         ...words.map(
           (w) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 3),
             child: Text(
-              '• ${w.clue} (${w.word.length})',
+              '• ${w.clue} (${w.word.length}) • Kutu ${starts[words.indexOf(w)] + 1}–${starts[words.indexOf(w)] + w.word.length}',
               style: const TextStyle(fontSize: 13),
             ),
           ),
