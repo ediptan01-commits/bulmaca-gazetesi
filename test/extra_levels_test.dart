@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bulmaca_gazetesi/main.dart';
 
 void main() {
-  test('Altı bulmaca türünde ilk sayı ve on yeni sayı vardır', () {
-    expect(levelsPerPuzzle, 11);
+  test('Altı bulmaca türünde üç oynanabilir bölüm vardır', () {
+    expect(levelsPerPuzzle, 3);
     expect(puzzles.length, 6);
-    expect((levelsPerPuzzle - 1) * puzzles.length, 60);
+    expect((levelsPerPuzzle - 1) * puzzles.length, 12);
     expect(extraPacks.length, 10);
     expect(extraPacks.map((p) => p.title).toSet().length, 10);
   });
