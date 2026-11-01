@@ -135,3 +135,66 @@ List<int> get spiralStarts {
   }
   return starts;
 }
+
+// İkinci ve üçüncü çengel bölümlerinin bağımsız çözüm tabloları.
+const arrowLevel2 = <WordEntry>[
+  WordEntry('SAL', 'Kütük taşıt', 1, 1, false),
+  WordEntry('SEL', 'Su baskını', 1, 1, true),
+  WordEntry('ABİ', 'Büyük kardeş', 1, 2, true),
+  WordEntry('LEBALEP', 'Ağzına dek dolu', 1, 3, true),
+  WordEntry('KAT', 'Yapı bölümü', 1, 5, false),
+  WordEntry('KERAMET', 'Ermiş mucizesi', 1, 5, true),
+  WordEntry('AĞA', 'Köy büyüğü', 1, 6, true),
+  WordEntry('TEL', 'Metal lif', 1, 7, true),
+  WordEntry('EBE', 'Doğum uzmanı', 2, 1, false),
+  WordEntry('EĞE', 'Metal törpüsü', 2, 5, false),
+  WordEntry('LİBERAL', 'Özgürlükçü', 3, 1, false),
+  WordEntry('EDA', 'Tavır', 3, 4, true),
+  WordEntry('ADA', 'Suyla çevrili kara', 4, 3, false),
+  WordEntry('SELAMET', 'Esenlik', 5, 1, false),
+  WordEntry('SET', 'Engel', 5, 1, true),
+  WordEntry('EGO', 'Benlik', 5, 2, true),
+  WordEntry('EKİ', 'Gazete ilavesi', 5, 6, true),
+  WordEntry('TOZ', 'İnce zerreler', 5, 7, true),
+  WordEntry('EGE', 'Bir denizimiz', 6, 1, false),
+  WordEntry('EKO', 'Yankı', 6, 5, false),
+  WordEntry('TOP', 'Oyun küresi', 7, 1, false),
+  WordEntry('TİZ', 'İnce ses', 7, 5, false),
+];
+
+const arrowLevel3 = <WordEntry>[
+  WordEntry('ZAM', 'Fiyat artışı', 1, 1, false),
+  WordEntry('ZOR', 'Güç, çetin', 1, 1, true),
+  WordEntry('ADA', 'Suyla çevrili kara', 1, 2, true),
+  WordEntry('MANDIRA', 'Süt işleme yeri', 1, 3, true),
+  WordEntry('EBE', 'Doğum uzmanı', 1, 5, false),
+  WordEntry('EŞİLMEK', 'Kazılmak', 1, 5, true),
+  WordEntry('BEY', 'Erkek unvanı', 1, 6, true),
+  WordEntry('EFE', 'Zeybek', 1, 7, true),
+  WordEntry('ODA', 'Ev bölümü', 2, 1, false),
+  WordEntry('ŞEF', 'Orkestra yönetir', 2, 5, false),
+  WordEntry('RANTİYE', 'Gelirle geçinen', 3, 1, false),
+  WordEntry('TAN', 'Şafak', 3, 4, true),
+  WordEntry('DAL', 'Ağaç kolu', 4, 3, false),
+  WordEntry('AÇINMAK', 'Derdini dökmek', 5, 1, false),
+  WordEntry('ABİ', 'Büyük kardeş', 5, 1, true),
+  WordEntry('ÇİM', 'Kısa yeşil örtü', 5, 2, true),
+  WordEntry('ACI', 'Tatlı karşıtı', 5, 6, true),
+  WordEntry('KEL', 'Saçsız', 5, 7, true),
+  WordEntry('BİR', 'İlk sayı', 6, 1, false),
+  WordEntry('ECE', 'Kraliçe', 6, 5, false),
+  WordEntry('İMA', 'Dolaylı anlatım', 7, 1, false),
+  WordEntry('KIL', 'Deri uzantısı', 7, 5, false),
+];
+
+List<WordEntry> arrowWordsForLevel(int level) => switch (level) {
+  2 => arrowLevel2,
+  3 => arrowLevel3,
+  _ => arrowWords,
+};
+
+List<WordEntry> crossWordsForLevel(int level) => level == 1
+    ? crossWords
+    : (level == 3 ? arrowLevel3 : arrowLevel2)
+        .map((w) => WordEntry(w.text, w.clue, w.r - 1, w.c - 1, w.vertical))
+        .toList();
