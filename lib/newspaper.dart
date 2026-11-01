@@ -148,13 +148,18 @@ const arrowLevel2 = <WordEntry>[
   WordEntry('ADA', 'Suyla çevrili kara', 4, 3, false),
   WordEntry('SELAMET', 'Esenlik', 5, 1, false),
   WordEntry('SET', 'Engel', 5, 1, true),
-  WordEntry('EGO', 'Benlik', 5, 2, true),
+  WordEntry('EGOSUZ', 'Kendini öne çıkarmayan', 5, 2, true),
   WordEntry('EKİ', 'Gazete ilavesi', 5, 6, true),
-  WordEntry('TOZ', 'İnce zerreler', 5, 7, true),
+  WordEntry('TOZLUK', 'Tozdan koruyan giysi parçası', 5, 7, true),
   WordEntry('EGE', 'Bir denizimiz', 6, 1, false),
   WordEntry('EKO', 'Yankı', 6, 5, false),
   WordEntry('TOP', 'Oyun küresi', 7, 1, false),
   WordEntry('TİZ', 'İnce ses', 7, 5, false),
+  // Yeni üç satır mevcut dikey cevaplardan devam eder; ayrı bir mini bulmaca değildir.
+  WordEntry('SAP', 'Bitkinin gövde parçası', 8, 4, true),
+  WordEntry('LA', 'Müzikte bir nota', 9, 3, true),
+  WordEntry('ULA', 'Muğla ilinin bir ilçesi', 9, 2, false),
+  WordEntry('ZAP', 'Hakkâri bölgesinden geçen akarsu', 10, 2, false),
 ];
 
 const arrowLevel3 = <WordEntry>[
