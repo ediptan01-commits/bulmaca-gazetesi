@@ -404,16 +404,24 @@ List<(int, int)> spiralPositions(int n) {
   final result = <(int, int)>[];
   int top = 0, left = 0, bottom = n - 1, right = n - 1;
   while (top <= bottom && left <= right) {
-    for (var c = left; c <= right; c++) result.add((top, c));
+    for (var c = left; c <= right; c++) {
+      result.add((top, c));
+    }
     top++;
-    for (var r = top; r <= bottom; r++) result.add((r, right));
+    for (var r = top; r <= bottom; r++) {
+      result.add((r, right));
+    }
     right--;
     if (top <= bottom) {
-      for (var c = right; c >= left; c--) result.add((bottom, c));
+      for (var c = right; c >= left; c--) {
+      result.add((bottom, c));
+    }
       bottom--;
     }
     if (left <= right) {
-      for (var r = bottom; r >= top; r--) result.add((r, left));
+      for (var r = bottom; r >= top; r--) {
+      result.add((r, left));
+    }
       left++;
     }
   }
