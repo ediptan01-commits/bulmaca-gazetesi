@@ -35,7 +35,7 @@ jobs:
         run: flutter build appbundle --release
       - uses: actions/upload-artifact@v4
         with:
-          name: Bulmaca-Dunyasi-1.4.1-Android
+          name: Bulmaca-Dunyasi-1.4.2-Android
           if-no-files-found: error
           retention-days: 14
           path: |

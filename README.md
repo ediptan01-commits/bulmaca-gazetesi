@@ -1,9 +1,9 @@
-# Bulmaca Dünyası — 1.4.1
+# Bulmaca Dünyası — 1.4.2
 
 **Her Bulmacada Yeni Bir Macera!**
 
 Krem ve koyu yeşil tasarımlı Türkçe mobil bulmaca oyunu. Çengel, Kare, Sudoku,
-Kelime Avı, Sarmal ve Resimli Bulmaca: her türde 3 bölüm, toplam 18 bölüm.
+Kelime Avı, Sarmal ve Resimli Bulmaca: her türde 2 bölüm, toplam 12 bölüm.
 Bölümler sırayla açılır ve ilerleme cihazda kaydedilir. Gelecek sürümler için
 hazırlanmış diğer tema verileri kaynakta korunur, ilk sürümde gösterilmez.
 
@@ -37,3 +37,6 @@ park (GAZETE), bahçe (BAHÇEM), oda (BİLGİN). Her bölümün kaydı ayrıdır
 Sarmal üç bölümde de merkezden dışa uzanan tek bir spiral şerittir. Her kutu
 sırayla numaralanır; ipuçları cevapların kutu aralığını gösterir. Bölümün cevap
 uzunluğuna göre kutu sayısı değişir; tüm kutular dokunarak seçilebilir.
+
+## İki bölümlük sürüm
+Altı türde yalnızca 1. ve 2. bölümler gösterilir. Kare 2 otomatik yerleşim yerine doğrulanmış sabit 7×7 ızgarayı ve birinci bölümün giriş sistemini kullanır. Sudoku notları aynı sayıya tekrar dokunarak kaldırılabilir.

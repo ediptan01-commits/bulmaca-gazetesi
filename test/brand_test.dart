@@ -5,7 +5,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 void main() {
-  testWidgets('Yeni kimlik telefona sığar ve yalnızca üç bölüm sunar', (
+  testWidgets('Yeni kimlik telefona sığar ve yalnızca iki bölüm sunar', (
     tester,
   ) async {
     SharedPreferencesAsyncPlatform.instance =
@@ -18,12 +18,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(appName), findsOneWidget);
     expect(find.text(appSlogan), findsOneWidget);
-    expect(find.text('6 bulmaca türü • 18 bölüm'), findsOneWidget);
+    expect(find.text('6 bulmaca türü • 12 bölüm'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Çengel Bulmaca'));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('level_3')), findsOneWidget);
-    expect(find.byKey(const ValueKey('level_4')), findsNothing);
+    expect(find.byKey(const ValueKey('level_2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('level_3')), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

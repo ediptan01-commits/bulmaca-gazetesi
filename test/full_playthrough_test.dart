@@ -71,20 +71,24 @@ void main() {
   });
 
   for (final puzzle in puzzles) {
-    for (var level = 2; level <= levelsPerPuzzle; level++) {
+    for (var level = 1; level <= levelsPerPuzzle; level++) {
       testWidgets(
         '${puzzle.id} bölüm $level ekrandan çözülür, kaydedilir ve tamamlanır',
         (tester) async {
-          final pack = extraPacks[level - 2];
+          final pack = extraPacks[level == 1 ? 0 : level - 2];
           await open(
             tester,
-            ExtraLevelScreen(
-              key: ValueKey('${puzzle.id}_$level'),
-              puzzle: puzzle,
-              level: level,
-            ),
+            level == 1
+                ? PuzzleScreen(puzzle: puzzle)
+                : ExtraLevelScreen(
+                    key: ValueKey('${puzzle.id}_$level'),
+                    puzzle: puzzle,
+                    level: level,
+                  ),
           );
-          final chapter = 'chapter_${puzzle.id}_$level';
+          final chapter = level == 1
+              ? 'done_${puzzle.id}'
+              : 'chapter_${puzzle.id}_$level';
           expect(await Store.read(chapter), isNull);
           switch (puzzle.id) {
             case 'cengel':
@@ -95,19 +99,25 @@ void main() {
               }
               await click(tester, find.text('Kontrol et'));
             case 'kare':
-              final placed = makeCrosswords(pack, arrow: puzzle.id == 'cengel');
-              for (var i = 0; i < placed.length; i++) {
-                final word = placed[i].answer;
-                await click(
-                  tester,
-                  find.text('${i + 1}. ${word.clue} (${word.word.length})'),
-                );
-                await letters(tester, word.word);
+              final words = crossWordsForLevel(level);
+              for (var i = 0; i < words.length; i++) {
+                await click(tester, find.byKey(ValueKey('cross_clue_$i')));
+                await letters(tester, words[i].text);
               }
-              await click(tester, find.text('Cevapları kontrol et'));
+              await click(tester, find.text('Kontrol et'));
             case 'sudoku':
-              final solution = extraSudokuSolution(level),
-                  fixed = extraSudokuFixed(level);
+              final solution = level == 1
+                      ? sudokuSolved
+                            .map((r) => r.split('').map(int.parse).toList())
+                            .toList()
+                      : extraSudokuSolution(level),
+                  fixed = level == 1
+                      ? sudokuGivens
+                            .map(
+                              (r) => r.split('').map((v) => v != '0').toList(),
+                            )
+                            .toList()
+                      : extraSudokuFixed(level);
               for (var r = 0; r < 9; r++) {
                 for (var c = 0; c < 9; c++) {
                   if (fixed[r][c]) continue;
@@ -123,7 +133,9 @@ void main() {
               }
               await click(tester, find.text('Sudoku kontrol et'));
             case 'av':
-              final board = makeExtraSearch(pack, level);
+              final board = level == 1
+                  ? ExtraSearchBoard(searchGrid, searchEntries)
+                  : makeExtraSearch(pack, level);
               for (final entry in board.entries) {
                 final cells = searchCells(entry);
                 await click(
@@ -140,17 +152,16 @@ void main() {
                 );
               }
             case 'sarmal':
-              final answer = pack.words.map((e) => trUpper(e.word)).join();
+              final answer = level == 1
+                  ? spiralAnswer
+                  : pack.words.map((e) => trUpper(e.word)).join();
               await letters(tester, answer);
-              final data =
-                  jsonDecode((await Store.read('extra_sarmal_$level'))!)
-                      as Map<String, dynamic>;
-              final entered = data['entered'] as Map;
-              expect(
-                entered.length,
-                answer.length,
-                reason: '36. kutudan sonra giriş durmamalı',
-              );
+              if (level > 1) {
+                final data =
+                    jsonDecode((await Store.read('extra_sarmal_$level'))!)
+                        as Map<String, dynamic>;
+                expect((data['entered'] as Map).length, answer.length);
+              }
               await click(tester, find.text('Sarmalı kontrol et'));
             case 'resim':
               for (final clue in pictureCluesForLevel(level)) {
@@ -162,8 +173,11 @@ void main() {
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           expect(await Store.read(chapter), '1');
-          expect(find.text('Bölüm tamamlandı!'), findsOneWidget);
-          if (!['av', 'cengel', 'resim'].contains(puzzle.id)) {
+          if (level > 1) {
+            expect(find.text('Bölüm tamamlandı!'), findsOneWidget);
+          }
+          if (level > 1 &&
+              !['av', 'cengel', 'kare', 'resim'].contains(puzzle.id)) {
             final data =
                 jsonDecode((await Store.read('extra_${puzzle.id}_$level'))!)
                     as Map<String, dynamic>;

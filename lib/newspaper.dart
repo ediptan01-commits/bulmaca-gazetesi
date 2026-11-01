@@ -184,3 +184,9 @@ List<WordEntry> arrowWordsForLevel(int level) => switch (level) {
   3 => arrowLevel3,
   _ => arrowWords,
 };
+
+List<WordEntry> crossWordsForLevel(int level) => level == 1
+    ? crossWords
+    : arrowLevel2
+          .map((w) => WordEntry(w.text, w.clue, w.r - 1, w.c - 1, w.vertical))
+          .toList();

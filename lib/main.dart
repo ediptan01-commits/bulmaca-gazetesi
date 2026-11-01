@@ -26,8 +26,9 @@ String trUpper(String s) =>
 class Store {
   static final _prefs = SharedPreferencesAsync();
   static Future<String?> read(String key) => _prefs.getString(_key(key));
-  static String _key(String key) =>
-      ['sudoku_board', 'done_sudoku'].contains(key)
+  static String _key(String key) => key == 'chapter_kare_2'
+      ? 'edition7_$key'
+      : ['sudoku_board', 'done_sudoku'].contains(key)
       ? key
       : ['cross_true', 'cross_false', 'done_cengel', 'done_kare'].contains(key)
       ? 'edition5_$key'
@@ -193,14 +194,14 @@ class _HomeState extends State<Home> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      '6 bulmaca türü • 18 bölüm',
+                      '6 bulmaca türü • 12 bölüm',
                       style: TextStyle(color: Color(0xFFD3E1D5), fontSize: 15),
                     ),
                     const SizedBox(height: 22),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: LinearProgressIndicator(
-                        value: total / 18,
+                        value: total / 12,
                         minHeight: 7,
                         color: const Color(0xFFD9BD80),
                         backgroundColor: Colors.white24,
@@ -208,7 +209,7 @@ class _HomeState extends State<Home> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      '$total / 18 bölüm tamamlandı',
+                      '$total / 12 bölüm tamamlandı',
                       style: const TextStyle(color: paper),
                     ),
                   ],
@@ -278,7 +279,7 @@ class _HomeState extends State<Home> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '${completed[p.id] ?? 0} / 3 bölüm',
+                                    '${completed[p.id] ?? 0} / 2 bölüm',
                                     style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -456,7 +457,10 @@ class _SudokuGameState extends State<SudokuGame> {
     if (sudokuGivens[row][col] != '0') return;
     setState(() {
       if (notes && n != 0) {
-        notesMap.putIfAbsent('$row,$col', () => {}).add(n);
+        final values = notesMap.putIfAbsent('$row,$col', () => {});
+        if (!values.add(n)) {
+          values.remove(n);
+        }
       } else {
         board[row][col] = n;
         notesMap.remove('$row,$col');
@@ -499,6 +503,7 @@ class _SudokuGameState extends State<SudokuGame> {
                 board[r][c] != 0 &&
                 board[r][c] != int.parse(sudokuSolved[r][c]);
             return GestureDetector(
+              key: ValueKey('extra_sudoku_$r,$c'),
               onTap: () => setState(() {
                 row = r;
                 col = c;
@@ -549,6 +554,7 @@ class _SudokuGameState extends State<SudokuGame> {
               minimumSize: const Size(39, 43),
               padding: EdgeInsets.zero,
             ),
+            key: ValueKey('extra_number_${i + 1}'),
             onPressed: () => put(i + 1),
             child: Text('${i + 1}'),
           ),
@@ -611,8 +617,8 @@ List<(int, int)> spiralPositions(int n) {
   return result;
 }
 
-/// İlk sürümde her tür için üç oynanabilir bölüm.
-const levelsPerPuzzle = 3;
+/// Bu sürümde her tür için iki oynanabilir bölüm.
+const levelsPerPuzzle = 2;
 
 class LevelSelectScreen extends StatefulWidget {
   final Puzzle puzzle;
@@ -650,6 +656,7 @@ class _LevelSelectScreenState extends State<LevelSelectScreen> {
   }
 
   Future<void> open(int level) async {
+    if (level < 1 || level > levelsPerPuzzle) return;
     if (level > 1 && !completed.contains(level - 1)) return;
     await Navigator.of(context).push(
       MaterialPageRoute(

@@ -77,7 +77,7 @@ class CrossGame extends StatefulWidget {
 class _CrossGameState extends State<CrossGame> {
   late final words = widget.arrow
       ? arrowWordsForLevel(widget.level)
-      : crossWords;
+      : crossWordsForLevel(widget.level);
   int get size => widget.arrow ? arrowSize : crossSize;
   int get rows => widget.arrow ? arrowRows : crossSize;
   late final solution = <(int, int), String>{
@@ -100,8 +100,8 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
-  String get saveKey => widget.arrow && widget.level > 1
-      ? 'arrow_v2_${widget.level}'
+  String get saveKey => widget.level > 1
+      ? (widget.arrow ? 'arrow_v2_${widget.level}' : 'kare_v2_${widget.level}')
       : 'cross_${widget.arrow}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
@@ -358,6 +358,7 @@ class _CrossGameState extends State<CrossGame> {
               ),
               child: Text(
                 '${number(words[i])}. ${words[i].clue} (${words[i].text.length})',
+                key: ValueKey('cross_clue_$i'),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: active == i ? FontWeight.bold : FontWeight.normal,
