@@ -17,7 +17,7 @@ class EditionHeading extends StatelessWidget {
       ),
     ),
     child: Text(
-      trUpper(label),
+      label.toUpperCase(),
       textAlign: TextAlign.center,
       style: const TextStyle(
         fontFamily: 'serif',
@@ -33,12 +33,7 @@ class PaperGrid extends StatelessWidget {
   final int size;
   final int? rows;
   final Widget Function(int, int) cell;
-  const PaperGrid({
-    super.key,
-    required this.size,
-    this.rows,
-    required this.cell,
-  });
+  const PaperGrid({super.key, required this.size, this.rows, required this.cell});
   @override
   Widget build(BuildContext context) => AspectRatio(
     aspectRatio: size / (rows ?? size),
@@ -62,22 +57,14 @@ class PaperGrid extends StatelessWidget {
 
 class CrossGame extends StatefulWidget {
   final bool arrow;
-  final int level;
   final VoidCallback onSolved;
-  const CrossGame({
-    super.key,
-    required this.arrow,
-    this.level = 1,
-    required this.onSolved,
-  });
+  const CrossGame({super.key, required this.arrow, required this.onSolved});
   @override
   State<CrossGame> createState() => _CrossGameState();
 }
 
 class _CrossGameState extends State<CrossGame> {
-  late final words = widget.arrow
-      ? arrowWordsForLevel(widget.level)
-      : crossWordsForLevel(widget.level);
+  late final words = widget.arrow ? arrowWords : crossWords;
   int get size => widget.arrow ? arrowSize : crossSize;
   int get rows => widget.arrow ? arrowRows : crossSize;
   late final solution = <(int, int), String>{
@@ -100,11 +87,8 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
-  String get saveKey => widget.level > 1
-      ? (widget.arrow ? 'arrow_v2_${widget.level}' : 'kare_v2_${widget.level}')
-      : 'cross_${widget.arrow}';
   Future<void> restore() async {
-    final data = await Store.read(saveKey);
+    final data = await Store.read('cross_${widget.arrow}');
     if (!mounted) return;
     if (data != null) {
       try {
@@ -121,7 +105,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   void save() {
-    Store.write(saveKey, jsonEncode(filled));
+    Store.write('cross_${widget.arrow}', jsonEncode(filled));
   }
 
   void choose(int index) => setState(() {
@@ -358,7 +342,6 @@ class _CrossGameState extends State<CrossGame> {
               ),
               child: Text(
                 '${number(words[i])}. ${words[i].clue} (${words[i].text.length})',
-                key: ValueKey('cross_clue_$i'),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: active == i ? FontWeight.bold : FontWeight.normal,
@@ -376,44 +359,41 @@ class _CrossGameState extends State<CrossGame> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, available) => SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
-              child: Center(
-                child: ConstrainedBox(
+            padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+            child: Center(
+              child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: widget.arrow
-                        ? math.max(
-                            120,
-                            math.min(
-                              available.maxWidth - 8,
-                              available.maxHeight - 44,
-                            ),
-                          )
+                        ? math.max(180.0, math.min(
+                            available.maxWidth - 8.0,
+                            (available.maxHeight - 45.0) * size / rows,
+                          ))
                         : 660,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ZoomablePaper(
-                        gridSize: size,
-                        gridRows: rows,
-                        minimumCellSize: 0,
-                        onCheck: ready ? check : null,
-                        child: PaperGrid(size: size, rows: rows, cell: cell),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ZoomablePaper(
+                      gridSize: size,
+                      gridRows: rows,
+                      minimumCellSize: 0,
+                      onCheck: ready ? check : null,
+                      child: PaperGrid(size: size, rows: rows, cell: cell),
+                    ),
+                    if (!widget.arrow)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: clues(false)),
+                          const SizedBox(width: 12),
+                          Expanded(child: clues(true)),
+                        ],
                       ),
-                      if (!widget.arrow)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: clues(false)),
-                            const SizedBox(width: 12),
-                            Expanded(child: clues(true)),
-                          ],
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
+          ),
           ),
         ),
         Container(
@@ -555,11 +535,13 @@ class _SpiralGameState extends State<SpiralGame> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const EditionHeading(label: 'İÇTEN DIŞA SARMAL • 49 KUTU'),
+                  const EditionHeading(
+                    label: 'DAİRESEL SARMAL • 13 SORU • 49 KUTU',
+                  ),
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Text(
-                      'Merkezdeki 1’den başla; numaraları izleyerek içten dışa ilerle. Her cevabın son harfi sonraki cevabın ilk harfidir.',
+                      'Dış halkadaki 1’den başla, saat yönünde ilerle; halkayı bitirince okla bir iç halkaya geç. Her cevabın son harfi sonraki cevabın ilk harfidir.',
                       style: TextStyle(fontSize: 13),
                     ),
                   ),
@@ -587,7 +569,7 @@ class _SpiralGameState extends State<SpiralGame> {
                           ),
                         ),
                         child: Text(
-                          '${i + 1}. ${spiralWords[i].$2} (${spiralWords[i].$1.length}) • Kutu ${starts[i] + 1}–${starts[i] + spiralWords[i].$1.length}',
+                          '${i + 1}. ${spiralWords[i].$2} (${spiralWords[i].$1.length})',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: active == i
