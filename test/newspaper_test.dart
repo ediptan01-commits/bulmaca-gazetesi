@@ -5,7 +5,7 @@ void main() {
   test('Çengel alt satırlarda karşılıklı kesişen yeni cevaplar barındırır', () {
     expect(arrowRows, 12);
     expect(arrowWords.length, greaterThanOrEqualTo(30));
-    expect(arrowWords.singleWhere((w) => w.r == 11 && w.c == 5 && !w.vertical).text, 'SET');
+    expect(arrowWords.singleWhere((w) => w.r == 11 && w.c == 5 && !w.vertical).text, 'YAZ');
   });
 
   test('Altı bulmaca türü korunur', () {
