@@ -33,7 +33,7 @@ void main() {
         InMemorySharedPreferencesAsync.empty();
     for (final puzzle in puzzles) {
       await Store.complete(puzzle.id);
-      await Store.write('chapter_' + puzzle.id + '_2', '1');
+      await Store.write('chapter_${puzzle.id}_2', '1');
     }
     await tester.pumpWidget(const BulmacaApp());
     await tester.pumpAndSettle();
