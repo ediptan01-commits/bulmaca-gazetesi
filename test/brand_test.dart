@@ -26,4 +26,18 @@ void main() {
     expect(find.byKey(const ValueKey('level_3')), findsNothing);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('İkinci bölümler ana ekranda toplam ilerlemeye eklenir', (
+    tester,
+  ) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    for (final puzzle in puzzles) {
+      await Store.complete(puzzle.id);
+      await Store.write('chapter_' + puzzle.id + '_2', '1');
+    }
+    await tester.pumpWidget(const BulmacaApp());
+    await tester.pumpAndSettle();
+    expect(find.text('12 / 12 bölüm tamamlandı'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

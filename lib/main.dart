@@ -118,7 +118,7 @@ class _HomeState extends State<Home> {
     for (final p in puzzles) {
       var count = await Store.done(p.id) ? 1 : 0;
       for (var i = 2; i <= levelsPerPuzzle; i++) {
-        if (await Store.read('chapter_undefined_$i') == '1') {
+        if (await Store.read('chapter_${p.id}_$i') == '1') {
           count++;
         }
       }
