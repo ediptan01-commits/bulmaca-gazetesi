@@ -69,7 +69,7 @@ class _CrossGameState extends State<CrossGame> {
       ? arrowWordsForLevel(widget.level)
       : crossWordsForLevel(widget.level);
   int get size => widget.arrow ? arrowSize : crossSize;
-  int get rows => widget.arrow ? (widget.level == 1 ? arrowRows : 8) : crossSize;
+  int get rows => widget.arrow ? (widget.level <= 2 ? arrowRows : 8) : crossSize;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -90,9 +90,11 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
-  String get saveKey => widget.level == 1
-      ? 'cross_${widget.arrow}'
-      : 'cross_${widget.arrow}_level_${widget.level}';
+  String get saveKey => widget.arrow && widget.level == 2
+      ? 'cross_true_level_2_v11'
+      : widget.level == 1
+          ? 'cross_${widget.arrow}'
+          : 'cross_${widget.arrow}_level_${widget.level}';
 
   Future<void> restore() async {
     final data = await Store.read(saveKey);
