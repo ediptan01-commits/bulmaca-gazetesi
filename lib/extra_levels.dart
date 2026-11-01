@@ -309,7 +309,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     done=await Store.read('chapter_${type}_${widget.level}')=='1';
     if(mounted) { setState(()=>ready=true); }
   }
-  void save()=>Store.write(saveKey,jsonEncode({'entered':entered,'found':discovered}));
+  void save()=>Store.write(saveKey,jsonEncode({'entered':entered,'found':discovered.toList()}));
   Future<void> complete()async{
     if(done) { return; }
     await Store.write('chapter_${type}_${widget.level}','1');
