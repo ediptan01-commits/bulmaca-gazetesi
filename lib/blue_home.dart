@@ -366,7 +366,7 @@ class _PuzzleTile extends StatelessWidget {
           ),
           child: Column(children: [
             Expanded(
-              flex: 6,
+              flex: 5,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 12, 10, 3),
                 child: CustomPaint(
@@ -376,20 +376,17 @@ class _PuzzleTile extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 5,
+              flex: 6,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
+                padding: const EdgeInsets.fromLTRB(5, 2, 5, 4),
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(puzzle.name,
+                  Text(finished ? '✓ ${puzzle.name}' : puzzle.name,
                     maxLines: 2, textAlign: TextAlign.center,
                     style: const TextStyle(color: _navy, fontWeight: FontWeight.w900, fontSize: 15, height: 1.12)),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 3),
                   Text(_description(puzzle.id),
                     maxLines: 2, textAlign: TextAlign.center,
                     style: const TextStyle(color: _navy, fontSize: 10.5, height: 1.2)),
-                  if (finished) const Padding(
-                    padding: EdgeInsets.only(top: 5),
-                    child: Icon(Icons.verified_rounded, color: Color(0xFF218F57), size: 19)),
                 ]),
               ),
             ),
