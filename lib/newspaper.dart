@@ -2,7 +2,7 @@ part of 'main.dart';
 
 const crossSize = 7;
 const arrowSize = 8;
-const arrowRows = 10;
+const arrowRows = 12;
 
 class WordEntry {
   final String text, clue;
@@ -56,19 +56,23 @@ const arrowWords = [
   WordEntry('LOŞ', 'Az ışıklı', 3, 4, true),
   WordEntry('BOL', 'Çok', 4, 3, false),
   WordEntry('İTİŞMEK', 'Karşılıklı itmek', 5, 1, false),
-  WordEntry('İRİ', 'Kocaman', 5, 1, true),
-  WordEntry('TAM', 'Eksiksiz', 5, 2, true),
+  WordEntry('İRİLİK', 'İri olma durumu', 5, 1, true),
+  WordEntry('TAMAMI', 'Bir şeyin bütünü', 5, 2, true),
   WordEntry('ECE', 'Kraliçe', 5, 6, true),
-  WordEntry('KIL', 'İnce deri uzantısı', 5, 7, true),
+  WordEntry('KILAVUZ', 'Yol gösteren kişi veya kitap', 5, 7, true),
   WordEntry('RAY', 'Trenin yolu', 6, 1, false),
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
-  // Alt bölüm artık ayrı 3x3 gibi görünmez; aynı 8x10 ızgaranın doğal devamıdır.
-  WordEntry('ADA', 'Dört yan suyla çevrili kara', 8, 1, false),
-  WordEntry('TÜM', 'Hepsi, tamamı', 8, 5, false),
-  WordEntry('SAL', 'Kütüklerden yapılan su taşıtı', 9, 1, false),
-  WordEntry('AYA', 'Elin iç yüzü', 9, 5, false),
+  // Alt ve üst kısımlar İRİLİK, TAMAMI ve KILAVUZ ile birleşir.
+  WordEntry('LA', 'Müzikte bir nota', 8, 1, false),
+  WordEntry('ARI', 'Bal yapan böcek', 9, 3, true),
+  WordEntry('ASA', 'Elde taşınan değnek', 9, 6, true),
+  WordEntry('İMAM', 'Camide namaz kıldıran din görevlisi', 9, 1, false),
+  WordEntry('AV', 'Yaban hayvanı yakalama işi', 9, 6, false),
+  WordEntry('KIR', 'Bozkır, ağaçsız düzlük', 10, 1, false),
+  WordEntry('SU', 'İçilebilir berrak sıvı', 10, 6, false),
+  WordEntry('YAZ', 'En sıcak mevsim', 11, 5, false),
 ];
 
 const searchGrid = [
