@@ -2,7 +2,7 @@ part of 'main.dart';
 
 const crossSize = 7;
 const arrowSize = 8;
-const arrowRows = 12;
+const arrowRows = 10;
 
 class WordEntry {
   final String text, clue;
@@ -64,19 +64,11 @@ const arrowWords = [
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
-  // Alt bölüm: 6 yatay ve 6 dikey gerçek kesişen cevap.
-  WordEntry('ADA', 'Dört yanı suyla çevrili kara', 9, 1, false),
-  WordEntry('SAL', 'Kütüklerden yapılan su taşıtı', 10, 1, false),
-  WordEntry('ARA', 'Telefonla numara çevirme buyruğu', 11, 1, false),
-  WordEntry('ASA', 'Elde taşınan uzun değnek', 9, 1, true),
-  WordEntry('DAR', 'Geniş karşıtı', 9, 2, true),
-  WordEntry('ALA', 'Alaca, karışık renkli', 9, 3, true),
-  WordEntry('TÜM', 'Hepsi, tamamı', 9, 5, false),
-  WordEntry('AYA', 'Elin iç yüzü', 10, 5, false),
-  WordEntry('SET', 'Teniste oyunun bir bölümü', 11, 5, false),
-  WordEntry('TAS', 'Küçük yuvarlak kap', 9, 5, true),
-  WordEntry('ÜYE', 'Bir derneğe katılan kişi', 9, 6, true),
-  WordEntry('MAT', 'Satrançta şahın kaçamayışı', 9, 7, true),
+  // Alt bölüm artık ayrı 3x3 gibi görünmez; aynı 8x10 ızgaranın doğal devamıdır.
+  WordEntry('ADA', 'Dört yan suyla çevrili kara', 8, 1, false),
+  WordEntry('TÜM', 'Hepsi, tamamı', 8, 5, false),
+  WordEntry('SAL', 'Kütüklerden yapılan su taşıtı', 9, 1, false),
+  WordEntry('AYA', 'Elin iç yüzü', 9, 5, false),
 ];
 
 const searchGrid = [
