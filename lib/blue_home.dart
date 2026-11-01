@@ -4,7 +4,6 @@ part of 'main.dart';
 // Bu dosya yalnızca ana sayfayı yönetir; bulmaca motorlarına dokunmaz.
 const _blueDark = Color(0xFF073A89);
 const _blue = Color(0xFF075FC2);
-const _blueBright = Color(0xFF0794EA);
 const _gold = Color(0xFFFFC44F);
 const _navy = Color(0xFF10285A);
 
@@ -41,10 +40,12 @@ class _BlueHomeState extends State<Home> {
       next[p.id] = count;
     }
     final savedToday = (await Store.read(dailyKey) ?? '').split('|');
-    if (mounted) setState(() {
-      completed..clear()..addAll(next);
-      dailySolved..clear()..addAll(savedToday.where((v) => v.isNotEmpty));
-    });
+    if (mounted) {
+      setState(() {
+        completed..clear()..addAll(next);
+        dailySolved..clear()..addAll(savedToday.where((v) => v.isNotEmpty));
+      });
+    }
   }
 
   Future<void> open(Puzzle p) async {
