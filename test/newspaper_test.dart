@@ -9,6 +9,37 @@ void main() {
     expect(arrowWords.singleWhere((w) => w.r == 5 && w.c == 7 && w.vertical).text, 'KILCAL');
   });
 
+  test('Çengel 2: 11 satır ve bütünleşik yeni cevaplar', () {
+    expect(arrowRows, 11);
+    final words = arrowWordsForLevel(2);
+    expect(words.length, greaterThanOrEqualTo(26));
+    expect(words.any((w) => w.r == 10 && w.text == 'ZAP'), isTrue);
+    expect(words.any((w) => w.text == 'EGOSUZ' && w.vertical), isTrue);
+    final letters = <(int, int), String>{};
+    final hints = words.map((w) => w.clueCell).toSet();
+    for (final w in words) {
+      expect(hints.any(w.cells.contains), isFalse);
+      for (var i = 0; i < w.cells.length; i++) {
+        final cell = w.cells[i];
+        expect(cell.$1, inInclusiveRange(0, 10));
+        expect(cell.$2, inInclusiveRange(0, 7));
+        if (letters.containsKey(cell)) {
+          expect(letters[cell], w.text[i]);
+        }
+        letters[cell] = w.text[i];
+      }
+    }
+    final connected = <(int, int)>{words.first.cells.first};
+    var before = -1;
+    while (before != connected.length) {
+      before = connected.length;
+      for (final w in words) {
+        if (w.cells.any(connected.contains)) connected.addAll(w.cells);
+      }
+    }
+    expect(connected.length, letters.length);
+  });
+
   test('Altı bulmaca türü korunur', () {
     expect(puzzles.map((p) => p.id).toSet(), {
       'cengel',
