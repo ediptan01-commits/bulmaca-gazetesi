@@ -3,9 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Çengel alt satırlarda karşılıklı kesişen yeni cevaplar barındırır', () {
-    expect(arrowRows, 12);
-    expect(arrowWords.length, greaterThanOrEqualTo(30));
-    expect(arrowWords.singleWhere((w) => w.r == 11 && w.c == 5 && !w.vertical).text, 'YAZ');
+    expect(arrowRows, 11);
+    expect(arrowWords.length, greaterThanOrEqualTo(29));
+    expect(arrowWords.singleWhere((w) => w.r == 10 && w.c == 6 && !w.vertical).text, 'EL');
+    expect(arrowWords.singleWhere((w) => w.r == 5 && w.c == 7 && w.vertical).text, 'KILCAL');
   });
 
   test('Altı bulmaca türü korunur', () {
