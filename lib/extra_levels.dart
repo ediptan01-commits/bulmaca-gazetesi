@@ -596,7 +596,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     setState(() => done = true);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Harika! Yeni bölüm açıldı.')));
+    ).showSnackBar(const SnackBar(content: Text('Tebrikler! Bölüm tamamlandı.')));
   }
 
   void feedback(bool correct) {
