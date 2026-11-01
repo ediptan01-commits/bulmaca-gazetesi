@@ -120,7 +120,7 @@ class _BlueHomeState extends State<Home> {
         const SizedBox(height: 23),
         const _CollectionHeader(),
         const SizedBox(height: 15),
-        _puzzleGrid(constraints.maxWidth),
+        _puzzleGrid((constraints.maxWidth - 30).clamp(1.0, double.infinity)),
         const SizedBox(height: 14),
       ],
     ),
@@ -141,7 +141,7 @@ class _BlueHomeState extends State<Home> {
     ]),
     const SizedBox(height: 7),
     const Text('Klasik Bulmacalar  •  Zihin Oyunları  •  Eğlence',
-      maxLines: 1, textAlign: TextAlign.center,
+      maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
       style: TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600)),
   ]);
 
@@ -308,7 +308,7 @@ class _BlueHomeState extends State<Home> {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(icon, size: 24, color: tab == index ? _gold : Colors.white),
           const SizedBox(height: 2),
-          Text(label, maxLines: 1, style: TextStyle(
+          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(
             color: tab == index ? _gold : Colors.white,
             fontSize: 10.5, fontWeight: FontWeight.w700)),
         ]),
@@ -321,13 +321,20 @@ class _CollectionHeader extends StatelessWidget {
   const _CollectionHeader();
   @override
   Widget build(BuildContext context) => Row(children: [
-    const Expanded(child: Divider(color: _gold, thickness: 1.5)),
-    const SizedBox(width: 10),
-    const Text('Bulmaca Koleksiyonu', style: TextStyle(
-      color: Colors.white, fontSize: 21, fontWeight: FontWeight.w900,
-      shadows: [Shadow(color: _blueDark, blurRadius: 5, offset: Offset(1, 2))])),
-    const SizedBox(width: 10),
-    const Expanded(child: Divider(color: _gold, thickness: 1.5)),
+    const SizedBox(width: 16, child: Divider(color: _gold, thickness: 1.5)),
+    const SizedBox(width: 8),
+    const Expanded(child: Text(
+      'Bulmaca Koleksiyonu',
+      textAlign: TextAlign.center,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900,
+        shadows: [Shadow(color: _blueDark, blurRadius: 5, offset: Offset(1, 2))],
+      ),
+    )),
+    const SizedBox(width: 8),
+    const SizedBox(width: 16, child: Divider(color: _gold, thickness: 1.5)),
   ]);
 }
 
