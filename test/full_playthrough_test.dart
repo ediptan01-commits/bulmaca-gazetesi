@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:bulmaca_gazetesi/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,9 +15,8 @@ void main() {
         InMemorySharedPreferencesAsync.empty();
     prefs = SharedPreferencesAsync();
   });
-  setUp(() async {
-    await prefs.clear();
-  });
+  setUp(() async => prefs.clear());
+
   Future<void> open(WidgetTester tester, Widget child) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -27,7 +27,9 @@ void main() {
   }
 
   Future<void> click(WidgetTester tester, Finder finder) async {
+    expect(finder, findsOneWidget);
     await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
     await tester.tap(finder);
     await tester.pump();
   }
@@ -36,38 +38,14 @@ void main() {
     for (final char in value.split('')) {
       await tester.tap(find.byKey(ValueKey('letter_$char')));
       await tester.pump();
-      expect(tester.takeException(), isNull, reason: '$char yazılırken hata');
+      expect(tester.takeException(), isNull,
+          reason: '$char harfi girilirken Flutter hatası');
     }
   }
 
-  test('10 yeni sudokunun tümü farklı ve satır/sütun/alanları geçerli', () {
-    final boards = <String>{};
-    for (var level = 2; level <= 11; level++) {
-      final board = extraSudokuSolution(level);
-      boards.add(board.map((r) => r.join()).join());
-      for (var i = 0; i < 9; i++) {
-        expect(board[i].toSet(), {1, 2, 3, 4, 5, 6, 7, 8, 9});
-        expect(List.generate(9, (r) => board[r][i]).toSet(), {
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-        });
-        expect(
-          List.generate(
-            9,
-            (j) => board[i ~/ 3 * 3 + j ~/ 3][i % 3 * 3 + j % 3],
-          ).toSet(),
-          {1, 2, 3, 4, 5, 6, 7, 8, 9},
-        );
-      }
-    }
-    expect(boards.length, 10);
+  test('Üç bölümlük sürüm 6 tür ve 18 bölüm içeriyor', () {
+    expect(levelsPerPuzzle, 3);
+    expect(puzzles, hasLength(6));
   });
 
   for (final puzzle in puzzles) {
@@ -86,6 +64,7 @@ void main() {
           );
           final chapter = 'chapter_${puzzle.id}_$level';
           expect(await Store.read(chapter), isNull);
+
           switch (puzzle.id) {
             case 'cengel':
               final words = arrowWordsForLevel(level);
@@ -94,64 +73,46 @@ void main() {
                 await letters(tester, words[i].text);
               }
               await click(tester, find.text('Kontrol et'));
+
             case 'kare':
-              final placed = makeCrosswords(pack, arrow: puzzle.id == 'cengel');
+              final placed = makeCrosswords(pack, arrow: false);
               for (var i = 0; i < placed.length; i++) {
-                final word = placed[i].answer;
-                await click(
-                  tester,
-                  find.text('${i + 1}. ${word.clue} (${word.word.length})'),
-                );
-                await letters(tester, word.word);
+                await click(tester, find.byKey(ValueKey('extra_cross_clue_$i')));
+                await letters(tester, placed[i].answer.word);
               }
               await click(tester, find.text('Cevapları kontrol et'));
+
             case 'sudoku':
-              final solution = extraSudokuSolution(level),
-                  fixed = extraSudokuFixed(level);
+              final solution = extraSudokuSolution(level);
+              final fixed = extraSudokuFixed(level);
               for (var r = 0; r < 9; r++) {
                 for (var c = 0; c < 9; c++) {
                   if (fixed[r][c]) continue;
-                  await click(
-                    tester,
-                    find.byKey(ValueKey('extra_sudoku_$r,$c')),
-                  );
-                  await click(
-                    tester,
-                    find.byKey(ValueKey('extra_number_${solution[r][c]}')),
-                  );
+                  await click(tester, find.byKey(ValueKey('extra_sudoku_$r,$c')));
+                  await click(tester,
+                      find.byKey(ValueKey('extra_number_${solution[r][c]}')));
                 }
               }
               await click(tester, find.text('Sudoku kontrol et'));
+
             case 'av':
               final board = makeExtraSearch(pack, level);
               for (final entry in board.entries) {
                 final cells = searchCells(entry);
-                await click(
-                  tester,
-                  find.byKey(
-                    ValueKey('search_${cells.first.$1},${cells.first.$2}'),
-                  ),
-                );
-                await click(
-                  tester,
-                  find.byKey(
-                    ValueKey('search_${cells.last.$1},${cells.last.$2}'),
-                  ),
-                );
+                await click(tester,
+                    find.byKey(ValueKey('search_${cells.first.$1},${cells.first.$2}')));
+                await click(tester,
+                    find.byKey(ValueKey('search_${cells.last.$1},${cells.last.$2}')));
               }
+
             case 'sarmal':
               final answer = pack.words.map((e) => trUpper(e.word)).join();
               await letters(tester, answer);
-              final data =
-                  jsonDecode((await Store.read('extra_sarmal_$level'))!)
-                      as Map<String, dynamic>;
-              final entered = data['entered'] as Map;
-              expect(
-                entered.length,
-                answer.length,
-                reason: '36. kutudan sonra giriş durmamalı',
-              );
+              final saved = jsonDecode(
+                  (await Store.read('extra_sarmal_$level'))!) as Map<String, dynamic>;
+              expect((saved['entered'] as Map).length, answer.length);
               await click(tester, find.text('Sarmalı kontrol et'));
+
             case 'resim':
               for (final clue in pictureCluesForLevel(level)) {
                 await letters(tester, clue.answer);
@@ -159,16 +120,18 @@ void main() {
                 await tester.pumpAndSettle();
               }
           }
+
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
-          expect(await Store.read(chapter), '1');
+          expect(await Store.read(chapter), '1',
+              reason: '${puzzle.id} bölüm $level tamamlanmış olmalı');
           expect(find.text('Bölüm tamamlandı!'), findsOneWidget);
-          if (!['av', 'cengel', 'resim'].contains(puzzle.id)) {
-            final data =
-                jsonDecode((await Store.read('extra_${puzzle.id}_$level'))!)
-                    as Map<String, dynamic>;
-            expect(data['found'], isA<List>());
-            expect(data['entered'], isA<Map>());
+          if (['kare', 'sudoku', 'sarmal'].contains(puzzle.id)) {
+            final raw = await Store.read('extra_${puzzle.id}_$level');
+            expect(raw, isNotNull);
+            final saved = jsonDecode(raw!) as Map<String, dynamic>;
+            expect(saved['found'], isA<List>());
+            expect(saved['entered'], isA<Map>());
           }
         },
       );
