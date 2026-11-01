@@ -57,16 +57,19 @@ class PaperGrid extends StatelessWidget {
 
 class CrossGame extends StatefulWidget {
   final bool arrow;
+  final int level;
   final VoidCallback onSolved;
-  const CrossGame({super.key, required this.arrow, required this.onSolved});
+  const CrossGame({super.key, required this.arrow, this.level = 1, required this.onSolved});
   @override
   State<CrossGame> createState() => _CrossGameState();
 }
 
 class _CrossGameState extends State<CrossGame> {
-  late final words = widget.arrow ? arrowWords : crossWords;
+  late final words = widget.arrow
+      ? arrowWordsForLevel(widget.level)
+      : crossWordsForLevel(widget.level);
   int get size => widget.arrow ? arrowSize : crossSize;
-  int get rows => widget.arrow ? arrowRows : crossSize;
+  int get rows => widget.arrow ? (widget.level == 1 ? arrowRows : 8) : crossSize;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -87,8 +90,12 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
+  String get saveKey => widget.level == 1
+      ? 'cross_${widget.arrow}'
+      : 'cross_${widget.arrow}_level_${widget.level}';
+
   Future<void> restore() async {
-    final data = await Store.read('cross_${widget.arrow}');
+    final data = await Store.read(saveKey);
     if (!mounted) return;
     if (data != null) {
       try {
@@ -105,7 +112,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   void save() {
-    Store.write('cross_${widget.arrow}', jsonEncode(filled));
+    Store.write(saveKey, jsonEncode(filled));
   }
 
   void choose(int index) => setState(() {
