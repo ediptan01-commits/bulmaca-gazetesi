@@ -372,10 +372,15 @@ class _CrossGameState extends State<CrossGame> {
               child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: widget.arrow
-                        ? math.max(180.0, math.min(
-                            available.maxWidth - 8.0,
-                            (available.maxHeight - 45.0) * size / rows,
-                          ))
+                        ? (available.maxWidth <= 350
+                            ? math.max(
+                                120.0,
+                                math.min(
+                                  available.maxWidth - 8.0,
+                                  (available.maxHeight - 45.0) * size / rows,
+                                ),
+                              )
+                            : available.maxWidth - 8.0)
                         : 660,
                   ),
                 child: Column(
