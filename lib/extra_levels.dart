@@ -160,6 +160,30 @@ class ExtraPlacedWord {
 
 // Kesişen kelimeler yalnızca aynı harfte birleşebilir.
 List<ExtraPlacedWord> makeCrosswords(ExtraPack pack, {required bool arrow}) {
+  final chapter = extraPacks.indexOf(pack);
+  if (arrow) {
+    if (chapter >= 0) {
+      return [
+        for (final p in extraArrowLayouts[chapter])
+          ExtraPlacedWord(
+            ExtraAnswer(trUpper(pack.words[p.$1].word), pack.words[p.$1].clue),
+            p.$2,
+            p.$3,
+            p.$4,
+          ),
+      ];
+    }
+  } else if (chapter >= 0 && chapter < extraKareLayouts.length) {
+    return [
+      for (final p in extraKareLayouts[chapter])
+        ExtraPlacedWord(
+          ExtraAnswer(trUpper(pack.words[p.$1].word), pack.words[p.$1].clue),
+          p.$2,
+          p.$3,
+          p.$4,
+        ),
+    ];
+  }
   const size = 12;
   final grid = <(int, int), String>{};
   final placed = <ExtraPlacedWord>[];
@@ -237,16 +261,160 @@ List<ExtraPlacedWord> makeCrosswords(ExtraPack pack, {required bool arrow}) {
   return placed;
 }
 
+// Her yeni çengel bölümü için önceden denetlenmiş yerleşimler.
+// Kelime indeksi, satır, sütun, dikey.
+const extraArrowLayouts = <List<(int, int, int, bool)>>[
+  // Bölüm 2: Çengel ekranını aşağı doğru dolduran daha uzun düzen.
+  [
+    (0, 1, 1, false),
+    (1, 2, 1, false),
+    (6, 3, 1, false),
+    (3, 4, 1, false),
+    (9, 5, 1, false),
+    (7, 6, 1, false),
+    (4, 7, 1, false),
+    (5, 8, 1, false),
+    (2, 9, 1, false),
+    (8, 10, 1, false),
+  ],
+  [
+    (0, 3, 4, true),
+    (5, 9, 2, false),
+    (4, 6, 4, false),
+    (3, 3, 7, true),
+    (6, 4, 1, false),
+    (9, 1, 2, true),
+    (2, 7, 2, true),
+    (8, 8, 6, true),
+    (7, 8, 1, false),
+  ],
+  [
+    (0, 3, 4, true),
+    (4, 7, 4, false),
+    (5, 3, 1, false),
+    (2, 2, 6, true),
+    (7, 9, 4, false),
+    (3, 3, 10, true),
+    (1, 5, 1, false),
+    (9, 5, 2, true),
+  ],
+  [
+    (0, 4, 11, true),
+    (2, 5, 9, false),
+    (3, 9, 9, false),
+    (9, 2, 9, true),
+    (8, 3, 5, false),
+    (6, 6, 7, false),
+    (1, 3, 5, true),
+  ],
+  [
+    (6, 6, 6, true),
+    (9, 6, 4, false),
+    (7, 10, 5, false),
+    (1, 1, 5, true),
+    (5, 1, 1, false),
+    (2, 3, 4, false),
+    (3, 7, 10, true),
+    (0, 1, 2, true),
+    (4, 2, 7, true),
+  ],
+  [
+    (8, 4, 4, true),
+    (6, 4, 2, false),
+    (4, 1, 6, true),
+    (2, 7, 1, false),
+    (9, 5, 6, false),
+    (5, 5, 1, true),
+    (0, 1, 6, false),
+    (7, 5, 8, true),
+    (1, 3, 6, false),
+  ],
+  [
+    (4, 10, 2, false),
+    (8, 8, 5, true),
+    (6, 8, 4, false),
+    (2, 6, 7, true),
+    (1, 6, 7, false),
+    (7, 5, 10, true),
+    (3, 6, 2, true),
+    (9, 7, 1, false),
+  ],
+  [
+    (7, 2, 8, true),
+    (9, 8, 7, false),
+    (0, 6, 3, false),
+    (2, 2, 5, false),
+    (3, 3, 4, true),
+    (5, 8, 9, true),
+    (1, 6, 5, true),
+    (4, 4, 3, false),
+    (8, 10, 3, false),
+    (6, 4, 11, true),
+  ],
+  [
+    (9, 3, 6, true),
+    (3, 4, 4, false),
+    (8, 2, 4, true),
+    (7, 1, 8, true),
+    (2, 2, 7, false),
+    (4, 6, 1, false),
+    (6, 3, 1, false),
+    (1, 1, 10, true),
+    (5, 6, 2, true),
+  ],
+  [
+    (6, 7, 5, false),
+    (9, 1, 5, true),
+    (3, 4, 2, false),
+    (1, 6, 9, true),
+    (5, 11, 5, false),
+    (7, 2, 4, false),
+    (0, 4, 11, true),
+    (2, 6, 1, false),
+    (8, 9, 5, false),
+  ],
+];
+
+// Kare Bulmaca için özellikle 2. ve 3. bölümler daha dolu, numaralandırılmış ve
+// referans görsele yakın bir düzende hazırlanır.
+const extraKareLayouts = <List<(int, int, int, bool)>>[
+  [
+    (4, 0, 6, true),
+    (3, 1, 3, false),
+    (6, 2, 0, true),
+    (0, 3, 4, true),
+    (1, 4, 1, false),
+    (5, 5, 1, false),
+    (2, 6, 0, false),
+    (7, 7, 2, false),
+    (8, 1, 7, true),
+  ],
+  [
+    (9, 0, 4, false),
+    (8, 1, 0, false),
+    (3, 1, 2, true),
+    (4, 1, 4, true),
+    (6, 1, 6, true),
+    (7, 6, 7, true),
+    (5, 2, 7, true),
+    (0, 4, 1, false),
+  ],
+];
+
 class ExtraSearchBoard {
   final List<String> grid;
   final List<(String, int, int, int, int)> entries;
   const ExtraSearchBoard(this.grid, this.entries);
 }
 
+const extraSearchColumns = 10;
+const extraSearchRows = 12;
+
 ExtraSearchBoard makeExtraSearch(ExtraPack pack, int level) {
-  const size = 13;
+  const rows = extraSearchRows;
+  const columns = extraSearchColumns;
   const alphabet = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ';
-  final matrix = List.generate(size, (r) => List.generate(size, (c) => ''));
+  final matrix = List.generate(rows, (r) => List.generate(columns, (c) => ''));
   final entries = <(String, int, int, int, int)>[];
   const directions = [
     (0, 1),
@@ -260,22 +428,23 @@ ExtraSearchBoard makeExtraSearch(ExtraPack pack, int level) {
   ];
   for (final item in pack.words) {
     final word = trUpper(item.word);
-    if (word.length > size) {
+    if (word.length > math.max(rows, columns)) {
       continue;
     }
     bool fitted = false;
-    for (var tries = 0; tries < size * size * 8 && !fitted; tries++) {
+    for (var tries = 0; tries < rows * columns * 8 && !fitted; tries++) {
       final index =
-          (tries * 37 + level * 13 + entries.length * 29) % (size * size * 8);
+          (tries * 37 + level * 13 + entries.length * 29) %
+          (rows * columns * 8);
       final dir = directions[index % 8];
-      final r = (index ~/ 8) % size, c = (index ~/ (8 * size)) % size;
+      final r = (index ~/ 8) % rows, c = (index ~/ (8 * rows)) % columns;
       var ok = true;
       for (var i = 0; i < word.length; i++) {
         final y = r + i * dir.$1, x = c + i * dir.$2;
         if (y < 0 ||
-            y >= size ||
+            y >= rows ||
             x < 0 ||
-            x >= size ||
+            x >= columns ||
             (matrix[y][x].isNotEmpty && matrix[y][x] != word[i])) {
           ok = false;
           break;
@@ -290,8 +459,8 @@ ExtraSearchBoard makeExtraSearch(ExtraPack pack, int level) {
       }
     }
   }
-  for (var r = 0; r < size; r++) {
-    for (var c = 0; c < size; c++) {
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < columns; c++) {
       if (matrix[r][c].isEmpty) {
         matrix[r][c] =
             alphabet[(r * 17 + c * 19 + level * 23) % alphabet.length];
@@ -300,6 +469,63 @@ ExtraSearchBoard makeExtraSearch(ExtraPack pack, int level) {
   }
   return ExtraSearchBoard(matrix.map((r) => r.join()).toList(), entries);
 }
+
+// Her ek Sudoku için geçerli ve birbirinden farklı bir çözüm üretir.
+// Satır bantları, sütun yığınları ve rakam isimleri Sudoku kurallarını korur.
+const extraSudokuBase = <String>[
+  '534678912',
+  '672195348',
+  '198342567',
+  '859761423',
+  '426853791',
+  '713924856',
+  '961537284',
+  '287419635',
+  '345286179',
+];
+const extraSudokuMask = <String>[
+  '530070000',
+  '600195000',
+  '098000060',
+  '800060003',
+  '400803001',
+  '700020006',
+  '060000280',
+  '000419005',
+  '000080079',
+];
+
+int extraSudokuRow(int level, int row) => (row + 3 * (level % 3)) % 9;
+int extraSudokuColumn(int level, int column) {
+  final offset = (level - 2) ~/ 9 == 1 ? 2 - column % 3 : column % 3;
+  return column ~/ 3 * 3 + offset;
+}
+
+List<List<int>> extraSudokuSolution(int level) {
+  final shift = (level - 2) % 9;
+  return List.generate(
+    9,
+    (r) => List.generate(9, (c) {
+      final value = int.parse(
+        extraSudokuBase[extraSudokuRow(level, r)][extraSudokuColumn(level, c)],
+      );
+      return (value + shift - 1) % 9 + 1;
+    }),
+  );
+}
+
+List<List<bool>> extraSudokuFixed(int level) => List.generate(
+  9,
+  (r) => List.generate(
+    9,
+    (c) =>
+        extraSudokuMask[extraSudokuRow(level, r)][extraSudokuColumn(
+          level,
+          c,
+        )] !=
+        '0',
+  ),
+);
 
 class ExtraLevelScreen extends StatefulWidget {
   final Puzzle puzzle;
@@ -320,6 +546,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
   final entered = <String, String>{};
   final discovered = <String>{};
   int active = 0, selected = 0;
+  (int, int)? searchStart;
   bool done = false, ready = false;
   String get saveKey => 'extra_${widget.puzzle.id}_${widget.level}';
   String get type => widget.puzzle.id;
@@ -440,6 +667,18 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
             ),
             if (!ready)
               const Expanded(child: Center(child: CircularProgressIndicator()))
+            else if (type == 'cengel')
+              Expanded(
+                child: CrossGame(
+                  arrow: true,
+                  level: widget.level,
+                  onSolved: complete,
+                ),
+              )
+            else if (type == 'resim')
+              Expanded(
+                child: PictureGame(level: widget.level, onSolved: complete),
+              )
             else
               Expanded(
                 child: SingleChildScrollView(
@@ -450,8 +689,6 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
                       ? searchView()
                       : type == 'sarmal'
                       ? spiralView()
-                      : type == 'resim'
-                      ? pictureView()
                       : crossView(),
                 ),
               ),
@@ -485,12 +722,12 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
                       setState(() => selected++);
                     }
                   } else {
-                    final length = pack.words.fold<int>(
+                    final answerLength = pack.words.fold<int>(
                       0,
-                      (sum, word) => sum + trUpper(word.word).length,
+                      (total, word) => total + trUpper(word.word).length,
                     );
                     put(letter, '$selected');
-                    if (selected < length - 1) {
+                    if (selected < answerLength - 1) {
                       setState(() => selected++);
                     }
                   }
@@ -528,7 +765,20 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     if (type == 'cengel') {
       for (final w in cross) {
         final p = (w.row - (w.vertical ? 1 : 0), w.col - (w.vertical ? 0 : 1));
-        hintCells[p] = '${w.answer.clue}\n${w.vertical ? '↓' : '→'}';
+        final previous = hintCells[p];
+        final next = '${w.answer.clue} ${w.vertical ? '↓' : '→'}';
+        hintCells[p] = previous == null ? next : '$previous\n$next';
+      }
+    }
+    final clueNumbers = <ExtraPlacedWord, int>{};
+    if (type == 'kare') {
+      final ordered = [...cross]
+        ..sort((a, b) {
+          final byRow = a.row.compareTo(b.row);
+          return byRow != 0 ? byRow : a.col.compareTo(b.col);
+        });
+      for (var i = 0; i < ordered.length; i++) {
+        clueNumbers[ordered[i]] = i + 1;
       }
     }
     void check() {
@@ -539,6 +789,35 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
       );
     }
 
+    late final int firstRow;
+    late final int lastRow;
+    late final int firstCol;
+    late final int lastCol;
+    if (type == 'kare') {
+      firstRow = 0;
+      firstCol = 0;
+      if (widget.level == 2) {
+        lastRow = 8;
+        lastCol = 8;
+      } else if (widget.level == 3) {
+        lastRow = 8;
+        lastCol = 8;
+      } else {
+        final rows = letters.keys.map((p) => p.$1);
+        final cols = letters.keys.map((p) => p.$2);
+        lastRow = rows.reduce(math.max);
+        lastCol = cols.reduce(math.max);
+      }
+    } else {
+      final allPositions = <(int, int)>{...letters.keys, ...hintCells.keys};
+      firstRow = allPositions.map((p) => p.$1).reduce(math.min);
+      lastRow = allPositions.map((p) => p.$1).reduce(math.max);
+      firstCol = allPositions.map((p) => p.$2).reduce(math.min);
+      lastCol = allPositions.map((p) => p.$2).reduce(math.max);
+    }
+    final rowCount = lastRow - firstRow + 1;
+    final colCount = lastCol - firstCol + 1;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -548,35 +827,119 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
         ),
         const SizedBox(height: 8),
         AspectRatio(
-          aspectRatio: 1,
+          aspectRatio: colCount / rowCount,
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: size * size,
+            itemCount: rowCount * colCount,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: size,
+              crossAxisCount: colCount,
             ),
             itemBuilder: (context, i) {
-              final r = i ~/ size,
-                  c = i % size,
+              final r = firstRow + i ~/ colCount,
+                  c = firstCol + i % colCount,
                   p = (r, c),
                   letter = letters[p],
                   hint = hintCells[p];
               final activeCells = cross[active].cells;
               final highlighted = activeCells.contains(p);
+              if (type == 'kare') {
+                final hasLetter = letter != null;
+                final wordIndex = cross.indexWhere(
+                  (w) => w.row == r && w.col == c,
+                );
+                final word = wordIndex >= 0 ? cross[wordIndex] : null;
+                final number = word == null ? null : clueNumbers[word];
+                return InkWell(
+                  key: ValueKey('extra_cross_cell_$r,$c'),
+                  onTap: !hasLetter
+                      ? null
+                      : () {
+                          final index = cross.indexWhere(
+                            (w) => w.cells.contains(p),
+                          );
+                          if (index >= 0) {
+                            setState(() {
+                              active = index;
+                              selected = cross[index].cells.indexOf(p);
+                            });
+                          }
+                        },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: hasLetter
+                          ? (highlighted ? selectedPaper : Colors.white)
+                          : ink,
+                      border: Border.all(color: rule, width: .55),
+                    ),
+                    child: Stack(
+                      children: [
+                        if (number != null)
+                          Positioned(
+                            top: 2,
+                            left: 3,
+                            child: Text(
+                              '$number',
+                              style: const TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        Center(
+                          child: Text(
+                            hasLetter ? (entered['$r,$c'] ?? '') : '',
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
               return InkWell(
-                onTap: letter == null
+                key: hint != null
+                    ? ValueKey(
+                        'arrow_clue_${cross.indexWhere((w) => (w.row - (w.vertical ? 1 : 0), w.col - (w.vertical ? 0 : 1)) == p)}',
+                      )
+                    : ValueKey('extra_cross_cell_$r,$c'),
+                onTap: letter == null && hint == null
                     ? null
                     : () {
-                        final index = cross.indexWhere(
-                          (w) => w.cells.contains(p),
-                        );
-                        setState(() {
-                          active = index;
-                          selected = cross[index].cells.indexOf(p);
-                        });
+                        if (hint != null) {
+                          final indices = <int>[
+                            for (var j = 0; j < cross.length; j++)
+                              if ((
+                                    cross[j].row - (cross[j].vertical ? 1 : 0),
+                                    cross[j].col - (cross[j].vertical ? 0 : 1),
+                                  ) ==
+                                  p)
+                                j,
+                          ];
+                          if (indices.isNotEmpty) {
+                            setState(() {
+                              active = indices.contains(active)
+                                  ? indices[(indices.indexOf(active) + 1) %
+                                        indices.length]
+                                  : indices.first;
+                              selected = 0;
+                            });
+                          }
+                        } else {
+                          final index = cross.indexWhere(
+                            (w) => w.cells.contains(p),
+                          );
+                          if (index >= 0) {
+                            setState(() {
+                              active = index;
+                              selected = cross[index].cells.indexOf(p);
+                            });
+                          }
+                        }
                       },
                 child: Container(
-                  key: ValueKey('extra_cross_$r,$c'),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: hint != null
@@ -607,8 +970,6 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
                       ? null
                       : Text(
                           entered['$r,$c'] ?? '',
-                          semanticsLabel:
-                              'Satır ${r + 1}, sütun ${c + 1}, ${entered['$r,$c'] ?? 'boş'}',
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
@@ -632,6 +993,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
         ...List.generate(
           cross.length,
           (i) => InkWell(
+            key: ValueKey('extra_cross_clue_$i'),
             onTap: () => setState(() {
               active = i;
               selected = 0;
@@ -639,7 +1001,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Text(
-                '${i + 1}. ${cross[i].answer.clue} (${cross[i].answer.word.length})',
+                '${(type == 'kare' ? '${clueNumbers[cross[i]]}. ' : '${i + 1}. ')}${cross[i].answer.clue} (${cross[i].answer.word.length})',
                 style: TextStyle(
                   fontWeight: i == active ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -704,12 +1066,12 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
             itemBuilder: (context, i) {
               final r = i ~/ 9, c = i % 9, isFixed = fixed[r][c];
               return InkWell(
+                key: ValueKey('extra_sudoku_$r,$c'),
                 onTap: () => setState(() {
                   active = r;
                   selected = c;
                 }),
                 child: Container(
-                  key: ValueKey('extra_sudoku_$r,$c'),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: active == r && selected == c
@@ -724,8 +1086,6 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
                   ),
                   child: Text(
                     isFixed ? '${solved[r][c]}' : (entered['$r,$c'] ?? ''),
-                    semanticsLabel:
-                        'Satır ${r + 1}, sütun ${c + 1}, ${isFixed ? solved[r][c] : entered['$r,$c'] ?? 'boş'}',
                     style: TextStyle(
                       fontWeight: isFixed ? FontWeight.bold : FontWeight.normal,
                       fontSize: 18,
@@ -746,9 +1106,8 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
                 minimumSize: const Size(38, 42),
                 padding: EdgeInsets.zero,
               ),
-              key: ValueKey('extra_number_${i + 1}'),
               onPressed: () => setNumber(i + 1),
-              child: Text('${i + 1}'),
+              child: Text('${i + 1}', key: ValueKey('extra_number_${i + 1}')),
             ),
           ),
         ),
@@ -762,52 +1121,189 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     );
   }
 
-  Widget searchView() => SearchGame(
-    key: ValueKey('extra_search_${widget.level}'),
-    board: search,
-    savePrefix: 'extra_search_${widget.level}',
-    legacyFound: discovered,
-    onSolved: complete,
-  );
+  Widget searchView() {
+    final entries = search.entries;
+    final used = <String>{};
+    for (final entry in entries) {
+      if (!discovered.contains(entry.$1)) {
+        continue;
+      }
+      for (var i = 0; i < entry.$1.length; i++) {
+        used.add('${entry.$2 + i * entry.$4},${entry.$3 + i * entry.$5}');
+      }
+    }
+    final rows = search.grid.length;
+    final cols = search.grid.first.length;
+    void selectCell(int r, int c) {
+      if (searchStart == null) {
+        setState(() => searchStart = (r, c));
+        return;
+      }
+      final start = searchStart!;
+      String? foundWord;
+      for (final e in entries) {
+        final end = (
+          e.$2 + (e.$1.length - 1) * e.$4,
+          e.$3 + (e.$1.length - 1) * e.$5,
+        );
+        if ((start == (e.$2, e.$3) && (r, c) == end) ||
+            (start == end && (r, c) == (e.$2, e.$3))) {
+          foundWord = e.$1;
+          break;
+        }
+      }
+      setState(() {
+        searchStart = null;
+        if (foundWord != null) {
+          discovered.add(foundWord);
+        }
+      });
+      if (foundWord != null) {
+        save();
+        if (discovered.length == entries.length) {
+          complete();
+        }
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Kelimenin ilk ve son harfine dokun. Yatay, dikey ve çapraz kelimeleri bul.',
+        ),
+        const SizedBox(height: 12),
+        AspectRatio(
+          aspectRatio: cols / rows,
+          child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rows * cols,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cols,
+            ),
+            itemBuilder: (context, i) {
+              final r = i ~/ cols, c = i % cols;
+              return InkWell(
+                key: ValueKey('search_$r,$c'),
+                onTap: () => selectCell(r, c),
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: searchStart == (r, c)
+                        ? selectedPaper
+                        : used.contains('$r,$c')
+                        ? const Color(0xFFD1E2C7)
+                        : Colors.white,
+                    border: Border.all(color: rule, width: .25),
+                  ),
+                  child: FittedBox(
+                    child: Text(
+                      search.grid[r][c],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 14,
+          runSpacing: 12,
+          children: [
+            for (final e in entries)
+              Text(
+                e.$1,
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: discovered.contains(e.$1) ? green : ink,
+                  decoration: discovered.contains(e.$1)
+                      ? TextDecoration.lineThrough
+                      : null,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          '${discovered.length} / ${entries.length} kelime bulundu',
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
 
   Widget spiralView() {
     final words = pack.words
         .map((e) => ExtraAnswer(trUpper(e.word), e.clue))
         .toList();
     final answer = words.map((e) => e.word).join();
-    final shown = answer.length;
+    final cells = spiralPositions(12);
+    final shown = math.min(answer.length, cells.length);
+    final path = <(int, int), int>{for (var i = 0; i < shown; i++) cells[i]: i};
     void check() => feedback(
-      List.generate(shown, (i) => entered['$i'] == answer[i]).every((v) => v),
+      answer.length <= cells.length &&
+          List.generate(
+            answer.length,
+            (i) => entered['$i'] == answer[i],
+          ).every((v) => v),
     );
-    final starts = <int>[];
-    var offset = 0;
-    for (final word in words) {
-      starts.add(offset);
-      offset += word.word.length;
-    }
-    final activeWord = starts.lastIndexWhere((v) => v <= selected);
     return Column(
       children: [
-        const Text('İÇTEN DIŞA • Merkezdeki 1’den başla, numaraları izle.'),
+        const Text(
+          'Dıştan merkeze doğru ilerle. İpuçlarının cevapları peş peşe yazılır.',
+        ),
         const SizedBox(height: 12),
-        CircularSpiralBoard(
-          cellCount: shown,
-          entered: {
-            for (final e in entered.entries)
-              if (int.tryParse(e.key) != null) int.parse(e.key): e.value,
-          },
-          errors: const {},
-          selected: selected,
-          activeStart: starts[activeWord],
-          activeLength: words[activeWord].word.length,
-          onSelect: (i) => setState(() => selected = i),
+        AspectRatio(
+          aspectRatio: 1,
+          child: GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 144,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 12,
+            ),
+            itemBuilder: (context, i) {
+              final r = i ~/ 12, c = i % 12, index = path[(r, c)];
+              return InkWell(
+                onTap: index == null
+                    ? null
+                    : () => setState(() => selected = index),
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: index == null
+                        ? ink
+                        : index == selected
+                        ? selectedPaper
+                        : Colors.white,
+                    border: Border.all(color: rule, width: .4),
+                  ),
+                  child: index == null
+                      ? null
+                      : Text(
+                          entered['$index'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              );
+            },
+          ),
         ),
         const SizedBox(height: 12),
         ...words.map(
           (w) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 3),
             child: Text(
-              '• ${w.clue} (${w.word.length}) • Kutu ${starts[words.indexOf(w)] + 1}–${starts[words.indexOf(w)] + w.word.length}',
+              '• ${w.clue} (${w.word.length})',
               style: const TextStyle(fontSize: 13),
             ),
           ),
@@ -893,23 +1389,3 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     );
   }
 }
-
-int extraSudokuRow(int level, int row) =>
-    ((level == 11 && row < 2 ? 1 - row : row) + 3 * (level % 3)) % 9;
-List<List<int>> extraSudokuSolution(int level) => List.generate(
-  9,
-  (r) => List.generate(
-    9,
-    (c) =>
-        (int.parse(sudokuSolved[extraSudokuRow(level, r)][c]) +
-                (level - 1) % 9 -
-                1) %
-            9 +
-        1,
-  ),
-);
-List<List<bool>> extraSudokuFixed(int level) => List.generate(
-  9,
-  (r) =>
-      List.generate(9, (c) => sudokuGivens[extraSudokuRow(level, r)][c] != '0'),
-);

@@ -27,7 +27,9 @@ void main() {
   }
 
   Future<void> click(WidgetTester tester, Finder finder) async {
+    expect(finder, findsOneWidget);
     await tester.ensureVisible(finder);
+    await tester.pumpAndSettle();
     await tester.tap(finder);
     await tester.pump();
   }
