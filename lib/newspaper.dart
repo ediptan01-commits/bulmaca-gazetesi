@@ -2,7 +2,7 @@ part of 'main.dart';
 
 const crossSize = 7;
 const arrowSize = 8;
-const arrowRows = 12;
+const arrowRows = 11;
 
 class WordEntry {
   final String text, clue;
@@ -59,20 +59,19 @@ const arrowWords = [
   WordEntry('İRİLİK', 'İri olma durumu', 5, 1, true),
   WordEntry('TAMAMI', 'Bir şeyin bütünü', 5, 2, true),
   WordEntry('ECE', 'Kraliçe', 5, 6, true),
-  WordEntry('KILAVUZ', 'Yol gösteren kişi veya kitap', 5, 7, true),
+  WordEntry('KILCAL', 'Çok ince damar veya kıl gibi yapı', 5, 7, true),
   WordEntry('RAY', 'Trenin yolu', 6, 1, false),
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
-  // Alt ve üst kısımlar İRİLİK, TAMAMI ve KILAVUZ ile birleşir.
+  // 11 satırlık tek ızgara: alt satırlar İRİLİK, TAMAMI ve KILCAL ile birleşir.
   WordEntry('LA', 'Müzikte bir nota', 8, 1, false),
-  WordEntry('ARI', 'Bal yapan böcek', 9, 3, true),
-  WordEntry('ASA', 'Elde taşınan değnek', 9, 6, true),
-  WordEntry('İMAM', 'Camide namaz kıldıran din görevlisi', 9, 1, false),
-  WordEntry('AV', 'Yaban hayvanı yakalama işi', 9, 6, false),
+  WordEntry('AR', 'Yüz metrekarelik alan ölçüsü', 9, 3, true),
+  WordEntry('YE', 'Yemek fiilinin emir biçimi', 9, 6, true),
+  WordEntry('İMAJ', 'Görünüş, izlenim', 9, 1, false),
+  WordEntry('YA', 'Veya anlamındaki bağlaç', 9, 6, false),
   WordEntry('KIR', 'Bozkır, ağaçsız düzlük', 10, 1, false),
-  WordEntry('SU', 'İçilebilir berrak sıvı', 10, 6, false),
-  WordEntry('YAZ', 'En sıcak mevsim', 11, 5, false),
+  WordEntry('EL', 'Kolun bilekten sonraki bölümü', 10, 6, false),
 ];
 
 const searchGrid = [
