@@ -338,6 +338,7 @@ class _CrossGameState extends State<CrossGame> {
       for (var i = 0; i < words.length; i++)
         if (words[i].vertical == vertical)
           InkWell(
+            key: ValueKey('cross_clue_$i'),
             onTap: () => choose(i),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 9),
