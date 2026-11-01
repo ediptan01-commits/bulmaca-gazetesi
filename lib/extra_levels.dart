@@ -366,8 +366,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
         final p=(w.row-(w.vertical?1:0),w.col-(w.vertical?0:1));
         final previous = hintCells[p];
         final next = '${w.answer.clue} ${w.vertical ? '↓' : '→'}';
-        hintCells[p] = previous == null ? next : '$previous
-$next';
+        hintCells[p] = previous == null ? next : '$previous\n$next';
       }
     }
     final clueNumbers = <ExtraPlacedWord,int>{};
@@ -556,7 +555,7 @@ $next';
             decoration:BoxDecoration(color:searchStart==(r,c)?selectedPaper:
               used.contains('$r,$c')?const Color(0xFFD1E2C7):Colors.white,
               border:Border.all(color:rule,width:.25)),
-            child:FittedBox(child:Text(search.grid[r][c],style:const TextStyle(fontSize:24,fontWeight:FontWeight.bold))));})),
+            child:FittedBox(child:Text(search.grid[r][c],style:const TextStyle(fontSize:24,fontWeight:FontWeight.bold)))));})),
       const SizedBox(height:16),Wrap(spacing:14,runSpacing:12,children:[
         for(final e in entries)Text(e.$1,style:TextStyle(fontFamily:'serif',fontSize:17,fontWeight:FontWeight.w700,
           color:discovered.contains(e.$1)?green:ink,
