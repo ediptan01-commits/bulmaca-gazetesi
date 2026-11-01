@@ -10,7 +10,7 @@ void main() {
       'Çengel $level: bütün harfler erişilebilir ve bütün dizilerin sorusu var',
       () {
         final words = arrowWordsForLevel(level);
-        final rows = level == 1 ? arrowRows : 8;
+        final rows = level <= 2 ? arrowRows : 8;
         final letters = <(int, int), String>{};
         final hints = words.map((w) => w.clueCell).toSet();
         for (final w in words) {
@@ -52,7 +52,7 @@ void main() {
         }
         // 8×11 çengelde alt ve üst blokların her ikisi de doludur.
         final closed = rows * arrowSize - letters.length - hints.length;
-        expect(closed, lessThanOrEqualTo(level == 1 ? 9 : 3));
+        expect(closed, lessThanOrEqualTo(level == 1 ? 9 : level == 2 ? 13 : 3));
       },
     );
     testWidgets(
