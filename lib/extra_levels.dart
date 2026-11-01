@@ -196,7 +196,7 @@ const extraKareLayouts = <List<(int, int, int, bool)>>[
    (1, 4, 1, false), (5, 5, 1, false), (2, 6, 0, false), (7, 7, 2, false),
    (8, 1, 7, true)],
   [(9, 0, 4, false), (8, 1, 0, false), (3, 1, 2, true), (4, 1, 4, true),
-   (6, 1, 6, true), (2, 0, 7, true), (5, 2, 7, true), (0, 4, 1, false)],
+   (6, 1, 6, true), (7, 6, 7, true), (5, 2, 7, true), (0, 4, 1, false)],
 ];
 
 class ExtraSearchBoard {
@@ -327,18 +327,21 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     LetterKeyboard(onLetter:onLetter,onDelete:onDelete);
 
   @override Widget build(BuildContext context){
-    final isCross=type=='cengel'||type=='kare';
+    final isCross=type=='kare';
     return Scaffold(
       appBar:AppBar(title:Text('${widget.puzzle.name} • ${widget.level}')),
       body:SafeArea(child:Column(children:[
         Padding(padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
           child:EditionHeading(label:'SAYI ${widget.level.toString().padLeft(3,'0')} • ${pack.title.toUpperCase()}')),
         if(!ready)const Expanded(child:Center(child:CircularProgressIndicator()))
+        else if(type=='cengel')
+          Expanded(child:CrossGame(arrow:true, level:widget.level, onSolved:complete))
+        else if(type=='resim')
+          Expanded(child:PictureGame(level:widget.level, onSolved:complete))
         else Expanded(child:SingleChildScrollView(padding:const EdgeInsets.all(10),child:
           type=='sudoku'?sudokuView():
           type=='av'?searchView():
-          type=='sarmal'?spiralView():
-          type=='resim'?pictureView():crossView())),
+          type=='sarmal'?spiralView():crossView())),
         if(done)Container(color:const Color(0xFFDDEADB),padding:const EdgeInsets.all(8),
           child:Row(children:[const Icon(Icons.check_circle,color:green),const SizedBox(width:8),
             const Expanded(child:Text('Bölüm tamamlandı!')),
@@ -424,6 +427,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
             final word = wordIndex >= 0 ? cross[wordIndex] : null;
             final number = word == null ? null : clueNumbers[word];
             return InkWell(
+              key: ValueKey('extra_cross_cell_$r,$c'),
               onTap: !hasLetter ? null : () {
                 final index=cross.indexWhere((w)=>w.cells.contains(p));
                 if(index>=0) { setState(() {active=index;selected=cross[index].cells.indexOf(p);}); }
@@ -452,7 +456,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
               ),
             );
           }
-          return InkWell(onTap:letter==null && hint==null?null:(){
+          return InkWell(key: hint != null ? ValueKey('arrow_clue_${cross.indexWhere((w) => (w.row-(w.vertical?1:0), w.col-(w.vertical?0:1))==p)}') : ValueKey('extra_cross_cell_$r,$c'), onTap:letter==null && hint==null?null:(){
             if(hint!=null) {
               final indices=<int>[for(var j=0;j<cross.length;j++)
                 if((cross[j].row-(cross[j].vertical?1:0),cross[j].col-(cross[j].vertical?0:1))==p) j];
@@ -476,7 +480,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
       const SizedBox(height:5),
       Text('${cross[active].answer.word.length} harf • ${cross[active].vertical?'Dikey':'Yatay'}'),
       const Divider(),
-      ...List.generate(cross.length,(i)=>InkWell(onTap:()=>setState(() {active=i;selected=0;}),
+      ...List.generate(cross.length,(i)=>InkWell(key: ValueKey('extra_cross_clue_$i'), onTap:()=>setState(() {active=i;selected=0;}),
         child:Padding(padding:const EdgeInsets.symmetric(vertical:6),
           child:Text('${(type=='kare' ? '${clueNumbers[cross[i]]}. ' : '${i+1}. ')}${cross[i].answer.clue} (${cross[i].answer.word.length})',
             style:TextStyle(fontWeight:i==active?FontWeight.bold:FontWeight.normal))))),
@@ -499,7 +503,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
       physics:const NeverScrollableScrollPhysics(),itemCount:81,
       gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:9),
       itemBuilder:(context,i){final r=i~/9,c=i%9,isFixed=fixed[r][c];
-        return InkWell(onTap:()=>setState(() {active=r;selected=c;}),
+        return InkWell(key: ValueKey('extra_sudoku_$r,$c'), onTap:()=>setState(() {active=r;selected=c;}),
           child:Container(alignment:Alignment.center,
             decoration:BoxDecoration(color:active==r&&selected==c?selectedPaper:Colors.white,
               border:Border(left:BorderSide(color:ink,width:c%3==0?2:.3),
@@ -510,7 +514,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
               style:TextStyle(fontWeight:isFixed?FontWeight.bold:FontWeight.normal,fontSize:18))));})),
       const SizedBox(height:12),Wrap(spacing:5,children:List.generate(9,(i)=>
         OutlinedButton(style:OutlinedButton.styleFrom(minimumSize:const Size(38,42),padding:EdgeInsets.zero),
-          onPressed:()=>setNumber(i+1),child:Text('${i+1}')))),
+          onPressed:()=>setNumber(i+1),child:Text('${i+1}', key:ValueKey('extra_number_${i+1}'))))),
       TextButton.icon(onPressed:()=>setNumber(0),icon:const Icon(Icons.backspace),label:const Text('Sil')),
       FilledButton(onPressed:check,child:const Text('Sudoku kontrol et'))]);
   }
@@ -551,7 +555,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
         physics:const NeverScrollableScrollPhysics(),itemCount:rows*cols,
         gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:cols),
         itemBuilder:(context,i){final r=i~/cols,c=i%cols;
-          return InkWell(onTap:()=>selectCell(r,c),child:Container(alignment:Alignment.center,
+          return InkWell(key: ValueKey('search_$r,$c'), onTap:()=>selectCell(r,c),child:Container(alignment:Alignment.center,
             decoration:BoxDecoration(color:searchStart==(r,c)?selectedPaper:
               used.contains('$r,$c')?const Color(0xFFD1E2C7):Colors.white,
               border:Border.all(color:rule,width:.25)),
