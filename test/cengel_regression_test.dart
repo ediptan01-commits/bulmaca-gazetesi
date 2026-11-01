@@ -50,7 +50,7 @@ void main() {
             }
           }
         }
-        // Büyütülmüş 8×12 çengelde alt ve üst blokların her ikisi de doludur.
+        // 8×11 çengelde alt ve üst blokların her ikisi de doludur.
         final closed = rows * arrowSize - letters.length - hints.length;
         expect(closed, lessThanOrEqualTo(level == 1 ? 9 : 3));
       },
