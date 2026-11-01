@@ -118,7 +118,7 @@ class _SearchGameState extends State<SearchGame> {
     ];
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 660),
+        constraints: const BoxConstraints(maxWidth: 440),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
