@@ -625,7 +625,10 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (type == 'cengel' || type == 'kare' || type == 'resim') {
+    if (type == 'cengel' ||
+        type == 'kare' ||
+        type == 'resim' ||
+        type == 'capraz') {
       return Scaffold(
         appBar: AppBar(title: Text('${widget.puzzle.name} • ${widget.level}')),
         body: SafeArea(
@@ -635,6 +638,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
                 child: type != 'resim'
                     ? CrossGame(
                         arrow: type == 'cengel',
+                        free: type == 'capraz',
                         level: widget.level,
                         onSolved: complete,
                       )

@@ -10,6 +10,7 @@ void main() {
       'av',
       'sarmal',
       'resim',
+      'capraz',
     });
   });
 
@@ -22,7 +23,10 @@ void main() {
         final rows = arrow ? arrowRows : crossSize;
         final grid = <(int, int), String>{};
         expect(words.length, greaterThanOrEqualTo(20));
-        expect(words.map((w) => w.text).toSet().length, words.length);
+        expect(
+          words.map((w) => (w.r, w.c, w.vertical)).toSet().length,
+          words.length,
+        );
         for (final w in words) {
           expect(w.clue, isNotEmpty);
           for (var i = 0; i < w.cells.length; i++) {

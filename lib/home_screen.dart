@@ -163,18 +163,24 @@ class _IllustratedHomeState extends State<IllustratedHome> {
       style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
     ),
     const SizedBox(height: 18),
-    Text('$total / 12 bölüm tamamlandı', textAlign: TextAlign.center),
+    Text(
+      '$total / $totalPlayableLevels bölüm tamamlandı',
+      textAlign: TextAlign.center,
+    ),
     Text('$stars günlük yıldız', textAlign: TextAlign.center),
     const SizedBox(height: 12),
     const Text('İlerlemen bu cihazda kaydedilir.', textAlign: TextAlign.center),
   ]);
   void achievements() => panel('Başarılar', [
     Text(
-      '$total / 12 bölüm tamamlandı',
+      '$total / $totalPlayableLevels bölüm tamamlandı',
       style: const TextStyle(fontWeight: FontWeight.bold),
     ),
     const SizedBox(height: 8),
-    LinearProgressIndicator(value: total / 12, color: dashboardBlue),
+    LinearProgressIndicator(
+      value: total / totalPlayableLevels,
+      color: dashboardBlue,
+    ),
     const SizedBox(height: 16),
     for (final p in puzzles)
       ListTile(
@@ -211,7 +217,7 @@ class _IllustratedHomeState extends State<IllustratedHome> {
       subtitle: Text(appSlogan),
     ),
     const Text(
-      '6 bulmaca türü • 12 bölüm\nHer türde 2 oynanabilir bölüm. İlerleme cihazda saklanır.',
+      '7 bulmaca türü • 14 bölüm\nHer türde 2 oynanabilir bölüm. İlerleme cihazda saklanır.',
     ),
   ]);
   void challenge() => panel('Bugünün Zihin Görevi', [
@@ -272,7 +278,9 @@ class _IllustratedHomeState extends State<IllustratedHome> {
                     key: ValueKey('collection_${puzzles[i].id}'),
                     borderRadius: BorderRadius.circular(24),
                     onTap: () => open(puzzles[i]),
-                    child: ReferenceArtwork(region: cardRegions[i]),
+                    child: i < cardRegions.length
+                        ? ReferenceArtwork(region: cardRegions[i])
+                        : const FreeCrossCollectionCard(),
                   ),
                 ),
               ),
@@ -376,13 +384,19 @@ class _IllustratedHomeState extends State<IllustratedHome> {
                         'home_daily',
                         challenge,
                       ),
-                      for (var i = 0; i < puzzles.length; i++)
+                      for (var i = 0; i < cardRegions.length; i++)
                         action(
                           cardRegions[i],
                           '${puzzles[i].name}, ${widget.completed[puzzles[i].id] ?? 0}/2 bölüm',
                           'home_puzzle_${puzzles[i].id}',
                           () => open(puzzles[i]),
                         ),
+                      action(
+                        const Rect.fromLTWH(282, 562, 462, 65),
+                        'Bulmaca koleksiyonu, Çapraz Bulmaca dahil',
+                        'home_collection',
+                        collection,
+                      ),
                       action(
                         const Rect.fromLTWH(24, 1397, 213, 125),
                         'Ana Sayfa',

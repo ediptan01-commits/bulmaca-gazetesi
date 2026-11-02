@@ -33,17 +33,21 @@ class PaperGrid extends StatelessWidget {
   final int size;
   final int? rows;
   final Widget Function(int, int) cell;
+  final bool outline;
   const PaperGrid({
     super.key,
     required this.size,
     this.rows,
     required this.cell,
+    this.outline = true,
   });
   @override
   Widget build(BuildContext context) => AspectRatio(
     aspectRatio: size / (rows ?? size),
     child: Container(
-      decoration: BoxDecoration(border: Border.all(color: ink)),
+      decoration: BoxDecoration(
+        border: outline ? Border.all(color: ink) : null,
+      ),
       child: Column(
         children: [
           for (var r = 0; r < (rows ?? size); r++)
@@ -62,11 +66,13 @@ class PaperGrid extends StatelessWidget {
 
 class CrossGame extends StatefulWidget {
   final bool arrow;
+  final bool free;
   final int level;
   final VoidCallback onSolved;
   const CrossGame({
     super.key,
     required this.arrow,
+    this.free = false,
     this.level = 1,
     required this.onSolved,
   });
@@ -75,11 +81,21 @@ class CrossGame extends StatefulWidget {
 }
 
 class _CrossGameState extends State<CrossGame> {
-  late final words = widget.arrow
+  late final words = widget.free
+      ? freeCrossWordsForLevel(widget.level)
+      : widget.arrow
       ? arrowWordsForLevel(widget.level)
       : crossWordsForLevel(widget.level);
-  int get size => widget.arrow ? arrowSize : crossSize;
-  int get rows => widget.arrow ? arrowRows : crossSize;
+  int get size => widget.free
+      ? freeCrossColumns(words)
+      : widget.arrow
+      ? arrowSize
+      : crossSize;
+  int get rows => widget.free
+      ? freeCrossRows(words)
+      : widget.arrow
+      ? arrowRows
+      : crossSize;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -100,8 +116,10 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
-  String get saveKey => widget.level > 1
-      ? (widget.arrow ? 'arrow_v4_${widget.level}' : 'kare_v2_${widget.level}')
+  String get saveKey => widget.free
+      ? 'free_cross_${widget.level}'
+      : widget.level > 1
+      ? (widget.arrow ? 'arrow_v5_${widget.level}' : 'kare_v2_${widget.level}')
       : 'cross_${widget.arrow}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
@@ -268,6 +286,7 @@ class _CrossGameState extends State<CrossGame> {
       );
     }
     final has = solution.containsKey(pos);
+    if (widget.free && !has) return SizedBox(key: ValueKey('free_gap_$r,$c'));
     final inWord = words[active].cells.contains(pos);
     final current = words[active].cells[selected] == pos;
     final startNumber = starts.indexOf(pos) + 1;
@@ -398,7 +417,12 @@ class _CrossGameState extends State<CrossGame> {
                         gridRows: rows,
                         minimumCellSize: 0,
                         onCheck: ready ? check : null,
-                        child: PaperGrid(size: size, rows: rows, cell: cell),
+                        child: PaperGrid(
+                          size: size,
+                          rows: rows,
+                          outline: !widget.free,
+                          cell: cell,
+                        ),
                       ),
                       if (!widget.arrow)
                         Row(

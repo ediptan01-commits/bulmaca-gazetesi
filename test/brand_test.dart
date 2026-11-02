@@ -23,7 +23,7 @@ void main() {
       await tester.pumpWidget(const BulmacaApp());
       await tester.pumpAndSettle();
       expect(find.byType(ReferenceArtwork), findsOneWidget);
-      for (final p in puzzles) {
+      for (final p in puzzles.take(6)) {
         expect(find.byKey(ValueKey('home_puzzle_${p.id}')), findsOneWidget);
       }
       for (final tab in ['home', 'puzzles', 'achievements', 'profile']) {
@@ -36,6 +36,22 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('Yeni çapraz türü koleksiyondan iki bölümüyle açılır', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const BulmacaApp());
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('nav_puzzles')));
+    await tester.tap(find.byKey(const ValueKey('nav_puzzles')));
+    await tester.pumpAndSettle();
+    final card = find.byKey(const ValueKey('collection_capraz'));
+    await tester.scrollUntilVisible(card, 250);
+    await tester.tap(card);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('level_2')), findsOneWidget);
+    expect(find.byKey(const ValueKey('level_3')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('Profil gerçek toplam ilerlemeyi gösterir', (tester) async {
     for (final p in puzzles) {
       await Store.complete(p.id);
@@ -47,7 +63,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('nav_profile')));
     await tester.pumpAndSettle();
-    expect(find.text('12 / 12 bölüm tamamlandı'), findsOneWidget);
+    expect(find.text('14 / 14 bölüm tamamlandı'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   test('Günlük görev üç farklı tür ister ve yıldız bir kez verilir', () async {

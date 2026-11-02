@@ -2,7 +2,7 @@ part of 'main.dart';
 
 const crossSize = 7;
 const arrowSize = 8;
-const arrowRows = 12;
+const arrowRows = 11;
 
 class WordEntry {
   final String text, clue;
@@ -57,22 +57,22 @@ const arrowWords = [
   WordEntry('BOL', 'Çok', 4, 3, false),
   WordEntry('İTİŞMEK', 'Karşılıklı itmek', 5, 1, false),
   WordEntry('İRİ', 'Kocaman', 5, 1, true),
-  WordEntry('TAMAM', 'Bitti, eksiksiz', 5, 2, true),
+  WordEntry('TAM', 'Eksiksiz', 5, 2, true),
   WordEntry('ECE', 'Kraliçe', 5, 6, true),
-  WordEntry('KILAVUZ', 'Yol gösteren', 5, 7, true),
+  WordEntry('KIL', 'İnce deri uzantısı', 5, 7, true),
   WordEntry('RAY', 'Trenin yolu', 6, 1, false),
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
-  WordEntry('İLE', 'Birlikte', 9, 1, true),
-  WordEntry('İM', 'İşaret', 9, 1, false),
-  WordEntry('AD', 'İsim', 10, 3, true),
-  WordEntry('YE', 'Yemek emri', 10, 4, true),
-  WordEntry('EV', 'Konut', 9, 6, false),
-  WordEntry('AY', 'Dünya uydusu', 10, 3, false),
-  WordEntry('SU', 'İçilen sıvı', 10, 6, false),
-  WordEntry('ELDE', 'Avuçta', 11, 1, false),
-  WordEntry('ES', 'Müzikte sus', 9, 6, true),
+  WordEntry('İL', 'Şehir', 9, 1, true),
+  WordEntry('AL', 'Kırmızı', 9, 6, false),
+  WordEntry('YA', 'İki seçenek arasında kullanılan bağlaç', 10, 3, false),
+  WordEntry('AY', 'Dünya uydusu', 9, 3, false),
+  WordEntry('AY', 'Dünya uydusu', 9, 3, true),
+  WordEntry('YA', 'Seçenek bağlacı', 9, 4, true),
+  WordEntry('LA', 'Bir nota', 10, 6, false),
+  WordEntry('AL', 'Kırmızı', 9, 6, true),
+  WordEntry('LA', 'Bir nota', 9, 7, true),
 ];
 
 const searchGrid = [
@@ -189,9 +189,9 @@ List<WordEntry> arrowWordsForLevel(int level) => switch (level) {
   2 => [
     ...arrowLevel2.map(
       (w) => w.text == 'EGO'
-          ? WordEntry('EGOLU', 'Kendini beğenir', w.r, w.c, w.vertical)
+          ? WordEntry('EGO', 'Benlik', w.r, w.c, w.vertical)
           : w.text == 'TOZ'
-          ? WordEntry('TOZUMAK', 'Toz kaldırmak', w.r, w.c, w.vertical)
+          ? WordEntry('TOZ', 'İnce zerreler', w.r, w.c, w.vertical)
           : w,
     ),
     ...arrowExtension2,
@@ -207,13 +207,13 @@ List<WordEntry> crossWordsForLevel(int level) => level == 1
           .toList();
 
 const arrowExtension2 = [
-  WordEntry('BEL', 'Gövde bölümü', 9, 1, true),
-  WordEntry('BU', 'İşaret zamiri', 9, 1, false),
-  WordEntry('AL', 'Kırmızı', 10, 3, true),
-  WordEntry('YE', 'Yemek emri', 10, 4, true),
-  WordEntry('EM', 'Emmek emri', 9, 6, false),
-  WordEntry('AY', 'Dünya uydusu', 10, 3, false),
+  WordEntry('BE', 'Seslenme ünlemi', 9, 1, true),
+  WordEntry('AL', 'Kırmızı', 9, 6, false),
+  WordEntry('YA', 'İki seçenek arasında kullanılan bağlaç', 10, 3, false),
+  WordEntry('AY', 'Dünya uydusu', 9, 3, false),
+  WordEntry('AY', 'Dünya uydusu', 9, 3, true),
+  WordEntry('YA', 'Seçenek bağlacı', 9, 4, true),
   WordEntry('LA', 'Bir nota', 10, 6, false),
-  WordEntry('LALE', 'Bir çiçek', 11, 1, false),
-  WordEntry('EL', 'Parmaklı organ', 9, 6, true),
+  WordEntry('AL', 'Kırmızı', 9, 6, true),
+  WordEntry('LA', 'Bir nota', 9, 7, true),
 ];

@@ -1,9 +1,9 @@
-# Bulmaca Dünyası — 1.4.2
+# Bulmaca Dünyası — 1.6.0
 
 **Her Bulmacada Yeni Bir Macera!**
 
-Krem ve koyu yeşil tasarımlı Türkçe mobil bulmaca oyunu. Çengel, Kare, Sudoku,
-Kelime Avı, Sarmal ve Resimli Bulmaca: her türde 2 bölüm, toplam 12 bölüm.
+Mavi-altın ana ekranı ve krem oyun yüzeyleri olan Türkçe mobil bulmaca oyunu. Çengel, Kare, Sudoku,
+Kelime Avı, Sarmal, Resimli ve Numaralı Çapraz Bulmaca: her türde 2 bölüm, toplam 14 bölüm.
 Bölümler sırayla açılır ve ilerleme cihazda kaydedilir. Gelecek sürümler için
 hazırlanmış diğer tema verileri kaynakta korunur, ilk sürümde gösterilmez.
 
@@ -48,6 +48,10 @@ alt menü, profil, başarılar, ayarlar ve günlük görev gerçek uygulama kont
 Günlük görev üç farklı tür tamamlandığında cihazda bir günlük yıldız kaydeder.
 Telefonun durum çubuğu görsele gömülmez; sistemin kendi durum çubuğu kullanılır.
 
-Çengel her iki bölümde 8 sütun ve 12 satır, 31 sorudur. Alt satırlar mevcut dikey
+Çengel her iki bölümde 8 sütun ve 11 satırdır. Alt satırlar mevcut dikey
 cevaplarla birleşir. Kelime Avı iki bölümde de 10 sütun × 12 satırdır.
-Her türde yalnızca iki bölüm vardır: toplam 12 bölüm.
+Her türde yalnızca iki bölüm vardır: toplam 14 bölüm.
+
+## 1.6.0 — Numaralı Çapraz Bulmaca
+
+Koleksiyona siyah dolgu olmadan, numaralı başlangıçlarla birbirine geçen sözcüklerden oluşan yeni tür eklendi. Doğa ve Okul/Kültür temalarında 18 soruluk iki bölüm bulunur. Türkçe Q klavye, yatay/dikey ipuçları, çözüm kontrolü ve ayrı bölüm kayıtları desteklenir. Mevcut altı türün ikişer bölümü korunur. Çengel her iki bölümde 11 satırdır.

@@ -107,6 +107,12 @@ void main() {
                 await letters(tester, words[i].text);
               }
               await click(tester, find.text('Kontrol et'));
+            case 'capraz':
+              for (var i = 0; i < freeCrossWordsForLevel(level).length; i++) {
+                await click(tester, find.byKey(ValueKey('cross_clue_$i')));
+                await letters(tester, freeCrossWordsForLevel(level)[i].text);
+              }
+              await click(tester, find.text('Kontrol et'));
             case 'sudoku':
               final solution = level == 1
                       ? sudokuSolved
@@ -179,7 +185,13 @@ void main() {
             expect(find.text('Bölüm tamamlandı!'), findsOneWidget);
           }
           if (level > 1 &&
-              !['av', 'cengel', 'kare', 'resim'].contains(puzzle.id)) {
+              ![
+                'av',
+                'cengel',
+                'kare',
+                'resim',
+                'capraz',
+              ].contains(puzzle.id)) {
             final data =
                 jsonDecode((await Store.read('extra_${puzzle.id}_$level'))!)
                     as Map<String, dynamic>;

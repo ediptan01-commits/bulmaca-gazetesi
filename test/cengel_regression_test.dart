@@ -9,6 +9,7 @@ void main() {
     test(
       'Çengel $level: bütün harfler erişilebilir ve bütün dizilerin sorusu var',
       () {
+        expect(arrowRows, 11);
         final words = arrowWordsForLevel(level);
         final letters = <(int, int), String>{};
         final hints = words.map((w) => w.clueCell).toSet();
@@ -55,7 +56,7 @@ void main() {
         }
         expect(
           arrowRows * arrowSize - letters.length - hints.length,
-          lessThanOrEqualTo(12),
+          lessThanOrEqualTo(8),
         );
       },
     );

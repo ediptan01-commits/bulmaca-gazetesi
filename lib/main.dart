@@ -13,6 +13,7 @@ part 'search_game.dart';
 part 'picture_game.dart';
 part 'extra_levels.dart';
 part 'home_screen.dart';
+part 'free_crossword.dart';
 
 void main() => runApp(const BulmacaApp());
 const appName = 'Bulmaca Dünyası';
@@ -60,6 +61,12 @@ const puzzles = <Puzzle>[
   Puzzle('av', 'Kelime Avı', 'Harflere dokunarak bul', '🔎'),
   Puzzle('sarmal', 'Sarmal Bulmaca', 'İç içe ilerleyen kelimeler', '🌀'),
   Puzzle('resim', 'Resimli Bulmaca', 'Resimlerden gizli şifreye', '🖼️'),
+  Puzzle(
+    'capraz',
+    'Çapraz Bulmaca',
+    'Numaralı ipuçlarıyla kelimeleri birleştir',
+    '✏️',
+  ),
 ];
 
 class BulmacaApp extends StatelessWidget {
@@ -194,6 +201,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
         arrow: false,
         onSolved: solved,
       ),
+      'capraz' => CrossGame(arrow: false, free: true, onSolved: solved),
       'sudoku' => SudokuGame(onSolved: solved),
       'av' => SearchGame(onSolved: solved),
       'sarmal' => SpiralGame(onSolved: solved),
@@ -211,7 +219,14 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
         ],
       ),
       body: SafeArea(
-        child: ['cengel', 'kare', 'sarmal', 'resim'].contains(widget.puzzle.id)
+        child:
+            [
+              'cengel',
+              'kare',
+              'sarmal',
+              'resim',
+              'capraz',
+            ].contains(widget.puzzle.id)
             ? game
             : ListView(
                 padding: const EdgeInsets.all(14),
@@ -457,6 +472,7 @@ List<(int, int)> spiralPositions(int n) {
 
 /// Bu sürümde her tür için iki oynanabilir bölüm.
 const levelsPerPuzzle = 2;
+int get totalPlayableLevels => puzzles.length * levelsPerPuzzle;
 
 class LevelSelectScreen extends StatefulWidget {
   final Puzzle puzzle;

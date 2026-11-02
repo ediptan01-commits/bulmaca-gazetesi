@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bulmaca_gazetesi/main.dart';
 
 void main() {
-  test('İlk sürüm altı tür ve toplam on iki bölüm içerir', () {
+  test('İlk sürüm yedi tür ve toplam on dört bölüm içerir', () {
     expect(levelsPerPuzzle, 2);
-    expect(puzzles.length, 6);
-    expect((levelsPerPuzzle - 1) * puzzles.length, 6);
+    expect(puzzles.length, 7);
+    expect((levelsPerPuzzle - 1) * puzzles.length, 7);
     expect(extraPacks.length, 10);
     expect(extraPacks.map((p) => p.title).toSet().length, 10);
   });
