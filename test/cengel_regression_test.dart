@@ -5,7 +5,7 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 void main() {
-  for (var level = 1; level <= 3; level++) {
+  for (var level = 1; level <= levelsPerPuzzle; level++) {
     test(
       'Çengel $level: bütün harfler erişilebilir ve bütün dizilerin sorusu var',
       () {
@@ -21,7 +21,7 @@ void main() {
           );
           for (var i = 0; i < w.cells.length; i++) {
             final cell = w.cells[i];
-            expect(cell.$1, inInclusiveRange(0, 7));
+            expect(cell.$1, inInclusiveRange(0, arrowRows - 1));
             expect(cell.$2, inInclusiveRange(0, 7));
             if (letters.containsKey(cell)) {
               expect(letters[cell], w.text[i]);
@@ -53,7 +53,10 @@ void main() {
             }
           }
         }
-        expect(64 - letters.length - hints.length, lessThanOrEqualTo(3));
+        expect(
+          arrowRows * arrowSize - letters.length - hints.length,
+          lessThanOrEqualTo(12),
+        );
       },
     );
     testWidgets(

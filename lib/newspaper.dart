@@ -2,7 +2,7 @@ part of 'main.dart';
 
 const crossSize = 7;
 const arrowSize = 8;
-const arrowRows = 8;
+const arrowRows = 12;
 
 class WordEntry {
   final String text, clue;
@@ -57,44 +57,50 @@ const arrowWords = [
   WordEntry('BOL', 'Çok', 4, 3, false),
   WordEntry('İTİŞMEK', 'Karşılıklı itmek', 5, 1, false),
   WordEntry('İRİ', 'Kocaman', 5, 1, true),
-  WordEntry('TAM', 'Eksiksiz', 5, 2, true),
+  WordEntry('TAMAM', 'Bitti, eksiksiz', 5, 2, true),
   WordEntry('ECE', 'Kraliçe', 5, 6, true),
-  WordEntry('KIL', 'Deri uzantısı', 5, 7, true),
+  WordEntry('KILAVUZ', 'Yol gösteren', 5, 7, true),
   WordEntry('RAY', 'Trenin yolu', 6, 1, false),
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
+  WordEntry('İLE', 'Birlikte', 9, 1, true),
+  WordEntry('İM', 'İşaret', 9, 1, false),
+  WordEntry('AD', 'İsim', 10, 3, true),
+  WordEntry('YE', 'Yemek emri', 10, 4, true),
+  WordEntry('EV', 'Konut', 9, 6, false),
+  WordEntry('AY', 'Dünya uydusu', 10, 3, false),
+  WordEntry('SU', 'İçilen sıvı', 10, 6, false),
+  WordEntry('ELDE', 'Avuçta', 11, 1, false),
+  WordEntry('ES', 'Müzikte sus', 9, 6, true),
 ];
 
 const searchGrid = [
-  'DLRTYJKCMRAÖ',
-  'BROMANPMECSF',
-  'EBYAZNVBANFK',
-  'OHMŞADAMSİIA',
-  'VKİARHLSŞJUL',
-  'ÖİUDSUYIRİOE',
-  'ROHRBUKODUSM',
-  'FLİKGAZETEDC',
-  'ÖFRÖİYŞEZJBĞ',
-  'PBATHTMIKĞNŞ',
-  'IHTSSİADZDKA',
-  'FJÖIDDHPHIBB',
-  'BİLGİABCDEĞÖ',
-  'ÖÇĞABİLİMXYZ',
-  'KLMNOPQYAZAR',
+  'GAZETEKHĞT',
+  'KÜTŞLTAİMA',
+  'ĞİİATULRCB',
+  'ĞİTFNPEAAİ',
+  'RBAALAMTRL',
+  'TIÖDPLSCİİ',
+  'UKODUSZEOM',
+  'YZABİLGİGD',
+  'SAIGALHZBE',
+  'CIZASÖERAÜ',
+  'TUÇAJIFMKL',
+  'INKYRĞEIÖÇ',
 ];
 const searchEntries = <(String, int, int, int, int)>[
-  ('GAZETE', 7, 4, 0, 1),
-  ('KALEM', 2, 11, 1, 0),
-  ('KİTAP', 7, 3, 1, 1),
-  ('BULMACA', 6, 4, -1, 1),
-  ('SUDOKU', 6, 10, 0, -1),
-  ('TARİH', 10, 2, -1, 0),
-  ('SANAT', 4, 7, -1, -1),
-  ('ŞİİR', 3, 3, 1, -1),
-  ('BİLGİ', 12, 0, 0, 1),
-  ('BİLİM', 13, 4, 0, 1),
-  ('YAZAR', 14, 7, 0, 1),
+  ('GAZETE', 0, 0, 0, 1),
+  ('KALEM', 0, 6, 1, 0),
+  ('KİTAP', 1, 0, 1, 1),
+  ('BULMACA', 7, 3, -1, 1),
+  ('SUDOKU', 6, 5, 0, -1),
+  ('TARİH', 4, 7, -1, 0),
+  ('SANAT', 5, 6, -1, -1),
+  ('ŞİİR', 1, 3, 1, -1),
+  ('BİLGİ', 7, 3, 0, 1),
+  ('BİLİM', 2, 9, 1, 0),
+  ('YAZAR', 7, 0, 1, 1),
 ];
 final searchWords = searchEntries.map((e) => e.$1).toList();
 const spiralWords = [
@@ -180,7 +186,16 @@ const arrowLevel3 = [
 ];
 
 List<WordEntry> arrowWordsForLevel(int level) => switch (level) {
-  2 => arrowLevel2,
+  2 => [
+    ...arrowLevel2.map(
+      (w) => w.text == 'EGO'
+          ? WordEntry('EGOLU', 'Kendini beğenir', w.r, w.c, w.vertical)
+          : w.text == 'TOZ'
+          ? WordEntry('TOZUMAK', 'Toz kaldırmak', w.r, w.c, w.vertical)
+          : w,
+    ),
+    ...arrowExtension2,
+  ],
   3 => arrowLevel3,
   _ => arrowWords,
 };
@@ -190,3 +205,15 @@ List<WordEntry> crossWordsForLevel(int level) => level == 1
     : arrowLevel2
           .map((w) => WordEntry(w.text, w.clue, w.r - 1, w.c - 1, w.vertical))
           .toList();
+
+const arrowExtension2 = [
+  WordEntry('BEL', 'Gövde bölümü', 9, 1, true),
+  WordEntry('BU', 'İşaret zamiri', 9, 1, false),
+  WordEntry('AL', 'Kırmızı', 10, 3, true),
+  WordEntry('YE', 'Yemek emri', 10, 4, true),
+  WordEntry('EM', 'Emmek emri', 9, 6, false),
+  WordEntry('AY', 'Dünya uydusu', 10, 3, false),
+  WordEntry('LA', 'Bir nota', 10, 6, false),
+  WordEntry('LALE', 'Bir çiçek', 11, 1, false),
+  WordEntry('EL', 'Parmaklı organ', 9, 6, true),
+];

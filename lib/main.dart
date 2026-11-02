@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,6 +12,7 @@ part 'newspaper_components.dart';
 part 'search_game.dart';
 part 'picture_game.dart';
 part 'extra_levels.dart';
+part 'home_screen.dart';
 
 void main() => runApp(const BulmacaApp());
 const appName = 'Bulmaca Dünyası';
@@ -35,7 +37,7 @@ class Store {
       : ['picture_cipher', 'done_resim'].contains(key)
       ? 'edition4_$key'
       : key.startsWith('search_') || key == 'done_av'
-      ? 'edition5_$key'
+      ? 'edition6_$key'
       : 'edition2_$key';
   static Future<void> write(String key, String val) =>
       _prefs.setString(_key(key), val);
@@ -68,13 +70,12 @@ class BulmacaApp extends StatelessWidget {
       scaffoldBackgroundColor: paper,
       colorScheme: ColorScheme.fromSeed(seedColor: green, surface: paper),
       appBarTheme: const AppBarTheme(
-        backgroundColor: paper,
-        foregroundColor: ink,
+        backgroundColor: Color(0xFF0066BA),
+        foregroundColor: Colors.white,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          fontFamily: 'serif',
           fontSize: 23,
-          color: ink,
+          color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -138,179 +139,12 @@ class _HomeState extends State<Home> {
       context,
       MaterialPageRoute(builder: (_) => LevelSelectScreen(puzzle: p)),
     );
-    refresh();
+    await refresh();
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      centerTitle: false,
-      title: const Text(
-        appName,
-        style: TextStyle(fontWeight: FontWeight.w800, color: ink, fontSize: 24),
-      ),
-    ),
-    body: SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 28),
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: ink,
-                  borderRadius: BorderRadius.circular(26),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.public, color: paper, size: 38),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Keşfet. Düşün. Çöz.',
-                            style: TextStyle(
-                              color: paper,
-                              fontSize: 21,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      appSlogan,
-                      style: TextStyle(
-                        color: paper,
-                        fontSize: 27,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      '6 bulmaca türü • 12 bölüm',
-                      style: TextStyle(color: Color(0xFFD3E1D5), fontSize: 15),
-                    ),
-                    const SizedBox(height: 22),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: total / 12,
-                        minHeight: 7,
-                        color: const Color(0xFFD9BD80),
-                        backgroundColor: Colors.white24,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '$total / 12 bölüm tamamlandı',
-                      style: const TextStyle(color: paper),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 26),
-              const Text(
-                'Bugün hangi macera?',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 23,
-                  color: ink,
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Kaldığın yerden devam et veya yeni bir tür keşfet.',
-                style: TextStyle(color: green, height: 1.4),
-              ),
-              const SizedBox(height: 16),
-              for (final p in puzzles)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Material(
-                    color: const Color(0xFFFFFCF6),
-                    borderRadius: BorderRadius.circular(20),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () => open(p),
-                      child: Padding(
-                        padding: const EdgeInsets.all(18),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 54,
-                              height: 54,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE5EBDD),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                p.emoji,
-                                style: const TextStyle(fontSize: 28),
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    p.name,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: ink,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    p.subtitle,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: green,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${completed[p.id] ?? 0} / 2 bölüm',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: ink,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_rounded,
-                              color: green,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 8),
-              const Text(
-                'İlerlemen bu cihazda otomatik kaydedilir.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: green),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      IllustratedHome(completed: completed, onOpen: open);
 }
 
 class PuzzleScreen extends StatefulWidget {
@@ -334,6 +168,7 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
   }
 
   Future<void> solved() async {
+    await DailyGameProgress.record(widget.puzzle.id);
     if (done) return;
     await Store.complete(widget.puzzle.id);
     if (!mounted) return;

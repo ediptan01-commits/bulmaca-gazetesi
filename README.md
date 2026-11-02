@@ -40,3 +40,14 @@ uzunluğuna göre kutu sayısı değişir; tüm kutular dokunarak seçilebilir.
 
 ## İki bölümlük sürüm
 Altı türde yalnızca 1. ve 2. bölümler gösterilir. Kare 2 otomatik yerleşim yerine doğrulanmış sabit 7×7 ızgarayı ve birinci bölümün giriş sistemini kullanır. Sudoku notları aynı sayıya tekrar dokunarak kaldırılabilir.
+
+## 1.5.0 — yeni görsel kimlik
+
+Ana ekran verilen tasarımın özgün çizimleriyle mavi-altın düzene geçti. Altı kart,
+alt menü, profil, başarılar, ayarlar ve günlük görev gerçek uygulama kontrolleridir.
+Günlük görev üç farklı tür tamamlandığında cihazda bir günlük yıldız kaydeder.
+Telefonun durum çubuğu görsele gömülmez; sistemin kendi durum çubuğu kullanılır.
+
+Çengel her iki bölümde 8 sütun ve 12 satır, 31 sorudur. Alt satırlar mevcut dikey
+cevaplarla birleşir. Kelime Avı iki bölümde de 10 sütun × 12 satırdır.
+Her türde yalnızca iki bölüm vardır: toplam 12 bölüm.

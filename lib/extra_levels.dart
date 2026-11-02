@@ -586,6 +586,7 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     jsonEncode({'entered': entered, 'found': discovered.toList()}),
   );
   Future<void> complete() async {
+    await DailyGameProgress.record(type);
     if (done) {
       return;
     }
@@ -594,9 +595,9 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
       return;
     }
     setState(() => done = true);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Tebrikler! Bölüm tamamlandı.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Tebrikler! Bölüm tamamlandı.')),
+    );
   }
 
   void feedback(bool correct) {

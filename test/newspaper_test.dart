@@ -42,15 +42,13 @@ void main() {
         // Her kesintisiz yatay/dikey harf dizisinin bir sorusu olmalı.
         for (final cell in grid.keys) {
           for (final vertical in [false, true]) {
-            if (arrow && cell.$1 >= 8 && vertical) continue;
             final dr = vertical ? 1 : 0, dc = vertical ? 0 : 1;
             if (grid.containsKey((cell.$1 - dr, cell.$2 - dc))) continue;
             var length = 0;
-            while ((!arrow || !vertical || cell.$1 + length < 8) &&
-                grid.containsKey((
-                  cell.$1 + length * dr,
-                  cell.$2 + length * dc,
-                ))) {
+            while (grid.containsKey((
+              cell.$1 + length * dr,
+              cell.$2 + length * dc,
+            ))) {
               length++;
             }
             if (length > 1) {
@@ -99,9 +97,9 @@ void main() {
   }
 
   test('Kelime avındaki tüm cevaplar sekiz yönde erişilebilir', () {
-    expect(searchGrid.length, 15);
+    expect(searchGrid.length, 12);
     expect(searchWords.length, 11);
-    expect(searchGrid.every((row) => row.length == 12), isTrue);
+    expect(searchGrid.every((row) => row.length == 10), isTrue);
     expect(searchEntries.map((e) => (e.$4, e.$5)).toSet().length, 8);
     for (final e in searchEntries) {
       final letters = searchCells(e).map((c) => searchGrid[c.$1][c.$2]).join();

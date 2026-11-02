@@ -385,7 +385,7 @@ class _CrossGameState extends State<CrossGame> {
                             120,
                             math.min(
                               available.maxWidth - 8,
-                              available.maxHeight - 44,
+                              (available.maxHeight - 44) * size / rows,
                             ),
                           )
                         : 660,
