@@ -294,7 +294,15 @@ class _CrossGameState extends State<CrossGame> {
       );
     }
     final has = solution.containsKey(pos);
-    if (widget.free && !has) return SizedBox(key: ValueKey('free_gap_$r,$c'));
+    if (widget.free && !has) {
+    return Container(
+      key: ValueKey('free_gap_$r,$c'),
+      decoration: BoxDecoration(
+        color: ink,
+        border: Border.all(color: rule, width: .35),
+      ),
+    );
+  }
     final inWord = words[active].cells.contains(pos);
     final current = words[active].cells[selected] == pos;
     final startNumber = starts.indexOf(pos) + 1;
@@ -418,7 +426,7 @@ class _CrossGameState extends State<CrossGame> {
                               (available.maxHeight - 44) * size / rows,
                             ),
                           )
-                        : 660,
+                        : math.max(120.0, available.maxWidth - 8),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

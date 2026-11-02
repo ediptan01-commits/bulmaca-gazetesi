@@ -16,15 +16,12 @@ void main() {
         final panels = arrowPanelRows(words);
         for (var r = 0; r < arrowRows; r++) {
           expect(panels[r].fold<int>(0, (n, p) => n + p.$2), arrowSize);
-          for (final p in panels[r]) {
-            expect(
-              words.any(
-                (w) => w.cells.contains((r, p.$3)) || w.clueCell == (r, p.$3),
-              ),
-              isTrue,
-            );
-          }
-        }
+          // Gazete tarzinda her satir 8 esit hucreden olusur.
+    expect(panels[r], hasLength(arrowSize));
+    for (var c = 0; c < arrowSize; c++) {
+      expect(panels[r][c], (c, 1, c));
+    }
+  }
         final letters = <(int, int), String>{};
         final hints = words.map((w) => w.clueCell).toSet();
         for (final w in words) {

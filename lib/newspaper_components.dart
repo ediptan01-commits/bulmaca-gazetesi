@@ -449,49 +449,12 @@ class _WordSearchInkPainter extends CustomPainter {
 }
 
 // Question panels span the unused neighboring space; letter cells stay square.
+// Gazete tipi: her harf, soru ve kapali alan bir hucre.
 List<List<(int, int, int)>> arrowPanelRows(List<WordEntry> words) {
-  final letters = {for (final w in words) ...w.cells};
-  final hints = words.map((w) => w.clueCell).toSet();
-  return List.generate(arrowRows, (r) {
-    final anchors = List.generate(arrowSize, (c) => c);
-    for (var c = 0; c < arrowSize; c++) {
-      if (letters.contains((r, c)) || hints.contains((r, c))) continue;
-      int? nearest;
-      for (
-        var distance = 1;
-        distance < arrowSize && nearest == null;
-        distance++
-      ) {
-        for (final target in [c - distance, c + distance]) {
-          if (target < 0 ||
-              target >= arrowSize ||
-              !hints.contains((r, target))) {
-            continue;
-          }
-          final lo = math.min(c, target), hi = math.max(c, target);
-          if (!List.generate(
-            hi - lo + 1,
-            (i) => (r, lo + i),
-          ).any(letters.contains)) {
-            nearest = target;
-          }
-        }
-      }
-      if (nearest == null) {
-        throw StateError('Soru paneline katılmayan boş kare: $r,$c');
-      }
-      anchors[c] = nearest;
-    }
-    final result = <(int, int, int)>[];
-    for (var c = 0; c < arrowSize;) {
-      final start = c, anchor = anchors[c];
-      while (c < arrowSize && anchors[c] == anchor) {
-        c++;
-      }
-      result.add((start, c - start, anchor));
-    }
-    return result;
-  });
+  return List.generate(
+    arrowRows,
+    (r) => List.generate(arrowSize, (c) => (c, 1, c)),
+  );
 }
 
 class ArrowPaperGrid extends StatelessWidget {
