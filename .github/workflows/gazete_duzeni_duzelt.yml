@@ -1,0 +1,113 @@
+name: Gazete Bulmaca Izgara Duzeltmesi
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  duzelt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kaynak kodu al
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Iki cengel bolumunu ve capraz gorunumunu duzelt
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          components = Path('lib/newspaper_components.dart')
+          s = components.read_text(encoding='utf-8')
+          begin = 'List<List<(int, int, int)>> arrowPanelRows(List<WordEntry> words) {'
+          end = '\nclass ArrowPaperGrid extends StatelessWidget {'
+          assert s.count(begin) == 1 and s.count(end) == 1, 'Beklenmeyen newspaper_components.dart yapisi'
+          start = s.index(begin)
+          finish = s.index(end, start)
+          replacement = '''// Gazete usulu: her soru, harf ve kapali kare ayni olcude tek hucredir.
+          // Bosta kalan hucreleri yakin soruyla BIRLESTIRME: genis soru kutulari olusur.
+          List<List<(int, int, int)>> arrowPanelRows(List<WordEntry> words) {
+            return List.generate(
+              arrowRows,
+              (r) => List.generate(arrowSize, (c) => (c, 1, c)),
+            );
+          }
+          '''
+          s = s[:start] + replacement + s[finish:]
+          components.write_text(s, encoding='utf-8')
+
+          ui = Path('lib/newspaper_ui.dart')
+          s = ui.read_text(encoding='utf-8')
+          old = 'if (widget.free && !has) return SizedBox(key: ValueKey(\'free_gap_$r,$c\'));'
+          assert s.count(old) == 1, 'Capraz bulmaca bos kutu kalibi bulunamadi'
+          new = '''if (widget.free && !has) {
+              // Gazetelerdeki gibi bos ara bolgeleri kapali kareyle doldur.
+              return Container(
+                key: ValueKey('free_gap_$r,$c'),
+                decoration: BoxDecoration(
+                  color: ink,
+                  border: Border.all(color: rule, width: .35),
+                ),
+              );
+            }'''
+          s = s.replace(old, new, 1)
+          # Izgaranin mobil ekranda yatay bosluk birakmamasi icin sadece
+          # caprazin genislik sinirini ekranin gercek genisligine bagla.
+          old_width = ''': 660,
+                  ),'''
+          assert s.count(old_width) >= 1, 'Genislik siniri bulunamadi'
+          s = s.replace(old_width, ''': math.max(120.0, available.maxWidth - 8),
+                  ),''', 1)
+          ui.write_text(s, encoding='utf-8')
+
+          test = Path('test/cengel_regression_test.dart')
+          s = test.read_text(encoding='utf-8')
+          old = '''          for (final p in panels[r]) {
+            expect(
+              words.any(
+                (w) => w.cells.contains((r, p.$3)) || w.clueCell == (r, p.$3),
+              ),
+              isTrue,
+            );
+          }'''
+          assert s.count(old) == 1, 'Eski birlesik soru paneli testi bulunamadi'
+          new = '''          // Her hucre 1 sutun: gazete tipi esit kareler, birlestirme yok.
+          expect(panels[r], hasLength(arrowSize));
+          for (var c = 0; c < arrowSize; c++) {
+            expect(panels[r][c], (c, 1, c));
+          }'''
+          s = s.replace(old, new, 1)
+          test.write_text(s, encoding='utf-8')
+          print('Cengel 1 ve 2: esit 8x11 kareler. Capraz: kapali kareli tam izgaraya donustu.')
+          PY
+
+      - name: Flutter kur
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Bagimliliklari indir
+        run: flutter pub get
+
+      - name: Kod analizi
+        run: flutter analyze
+
+      - name: Testleri calistir
+        run: flutter test
+
+      - name: Dosyalari GitHub deposuna kaydet
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lib/newspaper_components.dart lib/newspaper_ui.dart test/cengel_regression_test.dart
+          if git diff --cached --quiet; then
+            echo 'Degisecek dosya yok.'
+          else
+            git commit -m 'Fix newspaper-style equal-size clue grid and crossword background'
+            git push
+          fi
