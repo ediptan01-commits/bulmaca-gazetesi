@@ -29,8 +29,7 @@ jobs:
           assert s.count(begin) == 1 and s.count(end) == 1, 'newspaper_components.dart yapisi degismis'
           start = s.index(begin)
           finish = s.index(end, start)
-          replacement = '''// Gazete tipi: bir soru, harf veya kapali kare = bir hucre.
-          // Bos hucreleri komsu sorularla birlestirme.
+          replacement = '''// Gazete tipi: her harf, soru ve kapali alan bir hucre.
           List<List<(int, int, int)>> arrowPanelRows(List<WordEntry> words) {
             return List.generate(
               arrowRows,
@@ -57,37 +56,35 @@ jobs:
               s = s.replace(old, new, 1)
           else:
               assert "key: ValueKey('free_gap_$r,$c')" in s, 'Capraz bos kare blogu bulunamadi'
-
-          # Yalnizca genislik sinirindaki ': 660,' degerini degistir.
-          # Girintiler farkli olsa bile calisir; tekrar calistirilabilir.
-          width_old = re.compile(r'(?m)^(\s*): 660,\s*$')
-          if width_old.search(s):
-              s = width_old.sub(r'\1: math.max(120.0, available.maxWidth - 8),', s, count=1)
+          # Only replace the width setting for the free crossword, not the arrow board.
+          old_width = re.compile(r'(?m)^(\s*): 660,[ \t]*$')
+          if old_width.search(s):
+              s = old_width.sub(r'\1: math.max(120.0, available.maxWidth - 8),', s, count=1)
           else:
               assert ': math.max(120.0, available.maxWidth - 8),' in s, 'Genislik siniri taninamadi'
           ui.write_text(s, encoding='utf-8')
 
           test = Path('test/cengel_regression_test.dart')
           s = test.read_text(encoding='utf-8')
-          old = '''          for (final p in panels[r]) {
-            expect(
-              words.any(
-                (w) => w.cells.contains((r, p.$3)) || w.clueCell == (r, p.$3),
-              ),
-              isTrue,
-            );
-          }'''
-          new = '''          // Her satir 8 esit hucreden olusur; soru kutusu birlesmez.
-          expect(panels[r], hasLength(arrowSize));
-          for (var c = 0; c < arrowSize; c++) {
-            expect(panels[r][c], (c, 1, c));
-          }'''
-          if old in s:
-              s = s.replace(old, new, 1)
+          first = '          for (final p in panels[r]) {'
+          last = '        final letters = <(int, int), String>{};'
+          if first in s:
+              assert s.count(first) == 1 and s.count(last) == 1, 'Panel testinin konumu belirsiz'
+              start = s.index(first)
+              finish = s.index(last, start)
+              new_test = '''          // Gazete tarzinda her satir 8 esit hucreden olusur.
+              expect(panels[r], hasLength(arrowSize));
+              for (var c = 0; c < arrowSize; c++) {
+                expect(panels[r][c], (c, 1, c));
+              }
+            }
+          '''
+              # The replaced region includes the old loop and the closing brace of the row loop.
+              s = s[:start] + new_test + s[finish:]
           else:
-              assert 'expect(panels[r], hasLength(arrowSize));' in s, 'Panel testi degismis'
+              assert 'expect(panels[r], hasLength(arrowSize));' in s, 'Panel testi beklenmeyen bicimde degismis'
           test.write_text(s, encoding='utf-8')
-          print('Gazete tipi cengel hucreleri ve capraz kapali kareleri hazir.')
+          print('Cengel ve capraz gazete duzeni degisiklikleri hazir.')
           PY
 
       - name: Flutter kur
