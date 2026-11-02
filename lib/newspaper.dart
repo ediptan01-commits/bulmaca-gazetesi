@@ -64,15 +64,15 @@ const arrowWords = [
   WordEntry('ACI', 'Tatlı karşıtı', 6, 5, false),
   WordEntry('İMA', 'Dolaylı anlatma', 7, 1, false),
   WordEntry('KEL', 'Saçsız', 7, 5, false),
-  WordEntry('İL', 'Şehir', 9, 1, true),
-  WordEntry('AL', 'Kırmızı', 9, 6, false),
-  WordEntry('YA', 'İki seçenek arasında kullanılan bağlaç', 10, 3, false),
-  WordEntry('AY', 'Dünya uydusu', 9, 3, false),
+  WordEntry('İL', 'Şehir', 9, 0, true),
+  WordEntry('AR', 'Utanma duygusu', 9, 3, false),
+  WordEntry('YE', 'Yemek emri', 10, 3, false),
   WordEntry('AY', 'Dünya uydusu', 9, 3, true),
-  WordEntry('YA', 'Seçenek bağlacı', 9, 4, true),
-  WordEntry('LA', 'Bir nota', 10, 6, false),
-  WordEntry('AL', 'Kırmızı', 9, 6, true),
-  WordEntry('LA', 'Bir nota', 9, 7, true),
+  WordEntry('RE', 'İkinci nota', 9, 4, true),
+  WordEntry('EK', 'İlave', 9, 6, false),
+  WordEntry('Mİ', 'Soru eki', 10, 6, false),
+  WordEntry('EM', 'Emmek emri', 9, 6, true),
+  WordEntry('Kİ', 'İlgi bağlacı', 9, 7, true),
 ];
 
 const searchGrid = [
@@ -186,16 +186,7 @@ const arrowLevel3 = [
 ];
 
 List<WordEntry> arrowWordsForLevel(int level) => switch (level) {
-  2 => [
-    ...arrowLevel2.map(
-      (w) => w.text == 'EGO'
-          ? WordEntry('EGO', 'Benlik', w.r, w.c, w.vertical)
-          : w.text == 'TOZ'
-          ? WordEntry('TOZ', 'İnce zerreler', w.r, w.c, w.vertical)
-          : w,
-    ),
-    ...arrowExtension2,
-  ],
+  2 => [...arrowLevel2, ...arrowExtension2],
   3 => arrowLevel3,
   _ => arrowWords,
 };
@@ -207,13 +198,13 @@ List<WordEntry> crossWordsForLevel(int level) => level == 1
           .toList();
 
 const arrowExtension2 = [
-  WordEntry('BE', 'Seslenme ünlemi', 9, 1, true),
-  WordEntry('AL', 'Kırmızı', 9, 6, false),
-  WordEntry('YA', 'İki seçenek arasında kullanılan bağlaç', 10, 3, false),
-  WordEntry('AY', 'Dünya uydusu', 9, 3, false),
-  WordEntry('AY', 'Dünya uydusu', 9, 3, true),
-  WordEntry('YA', 'Seçenek bağlacı', 9, 4, true),
-  WordEntry('LA', 'Bir nota', 10, 6, false),
-  WordEntry('AL', 'Kırmızı', 9, 6, true),
-  WordEntry('LA', 'Bir nota', 9, 7, true),
+  WordEntry('BE', 'Seslenme ünlemi', 9, 0, true),
+  WordEntry('ON', 'Dokuzdan sonra', 9, 3, false),
+  WordEntry('YA', 'Seçenek bağlacı', 10, 3, false),
+  WordEntry('OY', 'Seçimde verilen tercih', 9, 3, true),
+  WordEntry('NA', 'Sodyum simgesi', 9, 4, true),
+  WordEntry('EL', 'Parmaklı organ', 9, 6, false),
+  WordEntry('TA', 'Uzaklığı vurgulayan söz', 10, 6, false),
+  WordEntry('ET', 'Kas dokusundan besin', 9, 6, true),
+  WordEntry('LA', 'Altıncı nota', 9, 7, true),
 ];

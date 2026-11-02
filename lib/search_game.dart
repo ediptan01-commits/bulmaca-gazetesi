@@ -142,9 +142,9 @@ class _SearchGameState extends State<SearchGame> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Kelimenin harflerini parmağınla karala. Çizgi harflere düzgün oturur. 11 kelime, sekiz yön.',
-              style: TextStyle(fontSize: 13),
+            Text(
+              'Kelimenin harflerini parmağınla karala. Çizgi harflere düzgün oturur. ${searchWords.length} kelime, sekiz yön.',
+              style: const TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 12),
             LayoutBuilder(

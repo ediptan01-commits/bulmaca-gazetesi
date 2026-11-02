@@ -113,13 +113,14 @@ class _CrossGameState extends State<CrossGame> {
   @override
   void initState() {
     super.initState();
+    if (widget.free) active = words.indexWhere((w) => number(w) == 1);
     restore();
   }
 
   String get saveKey => widget.free
       ? 'free_cross_${widget.level}'
       : widget.level > 1
-      ? (widget.arrow ? 'arrow_v5_${widget.level}' : 'kare_v2_${widget.level}')
+      ? (widget.arrow ? 'arrow_v6_${widget.level}' : 'kare_v2_${widget.level}')
       : 'cross_${widget.arrow}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
@@ -211,7 +212,7 @@ class _CrossGameState extends State<CrossGame> {
     if (ok) widget.onSolved();
   }
 
-  Widget cell(int r, int c) {
+  Widget cell(int r, int c, {int clueSpan = 1, int clueOffset = 0}) {
     final pos = (r, c), key = id(pos);
     final hints = [
       for (var i = 0; i < words.length; i++)
@@ -262,17 +263,24 @@ class _CrossGameState extends State<CrossGame> {
                             ),
                           ),
                           Expanded(
-                            child: Center(
-                              child: FittedBox(
-                                child: Text(
-                                  words[i].vertical ? '↓' : '→',
-                                  style: const TextStyle(
-                                    fontSize: 9,
-                                    height: .9,
-                                    fontWeight: FontWeight.bold,
+                            child: Row(
+                              children: [
+                                for (var slot = 0; slot < clueSpan; slot++)
+                                  Expanded(
+                                    child: slot == clueOffset
+                                        ? Center(
+                                            child: Text(
+                                              words[i].vertical ? '↓' : '→',
+                                              style: const TextStyle(
+                                                fontSize: 9,
+                                                height: .9,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox(),
                                   ),
-                                ),
-                              ),
+                              ],
                             ),
                           ),
                         ],
@@ -363,7 +371,10 @@ class _CrossGameState extends State<CrossGame> {
           ),
         ),
       ),
-      for (var i = 0; i < words.length; i++)
+      for (final i in (List.generate(
+        words.length,
+        (i) => i,
+      )..sort((a, b) => number(words[a]).compareTo(number(words[b])))))
         if (words[i].vertical == vertical)
           InkWell(
             onTap: () => choose(i),
@@ -417,12 +428,22 @@ class _CrossGameState extends State<CrossGame> {
                         gridRows: rows,
                         minimumCellSize: 0,
                         onCheck: ready ? check : null,
-                        child: PaperGrid(
-                          size: size,
-                          rows: rows,
-                          outline: !widget.free,
-                          cell: cell,
-                        ),
+                        child: widget.arrow
+                            ? ArrowPaperGrid(
+                                words: words,
+                                cell: (r, c, span, offset) => cell(
+                                  r,
+                                  c,
+                                  clueSpan: span,
+                                  clueOffset: offset,
+                                ),
+                              )
+                            : PaperGrid(
+                                size: size,
+                                rows: rows,
+                                outline: !widget.free,
+                                cell: cell,
+                              ),
                       ),
                       if (!widget.arrow)
                         Row(

@@ -76,6 +76,15 @@ void main() {
     await DailyGameProgress.record('resim');
     expect(await Store.read('daily_stars'), '1');
   });
+  test('Yeni çapraz ızgarası eski harf ve tamamlanma kaydını almaz', () async {
+    final prefs = SharedPreferencesAsync();
+    await prefs.setString('edition2_free_cross_1', '{"1,1":"X"}');
+    await prefs.setString('edition2_done_capraz', '1');
+    await prefs.setString('edition2_chapter_capraz_2', '1');
+    expect(await Store.read('free_cross_1'), isNull);
+    expect(await Store.done('capraz'), isFalse);
+    expect(await Store.read('chapter_capraz_2'), isNull);
+  });
   test(
     'Yeni çengel eski küçük ızgaranın tamamlanma kaydını kullanmaz',
     () async {

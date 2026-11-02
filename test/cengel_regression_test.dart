@@ -11,6 +11,20 @@ void main() {
       () {
         expect(arrowRows, 11);
         final words = arrowWordsForLevel(level);
+        expect(words.map((w) => w.text).toSet(), hasLength(words.length));
+        expect(words.map((w) => w.clue).toSet(), hasLength(words.length));
+        final panels = arrowPanelRows(words);
+        for (var r = 0; r < arrowRows; r++) {
+          expect(panels[r].fold<int>(0, (n, p) => n + p.$2), arrowSize);
+          for (final p in panels[r]) {
+            expect(
+              words.any(
+                (w) => w.cells.contains((r, p.$3)) || w.clueCell == (r, p.$3),
+              ),
+              isTrue,
+            );
+          }
+        }
         final letters = <(int, int), String>{};
         final hints = words.map((w) => w.clueCell).toSet();
         for (final w in words) {
@@ -80,7 +94,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        final grid = tester.getRect(find.byType(PaperGrid));
+        final grid = tester.getRect(find.byType(ArrowPaperGrid));
         final keyboard = tester.getRect(find.byType(LetterKeyboard));
         expect(grid.top, greaterThanOrEqualTo(56));
         expect(grid.bottom, lessThan(keyboard.top));
@@ -88,6 +102,13 @@ void main() {
       },
     );
   }
+  test('İki Çengel bölümü aynı cevapları tekrar etmez', () {
+    final first = arrowWordsForLevel(1).map((w) => w.text).toSet();
+    expect(
+      arrowWordsForLevel(2).map((w) => w.text).where(first.contains),
+      isEmpty,
+    );
+  });
   test('Üç resimli bölüm farklı sahne ve anlamlı şifre içerir', () {
     expect(
       [

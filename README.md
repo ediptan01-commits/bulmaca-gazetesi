@@ -1,4 +1,4 @@
-# Bulmaca Dünyası — 1.6.0
+# Bulmaca Dünyası — 1.7.0
 
 **Her Bulmacada Yeni Bir Macera!**
 
@@ -55,3 +55,7 @@ Her türde yalnızca iki bölüm vardır: toplam 14 bölüm.
 ## 1.6.0 — Numaralı Çapraz Bulmaca
 
 Koleksiyona siyah dolgu olmadan, numaralı başlangıçlarla birbirine geçen sözcüklerden oluşan yeni tür eklendi. Doğa ve Okul/Kültür temalarında 18 soruluk iki bölüm bulunur. Türkçe Q klavye, yatay/dikey ipuçları, çözüm kontrolü ve ayrı bölüm kayıtları desteklenir. Mevcut altı türün ikişer bölümü korunur. Çengel her iki bölümde 11 satırdır.
+
+## 1.7.0 — Gazete düzeni ve karalama düzeltmeleri
+
+Kelime Avı 2 artık aynı düz karalama motorunu kullanır; eski bulunan kelimeler de çizgiye dönüştürülür. Çengel iki bölümde 11 satırdır; kullanılmayan alanlar geniş soru panellerine katılır, dolgu karesi gösterilmez. Her bölümde ve bölümler arasında tekrar eden cevap bulunmaz. Numaralı çaprazın iki 18 soruluk düzeni 17×16 ve 18×17 boyutlarına toplandı; ipuçları sayı sırasındadır. Yeni Çengel ve çapraz düzenleri ayrı kayıtlarla açılır; diğer türlerin ilerlemesi korunur.

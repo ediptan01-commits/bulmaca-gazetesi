@@ -628,14 +628,26 @@ class _ExtraLevelScreenState extends State<ExtraLevelScreen> {
     if (type == 'cengel' ||
         type == 'kare' ||
         type == 'resim' ||
-        type == 'capraz') {
+        type == 'capraz' ||
+        type == 'av') {
       return Scaffold(
         appBar: AppBar(title: Text('${widget.puzzle.name} • ${widget.level}')),
         body: SafeArea(
           child: Column(
             children: [
               Expanded(
-                child: type != 'resim'
+                child: type == 'av'
+                    ? SingleChildScrollView(
+                        padding: const EdgeInsets.all(12),
+                        child: SearchGame(
+                          key: ValueKey('search_level_${widget.level}'),
+                          board: search,
+                          savePrefix: 'search_level_${widget.level}',
+                          legacyFound: discovered,
+                          onSolved: complete,
+                        ),
+                      )
+                    : type != 'resim'
                     ? CrossGame(
                         arrow: type == 'cengel',
                         free: type == 'capraz',

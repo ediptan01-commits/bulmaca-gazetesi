@@ -6,6 +6,8 @@ void main() {
     test('Çapraz $level: tüm sözcükler tutarlı ve tek bağlantılıdır', () {
       final words = freeCrossWordsForLevel(level);
       expect(words.length, 18);
+      expect(freeCrossRows(words), lessThanOrEqualTo(18));
+      expect(freeCrossColumns(words), lessThanOrEqualTo(18));
       expect(words.map((w) => w.text).toSet().length, 18);
       final cells = <(int, int), String>{};
       final owners = <(int, int), List<int>>{};
