@@ -28,7 +28,10 @@ String trUpper(String s) =>
 class Store {
   static final _prefs = SharedPreferencesAsync();
   static Future<String?> read(String key) => _prefs.getString(_key(key));
-  static String _key(String key) => key == 'chapter_kare_2'
+  static String _key(String key) =>
+      ['cross_true', 'done_cengel', 'chapter_cengel_2'].contains(key)
+      ? 'edition8_$key'
+      : key == 'chapter_kare_2'
       ? 'edition7_$key'
       : ['sudoku_board', 'done_sudoku'].contains(key)
       ? key

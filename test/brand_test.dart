@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bulmaca_gazetesi/main.dart';
@@ -56,4 +57,14 @@ void main() {
     await DailyGameProgress.record('resim');
     expect(await Store.read('daily_stars'), '1');
   });
+  test(
+    'Yeni çengel eski küçük ızgaranın tamamlanma kaydını kullanmaz',
+    () async {
+      final prefs = SharedPreferencesAsync();
+      await prefs.setString('edition5_done_cengel', '1');
+      await prefs.setString('edition2_chapter_cengel_2', '1');
+      expect(await Store.done('cengel'), isFalse);
+      expect(await Store.read('chapter_cengel_2'), isNull);
+    },
+  );
 }

@@ -101,7 +101,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   String get saveKey => widget.level > 1
-      ? (widget.arrow ? 'arrow_v2_${widget.level}' : 'kare_v2_${widget.level}')
+      ? (widget.arrow ? 'arrow_v4_${widget.level}' : 'kare_v2_${widget.level}')
       : 'cross_${widget.arrow}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
