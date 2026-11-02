@@ -296,12 +296,12 @@ class _IllustratedHomeState extends State<IllustratedHome> {
         child: LayoutBuilder(
           builder: (context, box) {
             final width = math.min(box.maxWidth, 1024.0);
-            final height = math.max(box.maxHeight, width * 1472 / 1024);
+            final height = math.max(box.maxHeight, width * 1488 / 1024);
             Rect scaled(Rect original) => Rect.fromLTWH(
               original.left / 1024 * width,
-              (original.top - 64) / 1472 * height,
+              (original.top - 48) / 1488 * height,
               original.width / 1024 * width,
-              original.height / 1472 * height,
+              original.height / 1488 * height,
             );
             Widget action(
               Rect bounds,
@@ -334,7 +334,7 @@ class _IllustratedHomeState extends State<IllustratedHome> {
                     children: [
                       const Positioned.fill(
                         child: ReferenceArtwork(
-                          region: Rect.fromLTWH(0, 64, 1024, 1472),
+                          region: Rect.fromLTWH(0, 48, 1024, 1488),
                         ),
                       ),
                       Positioned.fromRect(
