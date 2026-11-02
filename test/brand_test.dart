@@ -6,9 +6,12 @@ import 'package:shared_preferences_platform_interface/in_memory_shared_preferenc
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 void main() {
-  setUp(() {
+  setUpAll(() {
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.empty();
+  });
+  setUp(() async {
+    await SharedPreferencesAsync().clear();
   });
   testWidgets(
     'Referans ana ekran: altı kart ve alt menü küçük telefonda açılır',
