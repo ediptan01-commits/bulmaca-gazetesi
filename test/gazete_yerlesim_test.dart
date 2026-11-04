@@ -109,6 +109,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PaperGrid), findsOneWidget);
     expect(find.byKey(const ValueKey('arrow_clue_0')), findsOneWidget);
+    expect(find.byKey(const ValueKey('gazete_block_0,0')), findsOneWidget);
     expect(find.text('SOLDAN SAĞA'), findsNothing);
     expect(find.text('YUKARIDAN AŞAĞIYA'), findsNothing);
   });
