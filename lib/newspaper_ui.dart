@@ -77,12 +77,12 @@ class NumberedNewspaperBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, limits) {
+    builder: (context, _) {
       const gutter = 17.0;
       Widget marker(int number) => FittedBox(
         fit: BoxFit.scaleDown,
         child: Text(
-          '$' + 'number',
+          '$number',
           style: const TextStyle(
             color: Color(0xFF124879),
             fontSize: 11,
