@@ -91,7 +91,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        final grid = tester.getRect(find.byType(ArrowPaperGrid));
+        final grid = tester.getRect(find.byType(PaperGrid));
         final keyboard = tester.getRect(find.byType(LetterKeyboard));
         expect(grid.top, greaterThanOrEqualTo(56));
         expect(grid.bottom, lessThan(keyboard.top));
