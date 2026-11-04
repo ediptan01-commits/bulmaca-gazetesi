@@ -64,6 +64,81 @@ class PaperGrid extends StatelessWidget {
   );
 }
 
+// Kare bulmacanin gercek gazete cetveli: sutun ve satir koordinatlari
+// cevap karesinin DISINDA bulunur ve 10x10 geometrisini bozmaz.
+class NumberedNewspaperBoard extends StatelessWidget {
+  final int count;
+  final Widget Function(int, int) cell;
+  const NumberedNewspaperBoard({
+    super.key,
+    required this.count,
+    required this.cell,
+  });
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, limits) {
+      const gutter = 17.0;
+      Widget marker(int number) => FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          '$' + 'number',
+          style: const TextStyle(
+            color: Color(0xFF124879),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      );
+      return Column(
+        children: [
+          SizedBox(
+            height: gutter,
+            child: Row(
+              children: [
+                const SizedBox(width: gutter),
+                for (var i = 1; i <= count; i++)
+                  Expanded(child: Center(child: marker(i))),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: gutter,
+                  child: Column(
+                    children: [
+                      for (var i = 1; i <= count; i++)
+                        Expanded(child: Center(child: marker(i))),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color(0xFF0B3B81),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: PaperGrid(
+                      size: count,
+                      rows: count,
+                      outline: false,
+                      cell: cell,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 class CrossGame extends StatefulWidget {
   final bool arrow;
   final bool free;
@@ -415,44 +490,30 @@ class _CrossGameState extends State<CrossGame> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (!widget.arrow && !widget.free)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 17, bottom: 3),
-                          child: Row(
-                            children: [
-                              for (var i = 1; i <= 10; i++)
-                                Expanded(
-                                  child: Text('$i',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Color(0xFF164479),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
                       ZoomablePaper(
                         gridSize: size,
                         gridRows: rows,
                         minimumCellSize: 0,
                         onCheck: ready ? check : null,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: const Color(0xFF0A3D7D),
-                              width: 1.2,
-                            ),
-                          ),
-                          child: PaperGrid(
-                            size: size,
-                            rows: rows,
-                            outline: false,
-                            cell: (r, c) => cell(r, c),
-                          ),
-                        ),
+                        child: !widget.arrow && !widget.free
+                            ? NumberedNewspaperBoard(
+                                count: 10,
+                                cell: (r, c) => cell(r, c),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: const Color(0xFF0A3D7D),
+                                    width: 1.2,
+                                  ),
+                                ),
+                                child: PaperGrid(
+                                  size: size,
+                                  rows: rows,
+                                  outline: false,
+                                  cell: (r, c) => cell(r, c),
+                                ),
+                              ),
                       ),
                       if (!widget.arrow)
                         Row(
