@@ -94,6 +94,24 @@ void main() {
     }
   }
 
+  testWidgets('Kare: 10x10 tahta ve gazete kenar sayilari var', (tester) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: SizedBox(
+          width: 390,
+          height: 800,
+          child: CrossGame(arrow: false, level: 1, onSolved: () {}),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byType(NumberedNewspaperBoard), findsOneWidget);
+    expect(find.byType(PaperGrid), findsOneWidget);
+    expect(find.byKey(const ValueKey('gazete_block_0,1')), findsOneWidget);
+  });
+
   testWidgets('Cengel: sari ipucu kareleri ve cevap hucresi ayridir', (tester) async {
     SharedPreferencesAsyncPlatform.instance =
         InMemorySharedPreferencesAsync.empty();
