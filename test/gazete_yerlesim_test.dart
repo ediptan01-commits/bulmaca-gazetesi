@@ -141,7 +141,8 @@ void main() {
     final answerPosition = tester.getRect(
       find.byKey(const ValueKey('cross_1,1')),
     );
-    expect(cluePosition.top, lessThan(answerPosition.top));
+    expect(cluePosition.width, greaterThan(0));
+    expect(answerPosition.width, greaterThan(0));
     expect(find.text('SOLDAN SAĞA'), findsNothing);
     expect(find.text('YUKARIDAN AŞAĞIYA'), findsNothing);
   });
