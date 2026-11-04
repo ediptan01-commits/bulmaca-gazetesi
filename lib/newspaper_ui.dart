@@ -308,8 +308,7 @@ class _CrossGameState extends State<CrossGame> {
                                   color: Color(0xFF8EABD0), width: .5))
                             : null,
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 1, vertical: 1),
+                      padding: const EdgeInsets.symmetric(horizontal: 1),
                       child: Column(
                         children: [
                           Expanded(
@@ -336,8 +335,8 @@ class _CrossGameState extends State<CrossGame> {
                             words[i].vertical ? '↓' : '→',
                             style: const TextStyle(
                               color: Color(0xFF075FC2),
-                              fontSize: 11,
-                              height: 1.0,
+                              fontSize: 8,
+                              height: .8,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
