@@ -15,8 +15,8 @@ void main() {
         final word = words[n];
         for (var i = 0; i < word.text.length; i++) {
           final pos = word.cells[i];
-          expect(pos.$1, inExclusiveRange(0, freeCrossRows(words)));
-          expect(pos.$2, inExclusiveRange(0, freeCrossColumns(words)));
+          expect(pos.$1, inInclusiveRange(0, freeCrossRows(words) - 1));
+          expect(pos.$2, inInclusiveRange(0, freeCrossColumns(words) - 1));
           if (cells.containsKey(pos)) expect(cells[pos], word.text[i]);
           cells[pos] = word.text[i];
           owners.putIfAbsent(pos, () => []).add(n);
