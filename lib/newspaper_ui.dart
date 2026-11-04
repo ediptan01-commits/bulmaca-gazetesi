@@ -108,7 +108,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   String get saveKey =>
-      'gazete_grid_${widget.free ? 'v2' : 'v3'}_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
+      'gazete_grid_${widget.free ? 'v2' : 'v4'}_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
     if (!mounted) return;
@@ -202,6 +202,79 @@ class _CrossGameState extends State<CrossGame> {
   Widget cell(int r, int c) {
     final pos = (r, c), key = id(pos);
     final has = solution.containsKey(pos);
+    if (widget.arrow) {
+      final hints = <int>[
+        for (var i = 0; i < words.length; i++)
+          if (words[i].clueCell == pos) i,
+      ];
+      if (hints.isNotEmpty) {
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF2BA),
+            border: Border.all(color: const Color(0xFF2C5E8D), width: .55),
+          ),
+          child: Column(
+            children: [
+              for (final i in hints)
+                Expanded(
+                  child: InkWell(
+                    key: ValueKey('arrow_clue_$i'),
+                    onTap: () => choose(i),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: active == i
+                            ? const Color(0xFFFFDB7A)
+                            : Colors.transparent,
+                        border: hints.length > 1 && i != hints.last
+                            ? const Border(
+                                bottom: BorderSide(
+                                  color: Color(0xFF8EABD0), width: .5))
+                            : null,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 1, vertical: 1),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: SizedBox(
+                                  width: 43,
+                                  child: Text(
+                                    words[i].clue,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Color(0xFF162F4C),
+                                      fontSize: 10,
+                                      height: 1.02,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            words[i].vertical ? '↓' : '→',
+                            style: const TextStyle(
+                              color: Color(0xFF075FC2),
+                              fontSize: 11,
+                              height: 1.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      }
+    }
     if (!has) {
       return const ColoredBox(color: Color(0xFF064F8C));
     }
@@ -230,7 +303,7 @@ class _CrossGameState extends State<CrossGame> {
           ),
           child: Stack(
                   children: [
-                    if (startNumber > 0)
+                    if (!widget.arrow && startNumber > 0)
                       Positioned(
                         top: 1,
                         left: 2,
@@ -335,7 +408,8 @@ class _CrossGameState extends State<CrossGame> {
                           cell: (r, c) => cell(r, c),
                         ),
                       ),
-                      Row(
+                      if (!widget.arrow)
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(child: clues(false)),
