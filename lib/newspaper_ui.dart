@@ -84,8 +84,9 @@ class _CrossGameState extends State<CrossGame> {
   late final words = widget.free
       ? freeCrossWordsForLevel(widget.level)
       : gazeteWordsForLevel(widget.arrow ? 'cengel' : 'kare', widget.level);
-  int get size => freeCrossColumns(words);
-  int get rows => freeCrossRows(words);
+  // Cengel ile Kare bagimsiz gazete tahtalaridir.
+  int get size => widget.arrow ? 8 : widget.free ? freeCrossColumns(words) : 10;
+  int get rows => widget.arrow ? 11 : widget.free ? freeCrossRows(words) : 10;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -108,7 +109,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   String get saveKey =>
-      'gazete_grid_${widget.free ? 'v2' : 'v4'}_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
+      'gazete_grid_${widget.free ? 'v2' : 'v5'}_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
     if (!mounted) return;
@@ -210,7 +211,7 @@ class _CrossGameState extends State<CrossGame> {
       if (hints.isNotEmpty) {
         return Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF2BA),
+            color: const Color(0xFFE0EEFF),
             border: Border.all(color: const Color(0xFF2C5E8D), width: .55),
           ),
           child: Column(
@@ -224,7 +225,7 @@ class _CrossGameState extends State<CrossGame> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: active == i
-                            ? const Color(0xFFFFDB7A)
+                            ? const Color(0xFFADD5FF)
                             : Colors.transparent,
                         border: hints.length > 1 && i != hints.last
                             ? const Border(
@@ -276,7 +277,20 @@ class _CrossGameState extends State<CrossGame> {
       }
     }
     if (!has) {
-      return const ColoredBox(color: Color(0xFF064F8C));
+      // Gercek kare bulmacada bos alan transparan degil, kapali lacivert
+      // karedir. Cengelde ise soruya ait olmayan bolme ayirici alandir.
+      return Container(
+        key: ValueKey('gazete_block_$r,$c'),
+        decoration: BoxDecoration(
+          color: widget.arrow
+              ? const Color(0xFFB3CDEB)
+              : const Color(0xFF06185A),
+          border: Border.all(
+            color: const Color(0xFF2C5285),
+            width: .55,
+          ),
+        ),
+      );
     }
     final inWord = words[active].cells.contains(pos);
     final current = words[active].cells[selected] == pos;
@@ -389,23 +403,55 @@ class _CrossGameState extends State<CrossGame> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    // Izgara her telefonda kullanılabilir genişliği doldurur.
-                    // Büyük ekranlarda en fazla 600 logical px.
-                    maxWidth: math.min(600.0, available.maxWidth - 8),
+                    // Cengelin 11 satiri da klavye ustunde gorunsun.
+                    // Kare 10x10 kagidin ust sinirina kadar yayilsin.
+                    maxWidth: math.min(
+                      math.min(600.0, available.maxWidth - 8),
+                      widget.arrow
+                          ? math.max(120.0, (available.maxHeight - 40) * size / rows)
+                          : 600.0,
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      if (!widget.arrow && !widget.free)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 17, bottom: 3),
+                          child: Row(
+                            children: [
+                              for (var i = 1; i <= 10; i++)
+                                Expanded(
+                                  child: Text('$i',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: Color(0xFF164479),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                       ZoomablePaper(
                         gridSize: size,
                         gridRows: rows,
                         minimumCellSize: 0,
                         onCheck: ready ? check : null,
-                        child: PaperGrid(
-                          size: size,
-                          rows: rows,
-                          outline: false,
-                          cell: (r, c) => cell(r, c),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFF0A3D7D),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: PaperGrid(
+                            size: size,
+                            rows: rows,
+                            outline: false,
+                            cell: (r, c) => cell(r, c),
+                          ),
                         ),
                       ),
                       if (!widget.arrow)
