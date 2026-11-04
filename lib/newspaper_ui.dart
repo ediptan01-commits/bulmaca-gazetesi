@@ -200,7 +200,7 @@ class _CrossGameState extends State<CrossGame> {
     if (ok) widget.onSolved();
   }
 
-  Widget cell(int r, int c, {int clueSpan = 1, int clueOffset = 0}) {
+  Widget cell(int r, int c) {
     final pos = (r, c), key = id(pos);
     final has = solution.containsKey(pos);
     if (!has) {
