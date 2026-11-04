@@ -110,6 +110,13 @@ void main() {
     expect(find.byType(NumberedNewspaperBoard), findsOneWidget);
     expect(find.byType(PaperGrid), findsOneWidget);
     expect(find.byKey(const ValueKey('gazete_block_0,1')), findsOneWidget);
+    // Gazete referansindaki gibi tum hucreler tek kare ve
+    // kullanilmayan hucreler kapali lacivert bloktur.
+    final blocks = find.byKey(const ValueKey('gazete_block_0,1'));
+    final box = tester.widget<Container>(blocks);
+    final decoration = box.decoration! as BoxDecoration;
+    expect(decoration.color, const Color(0xFF07125D));
+    expect(find.byType(NumberedNewspaperBoard), findsOneWidget);
   });
 
   testWidgets('Cengel: sari ipucu kareleri ve cevap hucresi ayridir', (tester) async {
@@ -128,6 +135,13 @@ void main() {
     expect(find.byType(PaperGrid), findsOneWidget);
     expect(find.byKey(const ValueKey('arrow_clue_0')), findsOneWidget);
     expect(find.byKey(const ValueKey('gazete_block_0,0')), findsOneWidget);
+    final question = find.byKey(const ValueKey('arrow_clue_0'));
+    expect(question, findsOneWidget);
+    final cluePosition = tester.getRect(question);
+    final answerPosition = tester.getRect(
+      find.byKey(const ValueKey('cross_1,1')),
+    );
+    expect(cluePosition.top, lessThan(answerPosition.top));
     expect(find.text('SOLDAN SAĞA'), findsNothing);
     expect(find.text('YUKARIDAN AŞAĞIYA'), findsNothing);
   });
