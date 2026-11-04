@@ -12,11 +12,16 @@ void main() {
             ? freeCrossWordsForLevel(level)
             : gazeteWordsForLevel(kind, level);
         expect(words.length, greaterThanOrEqualTo(18));
-        if (kind == 'cengel' || kind == 'kare') {
-          // Gazete standardi: tam 7x7, sadece 8 ayirici kare.
-          expect(words, hasLength(22));
-          expect(freeCrossColumns(words), 7);
-          expect(freeCrossRows(words), 7);
+        if (kind == 'cengel') {
+          // Gercek gazete cengeli: sorular ve oklar karelerin icinde.
+          expect(words, hasLength(31));
+          expect(freeCrossColumns(words), 8);
+          expect(freeCrossRows(words), 11);
+        } else if (kind == 'kare') {
+          // On satir ve on sutunlu numarali kare bulmaca.
+          expect(words, hasLength(25));
+          expect(freeCrossColumns(words), 10);
+          expect(freeCrossRows(words), 10);
         }
         expect(words.map((w) => w.text).toSet(), hasLength(words.length));
 
@@ -35,9 +40,9 @@ void main() {
           }
         }
 
-        if (kind == 'cengel' || kind == 'kare') {
-          expect(cells.length, 41);
-          expect((49 - cells.length), 8);
+        if (kind == 'kare') {
+          expect(cells.length, level == 1 ? 60 : 59);
+          expect(100 - cells.length, lessThanOrEqualTo(41));
         }
 
         for (final position in cells.keys) {
@@ -83,8 +88,9 @@ void main() {
     }
   }
 
-  testWidgets('Çengelde ipucu hücresi yok; soru listesi ızgara dışında', (tester) async {
-    SharedPreferencesAsyncPlatform.instance = InMemorySharedPreferencesAsync.empty();
+  testWidgets('Cengel: sari ipucu kareleri ve cevap hucresi ayridir', (tester) async {
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: SizedBox(
@@ -96,8 +102,9 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.byType(PaperGrid), findsOneWidget);
-    expect(find.byType(ArrowPaperGrid), findsNothing);
-    expect(find.text('SOLDAN SAĞA'), findsOneWidget);
-    expect(find.text('YUKARIDAN AŞAĞIYA'), findsOneWidget);
+    expect(find.byKey(const ValueKey('arrow_clue_0')), findsOneWidget);
+    expect(find.text('SOLDAN SAĞA'), findsNothing);
+    expect(find.text('YUKARIDAN AŞAĞIYA'), findsNothing);
   });
+
 }
