@@ -107,9 +107,8 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
-  String get saveKey => 'gazete_grid_v2_' +
-      (widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare') +
-      '_${widget.level}';
+  String get saveKey =>
+      'gazete_grid_v2_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
     if (!mounted) return;
