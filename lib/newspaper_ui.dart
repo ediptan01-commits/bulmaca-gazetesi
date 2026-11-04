@@ -258,7 +258,7 @@ class _CrossGameState extends State<CrossGame> {
                       ),
                     ),
                   ],
-                )
+                ),
         ),
       ),
     );
