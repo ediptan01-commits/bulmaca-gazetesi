@@ -303,6 +303,69 @@ class _CrossGameState extends State<CrossGame> {
       ),
     );
   }
+    // Kullanilmayan cengel karelerini dokunulabilir gazete ipucuna donustur.
+    // Bu karelerin hicbiri bos veya koyu blok olarak kalmaz.
+    if (widget.arrow && !has) {
+      var nearestIndex = 0;
+      var nearestDistance = 100000;
+      for (var i = 0; i < words.length; i++) {
+        final hint = words[i].clueCell;
+        final distance = (hint.$1 - r).abs() + (hint.$2 - c).abs();
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = i;
+        }
+      }
+      final target = words[nearestIndex];
+      return Semantics(
+        button: true,
+        label: 'İpucu: ${target.clue}. Soruyu seç.',
+        child: InkWell(
+          key: ValueKey('arrow_link_$r,$c'),
+          onTap: () => choose(nearestIndex),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFE4F0FF),
+              border: Border.all(color: const Color(0xFF4578AD), width: .45),
+            ),
+            padding: const EdgeInsets.all(2),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: SizedBox(
+                        width: 46,
+                        child: Text(
+                          target.clue,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Color(0xFF083D79),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                            height: 1.05,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  target.vertical ? '↓' : '→',
+                  style: const TextStyle(
+                    color: Color(0xFF075FC2),
+                    fontSize: 10,
+                    height: 1,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     final inWord = words[active].cells.contains(pos);
     final current = words[active].cells[selected] == pos;
     final startNumber = starts.indexOf(pos) + 1;
