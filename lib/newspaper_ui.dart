@@ -108,7 +108,7 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   String get saveKey =>
-      'gazete_grid_v2_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
+      'gazete_grid_${widget.free ? 'v2' : 'v3'}_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
     if (!mounted) return;
@@ -316,10 +316,9 @@ class _CrossGameState extends State<CrossGame> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: math.min(
-                      math.max(120.0, available.maxWidth - 8),
-                      math.max(120.0, (available.maxHeight - 44) * size / rows),
-                    ),
+                    // Izgara her telefonda kullanılabilir genişliği doldurur.
+                    // Büyük ekranlarda en fazla 600 logical px.
+                    maxWidth: math.min(600.0, available.maxWidth - 8),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
