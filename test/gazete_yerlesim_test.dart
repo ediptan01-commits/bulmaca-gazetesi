@@ -12,6 +12,12 @@ void main() {
             ? freeCrossWordsForLevel(level)
             : gazeteWordsForLevel(kind, level);
         expect(words.length, greaterThanOrEqualTo(18));
+        if (kind == 'cengel' || kind == 'kare') {
+          // Gazete standardi: tam 7x7, sadece 8 ayirici kare.
+          expect(words, hasLength(22));
+          expect(freeCrossColumns(words), 7);
+          expect(freeCrossRows(words), 7);
+        }
         expect(words.map((w) => w.text).toSet(), hasLength(words.length));
 
         final cells = <(int, int), String>{};
@@ -27,6 +33,11 @@ void main() {
             cells[pos] = word.text[i];
             owners.putIfAbsent(pos, () => {}).add(index);
           }
+        }
+
+        if (kind == 'cengel' || kind == 'kare') {
+          expect(cells.length, 41);
+          expect((49 - cells.length), 8);
         }
 
         for (final position in cells.keys) {
