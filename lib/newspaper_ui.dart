@@ -286,7 +286,7 @@ class _CrossGameState extends State<CrossGame> {
       if (hints.isNotEmpty) {
         return Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFE0EEFF),
+            color: const Color(0xFFE7F3FF),
             border: Border.all(color: const Color(0xFF2C5E8D), width: .55),
           ),
           child: Column(
@@ -358,8 +358,8 @@ class _CrossGameState extends State<CrossGame> {
         key: ValueKey('gazete_block_$r,$c'),
         decoration: BoxDecoration(
           color: widget.arrow
-              ? const Color(0xFFB3CDEB)
-              : const Color(0xFF06185A),
+              ? const Color(0xFF0A467B)
+              : const Color(0xFF07125D),
           border: Border.all(
             color: const Color(0xFF2C5285),
             width: .55,
@@ -483,7 +483,12 @@ class _CrossGameState extends State<CrossGame> {
                     maxWidth: math.min(
                       math.min(600.0, available.maxWidth - 8),
                       widget.arrow
-                          ? math.max(120.0, (available.maxHeight - 40) * size / rows)
+                          // 11 satir, kontrol cubugu ve soru secim cubugu
+                          // ayni ekrana sigmali: alt satirlari gizleme.
+                          ? math.max(
+                              120.0,
+                              (available.maxHeight - 106) * size / rows,
+                            )
                           : 600.0,
                     ),
                   ),
