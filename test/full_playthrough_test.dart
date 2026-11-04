@@ -94,14 +94,14 @@ void main() {
           expect(await Store.read(chapter), isNull);
           switch (puzzle.id) {
             case 'cengel':
-              final words = arrowWordsForLevel(level);
+              final words = gazeteWordsForLevel('cengel', level);
               for (var i = 0; i < words.length; i++) {
                 await click(tester, find.byKey(ValueKey('arrow_clue_$i')));
                 await letters(tester, words[i].text);
               }
               await click(tester, find.text('Kontrol et'));
             case 'kare':
-              final words = crossWordsForLevel(level);
+              final words = gazeteWordsForLevel('kare', level);
               for (var i = 0; i < words.length; i++) {
                 await click(tester, find.byKey(ValueKey('cross_clue_$i')));
                 await letters(tester, words[i].text);
