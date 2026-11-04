@@ -44,43 +44,45 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Kesişim kutusunda yön değişir ve harf her iki cevaba yazılır', (
+  testWidgets('Kare 1 yeni numarali ızgaraya yazılır ve silinir', (
     tester,
   ) async {
     await open(tester, CrossGame(arrow: false, onSolved: () {}));
-    // BAL ve BEL aynı başlangıç kutusunda kesişir.
-    await tester.tap(find.byKey(const ValueKey('cross_0,0')));
-    await tester.pump();
-    expect(
-      find.textContaining('Gövdenin kalça üstündeki bölümü'),
-      findsWidgets,
+    final word = gazeteWordsForLevel('kare', 1).first;
+    final position = word.cells.first;
+    await tester.tap(
+      find.byKey(ValueKey('cross_${position.$1},${position.$2}')),
     );
-    await tester.tap(find.byKey(const ValueKey('letter_B')));
+    await tester.pump();
+    await tester.tap(find.byKey(ValueKey('letter_${word.text[0]}')));
     await tester.pumpAndSettle();
-    final saved =
-        jsonDecode((await Store.read('cross_false'))!) as Map<String, dynamic>;
-    expect(saved['0,0'], 'B');
-    expect(saved.length, 1);
+    final saved = jsonDecode(
+      (await Store.read('gazete_grid_v2_kare_1'))!,
+    ) as Map<String, dynamic>;
+    expect(saved['${position.$1},${position.$2}'], word.text[0]);
     await tester.tap(find.byTooltip('Harf sil'));
     await tester.pumpAndSettle();
-    expect(jsonDecode((await Store.read('cross_false'))!), isEmpty);
+    expect(
+      jsonDecode((await Store.read('gazete_grid_v2_kare_1'))!),
+      isEmpty,
+    );
   });
 
-  testWidgets('Çengel soru hücresi seçilir ve ok yönüne yazılır', (
+  testWidgets('Çengel 1 ipucu hücresi olmadan listeden seçilip oynanır', (
     tester,
   ) async {
     await open(tester, CrossGame(arrow: true, onSolved: () {}));
-    final clue = arrowWords.first;
-    await tester.tap(
-      find
-          .bySemanticsLabel('${clue.clue}, ${clue.vertical ? 'aşağı' : 'sağa'}')
-          .first,
-    );
-    await tester.tap(find.byKey(ValueKey('letter_${clue.text[0]}')));
+    final word = gazeteWordsForLevel('cengel', 1).first;
+    final key = find.byKey(const ValueKey('arrow_clue_0'));
+    await tester.ensureVisible(key);
     await tester.pumpAndSettle();
-    final saved =
-        jsonDecode((await Store.read('cross_true'))!) as Map<String, dynamic>;
-    expect(saved['${clue.r},${clue.c}'], clue.text[0]);
+    await tester.tap(key);
+    await tester.tap(find.byKey(ValueKey('letter_${word.text[0]}')));
+    await tester.pumpAndSettle();
+    final saved = jsonDecode(
+      (await Store.read('gazete_grid_v2_cengel_1'))!,
+    ) as Map<String, dynamic>;
+    expect(saved['${word.r},${word.c}'], word.text[0]);
   });
 
   testWidgets('Kelime avı ters uçtan seçilir, yeniden açılınca korunur', (
