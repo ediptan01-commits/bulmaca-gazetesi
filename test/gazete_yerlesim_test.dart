@@ -42,7 +42,9 @@ void main() {
               answer += cells[(position.$1 + i * dr, position.$2 + i * dc)]!;
               i++;
             }
-            if (answer.length < 2) continue;
+            if (answer.length < 2) {
+              continue;
+            }
             expect(
               words.where((word) =>
                   word.r == position.$1 &&
