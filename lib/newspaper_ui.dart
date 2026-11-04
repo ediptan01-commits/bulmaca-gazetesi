@@ -1,7 +1,7 @@
 part of 'main.dart';
 
-const selectedPaper = Color(0xFFE6D4AF);
-const rule = Color(0xFF908573);
+const selectedPaper = Color(0xFFD3E7FF);
+const rule = Color(0xFF527BA8);
 
 class EditionHeading extends StatelessWidget {
   final String label;
@@ -83,19 +83,9 @@ class CrossGame extends StatefulWidget {
 class _CrossGameState extends State<CrossGame> {
   late final words = widget.free
       ? freeCrossWordsForLevel(widget.level)
-      : widget.arrow
-      ? arrowWordsForLevel(widget.level)
-      : crossWordsForLevel(widget.level);
-  int get size => widget.free
-      ? freeCrossColumns(words)
-      : widget.arrow
-      ? arrowSize
-      : crossSize;
-  int get rows => widget.free
-      ? freeCrossRows(words)
-      : widget.arrow
-      ? arrowRows
-      : crossSize;
+      : gazeteWordsForLevel(widget.arrow ? 'cengel' : 'kare', widget.level);
+  int get size => freeCrossColumns(words);
+  int get rows => freeCrossRows(words);
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -117,11 +107,9 @@ class _CrossGameState extends State<CrossGame> {
     restore();
   }
 
-  String get saveKey => widget.free
-      ? 'free_cross_${widget.level}'
-      : widget.level > 1
-      ? (widget.arrow ? 'arrow_v6_${widget.level}' : 'kare_v2_${widget.level}')
-      : 'cross_${widget.arrow}';
+  String get saveKey => 'gazete_grid_v2_' +
+      (widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare') +
+      '_${widget.level}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
     if (!mounted) return;
@@ -214,157 +202,9 @@ class _CrossGameState extends State<CrossGame> {
 
   Widget cell(int r, int c, {int clueSpan = 1, int clueOffset = 0}) {
     final pos = (r, c), key = id(pos);
-    final hints = [
-      for (var i = 0; i < words.length; i++)
-        if (words[i].clueCell == pos) i,
-    ];
-    if (widget.arrow && hints.isNotEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          color: hints.contains(active)
-              ? selectedPaper
-              : const Color(0xFFE8E3D7),
-          border: Border.all(color: rule, width: .4),
-        ),
-        child: Column(
-          children: [
-            for (final i in hints)
-              Expanded(
-                child: InkWell(
-                  key: ValueKey('arrow_clue_$i'),
-                  onTap: () => choose(i),
-                  child: Semantics(
-                    excludeSemantics: true,
-                    label:
-                        '${words[i].clue}, ${words[i].vertical ? 'aşağı' : 'sağa'}',
-                    button: true,
-                    child: Padding(
-                      padding: const EdgeInsets.all(1),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Center(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: SizedBox(
-                                  width: 56,
-                                  child: Text(
-                                    words[i].clue,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      height: 1.05,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                for (var slot = 0; slot < clueSpan; slot++)
-                                  Expanded(
-                                    child: slot == clueOffset
-                                        ? Center(
-                                            child: Text(
-                                              words[i].vertical ? '↓' : '→',
-                                              style: const TextStyle(
-                                                fontSize: 9,
-                                                height: .9,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          )
-                                        : const SizedBox(),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      );
-    }
     final has = solution.containsKey(pos);
-    if (widget.free && !has) {
-    return Container(
-      key: ValueKey('free_gap_$r,$c'),
-      decoration: BoxDecoration(
-        color: ink,
-        border: Border.all(color: rule, width: .35),
-      ),
-    );
-  }
-    // Kullanilmayan cengel karelerini dokunulabilir gazete ipucuna donustur.
-    // Bu karelerin hicbiri bos veya koyu blok olarak kalmaz.
-    if (widget.arrow && !has) {
-      var nearestIndex = 0;
-      var nearestDistance = 100000;
-      for (var i = 0; i < words.length; i++) {
-        final hint = words[i].clueCell;
-        final distance = (hint.$1 - r).abs() + (hint.$2 - c).abs();
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestIndex = i;
-        }
-      }
-      final target = words[nearestIndex];
-      return Semantics(
-        button: true,
-        label: 'İpucu: ${target.clue}. Soruyu seç.',
-        child: InkWell(
-          key: ValueKey('arrow_link_$r,$c'),
-          onTap: () => choose(nearestIndex),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFE4F0FF),
-              border: Border.all(color: const Color(0xFF4578AD), width: .45),
-            ),
-            padding: const EdgeInsets.all(2),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: SizedBox(
-                        width: 46,
-                        child: Text(
-                          target.clue,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Color(0xFF083D79),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 10,
-                            height: 1.05,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Text(
-                  target.vertical ? '↓' : '→',
-                  style: const TextStyle(
-                    color: Color(0xFF075FC2),
-                    fontSize: 10,
-                    height: 1,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+    if (!has) {
+      return const ColoredBox(color: Color(0xFF064F8C));
     }
     final inWord = words[active].cells.contains(pos);
     final current = words[active].cells[selected] == pos;
@@ -379,22 +219,19 @@ class _CrossGameState extends State<CrossGame> {
         child: Container(
           key: ValueKey('cross_$r,$c'),
           decoration: BoxDecoration(
-            color: !has
-                ? ink
-                : current
-                ? const Color(0xFFD3AE68)
+            color: current
+                ? const Color(0xFFFFCC73)
                 : inWord
-                ? selectedPaper
+                ? const Color(0xFFD7E8FF)
                 : Colors.white,
             border: Border.all(
               color: current ? rust : rule,
               width: current ? 1.7 : .4,
             ),
           ),
-          child: has
-              ? Stack(
+          child: Stack(
                   children: [
-                    if (!widget.arrow && startNumber > 0)
+                    if (startNumber > 0)
                       Positioned(
                         top: 1,
                         left: 2,
@@ -422,7 +259,6 @@ class _CrossGameState extends State<CrossGame> {
                     ),
                   ],
                 )
-              : null,
         ),
       ),
     );
@@ -459,7 +295,7 @@ class _CrossGameState extends State<CrossGame> {
               ),
               child: Text(
                 '${number(words[i])}. ${words[i].clue} (${words[i].text.length})',
-                key: ValueKey('cross_clue_$i'),
+                key: ValueKey(widget.arrow ? 'arrow_clue_$i' : 'cross_clue_$i'),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: active == i ? FontWeight.bold : FontWeight.normal,
@@ -481,15 +317,10 @@ class _CrossGameState extends State<CrossGame> {
               child: Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: widget.arrow
-                        ? math.max(
-                            120,
-                            math.min(
-                              available.maxWidth - 8,
-                              (available.maxHeight - 44) * size / rows,
-                            ),
-                          )
-                        : math.max(120.0, available.maxWidth - 8),
+                    maxWidth: math.min(
+                      math.max(120.0, available.maxWidth - 8),
+                      math.max(120.0, (available.maxHeight - 44) * size / rows),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -499,25 +330,14 @@ class _CrossGameState extends State<CrossGame> {
                         gridRows: rows,
                         minimumCellSize: 0,
                         onCheck: ready ? check : null,
-                        child: widget.arrow
-                            ? ArrowPaperGrid(
-                                words: words,
-                                cell: (r, c, span, offset) => cell(
-                                  r,
-                                  c,
-                                  clueSpan: span,
-                                  clueOffset: offset,
-                                ),
-                              )
-                            : PaperGrid(
-                                size: size,
-                                rows: rows,
-                                outline: !widget.free,
-                                cell: cell,
-                              ),
+                        child: PaperGrid(
+                          size: size,
+                          rows: rows,
+                          outline: false,
+                          cell: (r, c) => cell(r, c),
+                        ),
                       ),
-                      if (!widget.arrow)
-                        Row(
+                      Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(child: clues(false)),
