@@ -57,14 +57,12 @@ int freeCrossRows(List<WordEntry> words) =>
     words.fold<int>(
       0,
       (n, w) => math.max(n, w.r + (w.vertical ? w.text.length : 1)),
-    ) +
-    1;
+    );
 int freeCrossColumns(List<WordEntry> words) =>
     words.fold<int>(
       0,
       (n, w) => math.max(n, w.c + (w.vertical ? 1 : w.text.length)),
-    ) +
-    1;
+    );
 
 class FreeCrossCollectionCard extends StatelessWidget {
   const FreeCrossCollectionCard({super.key});
