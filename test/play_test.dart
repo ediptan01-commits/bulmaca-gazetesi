@@ -57,13 +57,13 @@ void main() {
     await tester.tap(find.byKey(ValueKey('letter_${word.text[0]}')));
     await tester.pumpAndSettle();
     final saved = jsonDecode(
-      (await Store.read('gazete_grid_v2_kare_1'))!,
+      (await Store.read('gazete_grid_v3_kare_1'))!,
     ) as Map<String, dynamic>;
     expect(saved['${position.$1},${position.$2}'], word.text[0]);
     await tester.tap(find.byTooltip('Harf sil'));
     await tester.pumpAndSettle();
     expect(
-      jsonDecode((await Store.read('gazete_grid_v2_kare_1'))!),
+      jsonDecode((await Store.read('gazete_grid_v3_kare_1'))!),
       isEmpty,
     );
   });
@@ -80,7 +80,7 @@ void main() {
     await tester.tap(find.byKey(ValueKey('letter_${word.text[0]}')));
     await tester.pumpAndSettle();
     final saved = jsonDecode(
-      (await Store.read('gazete_grid_v2_cengel_1'))!,
+      (await Store.read('gazete_grid_v3_cengel_1'))!,
     ) as Map<String, dynamic>;
     expect(saved['${word.r},${word.c}'], word.text[0]);
   });
