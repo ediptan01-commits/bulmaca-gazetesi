@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'newspaper.dart';
 part 'newspaper_ui.dart';
+part 'reference_cross_boards.dart';
 part 'newspaper_components.dart';
 part 'search_game.dart';
 part 'picture_game.dart';

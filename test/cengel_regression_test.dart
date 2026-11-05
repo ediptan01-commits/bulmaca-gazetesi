@@ -16,12 +16,17 @@ void main() {
         final panels = arrowPanelRows(words);
         for (var r = 0; r < arrowRows; r++) {
           expect(panels[r].fold<int>(0, (n, p) => n + p.$2), arrowSize);
-          // Gazete tarzinda her satir 8 esit hucreden olusur.
-    expect(panels[r], hasLength(arrowSize));
-    for (var c = 0; c < arrowSize; c++) {
-      expect(panels[r][c], (c, 1, c));
-    }
-  }
+          for (final panel in panels[r]) {
+            expect(
+              words.any(
+                (word) =>
+                    word.clueCell == (r, panel.$3) ||
+                    word.cells.contains((r, panel.$3)),
+              ),
+              isTrue,
+            );
+          }
+        }
         final letters = <(int, int), String>{};
         final hints = words.map((w) => w.clueCell).toSet();
         for (final w in words) {
@@ -91,7 +96,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        final grid = tester.getRect(find.byType(PaperGrid));
+        final grid = tester.getRect(find.byType(ArrowPaperGrid));
         final keyboard = tester.getRect(find.byType(LetterKeyboard));
         expect(grid.top, greaterThanOrEqualTo(56));
         expect(grid.bottom, lessThan(keyboard.top));

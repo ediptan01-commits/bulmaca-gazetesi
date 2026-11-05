@@ -64,81 +64,6 @@ class PaperGrid extends StatelessWidget {
   );
 }
 
-// Kare bulmacanin gercek gazete cetveli: sutun ve satir koordinatlari
-// cevap karesinin DISINDA bulunur ve 10x10 geometrisini bozmaz.
-class NumberedNewspaperBoard extends StatelessWidget {
-  final int count;
-  final Widget Function(int, int) cell;
-  const NumberedNewspaperBoard({
-    super.key,
-    required this.count,
-    required this.cell,
-  });
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, _) {
-      const gutter = 17.0;
-      Widget marker(int number) => FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          '$number',
-          style: const TextStyle(
-            color: Color(0xFF124879),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      );
-      return Column(
-        children: [
-          SizedBox(
-            height: gutter,
-            child: Row(
-              children: [
-                const SizedBox(width: gutter),
-                for (var i = 1; i <= count; i++)
-                  Expanded(child: Center(child: marker(i))),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: gutter,
-                  child: Column(
-                    children: [
-                      for (var i = 1; i <= count; i++)
-                        Expanded(child: Center(child: marker(i))),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xFF0B3B81),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: PaperGrid(
-                      size: count,
-                      rows: count,
-                      outline: false,
-                      cell: cell,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
 class CrossGame extends StatefulWidget {
   final bool arrow;
   final bool free;
@@ -160,8 +85,16 @@ class _CrossGameState extends State<CrossGame> {
       ? freeCrossWordsForLevel(widget.level)
       : gazeteWordsForLevel(widget.arrow ? 'cengel' : 'kare', widget.level);
   // Cengel ile Kare bagimsiz gazete tahtalaridir.
-  int get size => widget.arrow ? 8 : widget.free ? freeCrossColumns(words) : 10;
-  int get rows => widget.arrow ? 11 : widget.free ? freeCrossRows(words) : 10;
+  int get size => widget.arrow
+      ? 8
+      : widget.free
+      ? freeCrossColumns(words)
+      : 10;
+  int get rows => widget.arrow
+      ? 11
+      : widget.free
+      ? freeCrossRows(words)
+      : 10;
   late final solution = <(int, int), String>{
     for (final w in words)
       for (var i = 0; i < w.text.length; i++) w.cells[i]: w.text[i],
@@ -175,7 +108,9 @@ class _CrossGameState extends State<CrossGame> {
   int active = 0, selected = 0;
   bool ready = false;
   String id((int, int) cell) => '${cell.$1},${cell.$2}';
-  int number(WordEntry w) => starts.indexOf((w.r, w.c)) + 1;
+  int number(WordEntry w) => !widget.arrow && !widget.free
+      ? (w.vertical ? w.c : w.r) + 1
+      : starts.indexOf((w.r, w.c)) + 1;
   @override
   void initState() {
     super.initState();
@@ -184,7 +119,11 @@ class _CrossGameState extends State<CrossGame> {
   }
 
   String get saveKey =>
-      'gazete_grid_${widget.free ? 'v2' : 'v5'}_${widget.arrow ? 'cengel' : widget.free ? 'capraz' : 'kare'}_${widget.level}';
+      'gazete_grid_${widget.free ? 'v2' : 'v5'}_${widget.arrow
+          ? 'cengel'
+          : widget.free
+          ? 'capraz'
+          : 'kare'}_${widget.level}';
   Future<void> restore() async {
     final data = await Store.read(saveKey);
     if (!mounted) return;
@@ -278,75 +217,18 @@ class _CrossGameState extends State<CrossGame> {
   Widget cell(int r, int c) {
     final pos = (r, c), key = id(pos);
     final has = solution.containsKey(pos);
+    final square = !widget.arrow && !widget.free;
     if (widget.arrow) {
       final hints = <int>[
         for (var i = 0; i < words.length; i++)
           if (words[i].clueCell == pos) i,
       ];
       if (hints.isNotEmpty) {
-        return Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFE7F3FF),
-            border: Border.all(color: const Color(0xFF2C5E8D), width: .55),
-          ),
-          child: Column(
-            children: [
-              for (final i in hints)
-                Expanded(
-                  child: InkWell(
-                    key: ValueKey('arrow_clue_$i'),
-                    onTap: () => choose(i),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: active == i
-                            ? const Color(0xFFADD5FF)
-                            : Colors.transparent,
-                        border: hints.length > 1 && i != hints.last
-                            ? const Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF8EABD0), width: .5))
-                            : null,
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 1),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Center(
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: SizedBox(
-                                  width: 43,
-                                  child: Text(
-                                    words[i].clue,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Color(0xFF162F4C),
-                                      fontSize: 10,
-                                      height: 1.02,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            words[i].vertical ? '↓' : '→',
-                            style: const TextStyle(
-                              color: Color(0xFF075FC2),
-                              fontSize: 8,
-                              height: .8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+        return _ArrowQuestionPanel(
+          hints: hints,
+          words: words,
+          active: active,
+          choose: choose,
         );
       }
     }
@@ -358,9 +240,11 @@ class _CrossGameState extends State<CrossGame> {
         decoration: BoxDecoration(
           color: widget.arrow
               ? const Color(0xFF0A467B)
+              : square
+              ? _squareBlock
               : const Color(0xFF07125D),
           border: Border.all(
-            color: const Color(0xFF2C5285),
+            color: square ? _squareRule : const Color(0xFF2C5285),
             width: .55,
           ),
         ),
@@ -369,6 +253,9 @@ class _CrossGameState extends State<CrossGame> {
     final inWord = words[active].cells.contains(pos);
     final current = words[active].cells[selected] == pos;
     final startNumber = starts.indexOf(pos) + 1;
+    final arrows = widget.arrow
+        ? words.where((w) => w.r == r && w.c == c).toList()
+        : const <WordEntry>[];
     return Semantics(
       label: has
           ? 'Satır ${r + 1}, sütun ${c + 1}, ${filled[key] ?? 'boş'}'
@@ -380,45 +267,56 @@ class _CrossGameState extends State<CrossGame> {
           key: ValueKey('cross_$r,$c'),
           decoration: BoxDecoration(
             color: current
-                ? const Color(0xFFFFCC73)
+                ? (square ? const Color(0xFFFFEB00) : const Color(0xFFFFCC73))
                 : inWord
-                ? const Color(0xFFD7E8FF)
-                : Colors.white,
+                ? (square ? const Color(0xFFFFFDE7) : const Color(0xFFD7E8FF))
+                : (square ? const Color(0xFFEAF5F5) : Colors.white),
             border: Border.all(
-              color: current ? rust : rule,
+              color: square ? _squareRule : (current ? rust : rule),
               width: current ? 1.7 : .4,
             ),
           ),
           child: Stack(
-                  children: [
-                    if (!widget.arrow && startNumber > 0)
-                      Positioned(
-                        top: 1,
-                        left: 2,
-                        child: Text(
-                          '$startNumber',
-                          style: const TextStyle(fontSize: 8, height: 1),
-                        ),
-                      ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: FittedBox(
-                          child: Text(
-                            filled[key] ?? '',
-                            style: TextStyle(
-                              fontSize: widget.arrow ? 24 : 22,
-                              fontWeight: FontWeight.w600,
-                              color: errors.contains(key)
-                                  ? Colors.red.shade800
-                                  : ink,
-                            ),
-                          ),
-                        ),
+            children: [
+              if (widget.free && startNumber > 0)
+                Positioned(
+                  top: 1,
+                  left: 2,
+                  child: Text(
+                    '$startNumber',
+                    style: const TextStyle(fontSize: 8, height: 1),
+                  ),
+                ),
+              if (arrows.isNotEmpty)
+                Positioned(
+                  top: 1,
+                  left: 2,
+                  child: Text(
+                    arrows.map((w) => w.vertical ? '↓' : '→').join(),
+                    style: const TextStyle(
+                      color: _squareRule,
+                      fontSize: 9,
+                      height: 1,
+                    ),
+                  ),
+                ),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: FittedBox(
+                    child: Text(
+                      filled[key] ?? '',
+                      style: TextStyle(
+                        fontSize: widget.arrow ? 24 : 22,
+                        fontWeight: FontWeight.w600,
+                        color: errors.contains(key) ? Colors.red.shade800 : ink,
                       ),
                     ),
-                  ],
+                  ),
                 ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -499,25 +397,27 @@ class _CrossGameState extends State<CrossGame> {
                         gridRows: rows,
                         minimumCellSize: 0,
                         onCheck: ready ? check : null,
-                        child: !widget.arrow && !widget.free
-                            ? NumberedNewspaperBoard(
-                                count: 10,
-                                cell: (r, c) => cell(r, c),
+                        child: widget.arrow
+                            ? ArrowPaperGrid(
+                                words: words,
+                                cell: (r, c, span, offset) => cell(r, c),
                               )
-                            : Container(
+                            : widget.free
+                            ? Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: const Color(0xFF0A3D7D),
-                                    width: 1.2,
+                                    width: 1.5,
                                   ),
                                 ),
                                 child: PaperGrid(
                                   size: size,
                                   rows: rows,
                                   outline: false,
-                                  cell: (r, c) => cell(r, c),
+                                  cell: cell,
                                 ),
-                              ),
+                              )
+                            : NumberedSquareBoard(cell: cell),
                       ),
                       if (!widget.arrow)
                         Row(
