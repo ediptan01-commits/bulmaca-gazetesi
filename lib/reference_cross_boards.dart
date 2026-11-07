@@ -80,15 +80,16 @@ class _ArrowQuestionPanel extends StatelessWidget {
                           )
                         : null,
                   ),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => Column(
-                      children: [
-                        Expanded(
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
                           child: Center(
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: SizedBox(
-                                width: 48,
+                                width: 47,
                                 child: Text(
                                   words[index].clue,
                                   textAlign: TextAlign.center,
@@ -102,17 +103,21 @@ class _ArrowQuestionPanel extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Text(
+                      ),
+                      Positioned(
+                        right: 2,
+                        bottom: 0,
+                        child: Text(
                           words[index].vertical ? '↓' : '→',
                           style: const TextStyle(
+                            color: Color(0xFFAC3B25),
                             fontSize: 9,
                             height: 1,
-                            color: Color(0xFFAC3B25),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
