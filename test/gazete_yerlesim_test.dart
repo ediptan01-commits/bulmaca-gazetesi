@@ -153,7 +153,7 @@ void main() {
     expect(find.byType(PaperGrid), findsNothing);
     expect(find.byKey(const ValueKey('arrow_clue_0')), findsOneWidget);
     expect(find.byType(ArrowPaperGrid), findsOneWidget);
-    expect(find.byKey(const ValueKey('gazete_block_0,0')), findsNothing);
+    expect(find.byKey(const ValueKey('gazete_block_0,0')), findsOneWidget);
     final question = find.byKey(const ValueKey('arrow_clue_0'));
     expect(question, findsOneWidget);
     final cluePosition = tester.getRect(question);
