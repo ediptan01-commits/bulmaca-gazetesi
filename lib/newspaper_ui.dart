@@ -384,7 +384,7 @@ class _CrossGameState extends State<CrossGame> {
                           // ayni ekrana sigmali: alt satirlari gizleme.
                           ? math.max(
                               120.0,
-                              (available.maxHeight - 106) * size / rows,
+                              (available.maxHeight - 54) * size / rows,
                             )
                           : 600.0,
                     ),
