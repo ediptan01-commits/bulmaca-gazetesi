@@ -16,15 +16,10 @@ void main() {
         final panels = arrowPanelRows(words);
         for (var r = 0; r < arrowRows; r++) {
           expect(panels[r].fold<int>(0, (n, p) => n + p.$2), arrowSize);
-          for (final panel in panels[r]) {
-            expect(
-              words.any(
-                (word) =>
-                    word.clueCell == (r, panel.$3) ||
-                    word.cells.contains((r, panel.$3)),
-              ),
-              isTrue,
-            );
+          // Gazete gorunumu: hicbir soru kutusu yatay genisleyemez.
+          expect(panels[r], hasLength(arrowSize));
+          for (var c = 0; c < arrowSize; c++) {
+            expect(panels[r][c], (c, 1, c));
           }
         }
         final letters = <(int, int), String>{};
