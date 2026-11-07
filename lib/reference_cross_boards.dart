@@ -54,7 +54,7 @@ class _ArrowQuestionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
-      color: const Color(0xFFFFF2AE),
+      color: const Color(0xFFFFF2B7),
       border: Border.all(color: rule, width: .5),
     ),
     child: Column(
@@ -73,7 +73,7 @@ class _ArrowQuestionPanel extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
-                    color: index == active ? const Color(0xFFFFDD66) : null,
+                    color: index == active ? const Color(0xFFFFDE7A) : null,
                     border: index != hints.last
                         ? const Border(
                             bottom: BorderSide(color: rule, width: .5),
@@ -81,16 +81,37 @@ class _ArrowQuestionPanel extends StatelessWidget {
                         : null,
                   ),
                   child: LayoutBuilder(
-                    builder: (context, constraints) => FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: SizedBox(
-                        width: math.max(52, constraints.maxWidth),
-                        child: Text(
-                          "${words[index].clue} ${words[index].vertical ? '↓' : '→'}",
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 11, height: 1.05),
+                    builder: (context, constraints) => Column(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: SizedBox(
+                                width: 48,
+                                child: Text(
+                                  words[index].clue,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    height: 1,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        Text(
+                          words[index].vertical ? '↓' : '→',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            height: 1,
+                            color: Color(0xFFAC3B25),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -103,49 +124,13 @@ class _ArrowQuestionPanel extends StatelessWidget {
 }
 
 // Question panels span the unused neighboring space; letter cells stay square.
+// Gazete cengeli: sabit 8 sutun, 11 satir. Soru ve cevaplar
+// komsu hucresini yutup buyuyemez; her hucresinin boyu esittir.
 List<List<(int, int, int)>> arrowPanelRows(List<WordEntry> words) {
-  final letters = {for (final w in words) ...w.cells};
-  final hints = words.map((w) => w.clueCell).toSet();
-  return List.generate(arrowRows, (r) {
-    final anchors = List.generate(arrowSize, (c) => c);
-    for (var c = 0; c < arrowSize; c++) {
-      if (letters.contains((r, c)) || hints.contains((r, c))) continue;
-      int? nearest;
-      for (
-        var distance = 1;
-        distance < arrowSize && nearest == null;
-        distance++
-      ) {
-        for (final target in [c - distance, c + distance]) {
-          if (target < 0 ||
-              target >= arrowSize ||
-              !hints.contains((r, target))) {
-            continue;
-          }
-          final lo = math.min(c, target), hi = math.max(c, target);
-          if (!List.generate(
-            hi - lo + 1,
-            (i) => (r, lo + i),
-          ).any(letters.contains)) {
-            nearest = target;
-          }
-        }
-      }
-      if (nearest == null) {
-        throw StateError('Soru paneline katılmayan boş kare: $r,$c');
-      }
-      anchors[c] = nearest;
-    }
-    final result = <(int, int, int)>[];
-    for (var c = 0; c < arrowSize;) {
-      final start = c, anchor = anchors[c];
-      while (c < arrowSize && anchors[c] == anchor) {
-        c++;
-      }
-      result.add((start, c - start, anchor));
-    }
-    return result;
-  });
+  return List.generate(
+    arrowRows,
+    (r) => List.generate(arrowSize, (c) => (c, 1, c)),
+  );
 }
 
 class ArrowPaperGrid extends StatelessWidget {
